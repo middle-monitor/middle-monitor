@@ -1,0 +1,49 @@
+/* Network View */
+.network-view { max-width: 100%; }
+.network-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.network-header h1 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+.network-header .subtitle { color: var(--text-tertiary); margin-top: 0.25rem; font-size: 0.875rem; }
+.network-header-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.network-host-select {
+  height: 42px;
+  min-height: 42px;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  min-width: 200px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.network-stats { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.network-stat-card { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; flex: 1; min-width: 180px; }
+.network-stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+.network-stat-icon.in { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.network-stat-icon.out { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.network-stat-icon.speed-in { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.network-stat-icon.speed-out { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.network-stat-value { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+.network-stat-label { font-size: 0.75rem; color: var(--text-tertiary); }
+
+.network-hosts { display: flex; flex-direction: column; gap: 1rem; }
+.network-loading { text-align: center; padding: 3rem; color: var(--text-tertiary); background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; }
+
+.network-host-card { background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; padding: 1.25rem; }
+.network-host-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.network-host-name { font-weight: 600; font-size: 0.95rem; }
+.network-host-status { margin-left: auto; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+.network-host-status.healthy { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.network-host-status.failing { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.network-host-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+.network-host-stats > div { display: flex; flex-direction: column; gap: 0.15rem; }
+.network-host-stats .label { font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; }
+.network-host-stats .value { font-size: 0.85rem; color: var(--text-primary); font-weight: 500; }
+.network-host-points { margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-tertiary); }
+
+.network-chart-card { background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+.network-chart-title { margin: 0 0 0.25rem; font-size: 1rem; color: var(--text-primary); }
+.network-chart-subtitle { margin: 0 0 1rem; font-size: 0.8rem; color: var(--text-tertiary); }
+.network-svg-chart { display: block; max-width: 100%; height: auto; }

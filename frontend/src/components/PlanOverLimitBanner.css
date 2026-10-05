@@ -1,0 +1,57 @@
+.plan-over-limit-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--status-warning-bg, #fef3c7);
+  border: 1px solid var(--status-warning-border, #fcd34d);
+  border-radius: 0.6rem;
+  color: var(--status-warning-text, #92400e);
+  font-size: 0.875rem;
+}
+
+.plan-over-limit-icon {
+  flex-shrink: 0;
+  font-size: 1.15rem;
+}
+
+.plan-over-limit-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.plan-over-limit-cta {
+  flex-shrink: 0;
+  padding: 0.4rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.825rem;
+  color: #fff;
+  background: #d97706;
+  border-radius: 0.45rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.plan-over-limit-cta:hover {
+  background: #b45309;
+}
+
+/* Close button of the dismissible ingestion limit banner. */
+.plan-over-limit-dismiss {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.plan-over-limit-dismiss:hover {
+  background: rgba(0, 0, 0, 0.06);
+}

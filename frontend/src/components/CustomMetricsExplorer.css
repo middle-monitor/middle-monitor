@@ -1,0 +1,123 @@
+/* Custom metric series explorer */
+.custom-metrics { background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; padding: 1.25rem; margin-top: 1.5rem; }
+
+.custom-metrics-header { margin-bottom: 1rem; }
+.custom-metrics-header h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
+.custom-metrics-header .subtitle { color: var(--text-secondary); margin-top: 0.25rem; font-size: 0.8125rem; }
+
+.custom-metrics-controls { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+.custom-metrics-controls label { display: flex; flex-direction: column; gap: 0.25rem; min-width: 180px; flex: 1; }
+.custom-metrics-controls label > span { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; }
+
+.custom-metrics-controls select,
+.custom-metrics-filter select {
+  height: 38px;
+  padding: 0.4rem 2rem 0.4rem 0.6rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.custom-metrics-controls select:disabled,
+.custom-metrics-filter select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.custom-metrics-filters { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; align-items: flex-start; }
+.custom-metrics-filter { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.custom-metrics-filter button {
+  height: 38px;
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.custom-metrics-filter button:hover { color: var(--text-primary); border-color: var(--border-secondary); }
+
+.custom-metrics-add-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.custom-metrics-add-filter:hover:not(:disabled) { color: var(--text-primary); border-color: var(--border-secondary); }
+.custom-metrics-add-filter:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.custom-metrics-chart { min-height: 280px; }
+.custom-metrics-message { text-align: center; padding: 3rem; color: var(--text-tertiary); font-size: 0.875rem; }
+.custom-metrics-truncated { font-size: 0.75rem; color: var(--text-tertiary); margin: 0.5rem 0 0; }
+
+.custom-metrics-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.8125rem; }
+.custom-metrics-table th { text-align: left; padding: 0.5rem; color: var(--text-tertiary); font-weight: 500; text-transform: uppercase; font-size: 0.6875rem; border-bottom: 1px solid var(--border-primary); }
+.custom-metrics-table td { padding: 0.5rem; color: var(--text-primary); border-bottom: 1px solid var(--border-primary); }
+.custom-metrics-table td:not(:first-child) { font-variant-numeric: tabular-nums; }
+
+.custom-metrics-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 0.5rem; vertical-align: middle; }
+
+/* Query builder: one row per query ($A, $B...) plus the expression combining them */
+.series-query-builder { margin-bottom: 1rem; }
+.series-query { border-left: 2px solid var(--border-primary); padding-left: 0.75rem; margin-bottom: 0.75rem; }
+.series-query .custom-metrics-controls { align-items: flex-end; }
+/* Builder-scoped so a host form (the dashboard widget modal) cannot restyle its labels. */
+.series-query-builder .custom-metrics-controls label { display: flex; margin-bottom: 0; }
+.series-query-ref {
+  align-self: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 1.75rem;
+}
+.series-query-remove {
+  height: 38px;
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.series-query-remove:hover { color: var(--text-primary); border-color: var(--border-secondary); }
+
+.series-query-builder-footer { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.series-query-builder .series-expression {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 38px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--surface-primary);
+  color: var(--text-tertiary);
+  box-sizing: border-box;
+}
+.series-query-builder .series-expression:focus-within { border-color: var(--border-secondary); }
+.series-query-builder .series-expression input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+}
+.series-expression-hint { font-size: 0.75rem; color: var(--text-tertiary); margin: 0.4rem 0 0; }

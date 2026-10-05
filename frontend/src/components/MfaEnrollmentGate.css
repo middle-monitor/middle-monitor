@@ -1,0 +1,170 @@
+.mfa-gate {
+  position: relative;
+}
+
+/* Dashboard stays visible but blurred and non-interactive while locked. */
+.mfa-gate-content {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.mfa-gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-bg);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.mfa-gate-modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.mfa-gate-icon {
+  margin-bottom: 0.25rem;
+}
+
+.mfa-gate-modal h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mfa-gate-message {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.mfa-gate-hint {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.mfa-qr {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px;
+}
+
+.mfa-secret {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  word-break: break-all;
+}
+
+.mfa-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.mfa-gate-form input {
+  width: 100%;
+  text-align: center;
+  letter-spacing: 0.3em;
+  font-size: 1.125rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.mfa-recovery-codes {
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.mfa-gate-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--status-warning);
+  text-align: left;
+  line-height: 1.5;
+}
+
+.mfa-gate-warning svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mfa-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mfa-gate-feedback-error {
+  font-size: 0.8125rem;
+  color: var(--status-error);
+  margin: 0;
+}
+
+.mfa-gate .auth-button {
+  width: 100%;
+}
+
+.mfa-gate-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.mfa-gate-logout {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.mfa-gate-logout:hover {
+  color: var(--text-primary);
+}

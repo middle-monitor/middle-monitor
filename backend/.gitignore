@@ -1,0 +1,28 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+.history/
+
+# Logs
+*.log
+
+# Build artifacts: never commit compiled binaries
+/backend
+/middle-monitor-api
+bin/
+dist/
+
+# Backup files
+*.backup
+*.bak
+
+# Cursor
+.cursor/
+
+# Coverage output (make coverage)
+cover.out
+cover.html

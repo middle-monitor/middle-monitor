@@ -1,0 +1,375 @@
+[
+  {
+    "id": "intro",
+    "title": "Introduction",
+    "category": "Getting Started",
+    "excerpt": "Platform overview: infrastructure monitoring, APM, distributed tracing, alerting.",
+    "keywords": [
+      "overview",
+      "features",
+      "observability",
+      "platform"
+    ],
+    "summary": "Middle Monitor covers infrastructure monitoring (CPU, RAM, disk and network on every machine via a lightweight binary agent), uptime checks (HTTP, SQL, ping, SSL certificate and SNMP, run periodically from the backend with no agent on the target), distributed tracing, error tracking with stacktraces grouped by fingerprint, continuous profiling, and rule-based alerting with AI-powered root cause analysis. Continuous profiling, alert rules, notification channels and maintenance windows are part of the Pro plan."
+  },
+  {
+    "id": "register",
+    "title": "Registration & Navigation",
+    "category": "Getting Started",
+    "excerpt": "Create your free organization and discover the dashboard.",
+    "keywords": [
+      "account",
+      "signup",
+      "organization",
+      "navigation",
+      "create"
+    ],
+    "summary": "Create your organization for free to get your dashboard. Once connected, the sidebar lets you navigate between the Middle Monitor sections: infrastructure, applications, monitoring and alerting."
+  },
+  {
+    "id": "two-factor",
+    "title": "Two-Factor Authentication",
+    "category": "Getting Started",
+    "excerpt": "Enable TOTP two-factor authentication per user, or enforce it organization-wide.",
+    "keywords": [
+      "2fa",
+      "totp",
+      "mfa",
+      "authenticator",
+      "recovery codes",
+      "security",
+      "enforce"
+    ],
+    "summary": "Middle Monitor supports TOTP-based two-factor authentication with Google Authenticator, 1Password, Authy or any compatible app. Each user enrolls from Account by scanning a QR code and confirming a 6-digit code, which issues a set of single-use recovery codes shown only once. An admin can require 2FA for every member from Settings and Security: members who have not enrolled are sent to the enrollment screen on their next sign-in and cannot disable their own 2FA while enforcement is active."
+  },
+  {
+    "id": "host-groups",
+    "title": "Host Groups",
+    "category": "Infrastructure",
+    "excerpt": "Group hosts by role so alert correlation stays scoped to a host and its group.",
+    "keywords": [
+      "group",
+      "hostgroup",
+      "correlation",
+      "scope",
+      "role",
+      "default"
+    ],
+    "summary": "A host group gathers the hosts that share the same logical role, for example every machine running one application. Alert correlation is scoped to a host and its group, so Middle Monitor looks for related signals only within that group rather than across the whole environment. Every organization has a Default group that new hosts join automatically, and deleting a group moves its hosts back to Default."
+  },
+  {
+    "id": "host",
+    "title": "Add a Host",
+    "category": "Infrastructure",
+    "excerpt": "Declare a physical or virtual machine before monitoring it.",
+    "keywords": [
+      "server",
+      "machine",
+      "virtual",
+      "add"
+    ],
+    "summary": "A Host is the top-level container representing a physical or virtual machine, and services, checks and agent metrics attach to it. You do not need to create one upfront: the agent registers its own host on first startup, matched by hostname within your organization. Create one manually only to set a display name or host group before installing the agent, or to add a check for something with no agent of its own, such as a managed database."
+  },
+  {
+    "id": "agent",
+    "title": "Install Agent",
+    "category": "Infrastructure",
+    "excerpt": "Install the binary agent to collect system metrics. One curl command.",
+    "keywords": [
+      "install",
+      "binary",
+      "curl",
+      "linux",
+      "macos",
+      "systemd",
+      "token"
+    ],
+    "summary": "The agent is a single static binary with no runtime dependencies. It runs as a background service and ships CPU, RAM, disk and network metrics every 60 seconds by default, configurable through the interval field in config.yaml. The install script detects Linux x86_64 and arm64 or macOS, registers the agent with systemd and starts it; the host needs outbound HTTPS access to the API. Configuration lives at /etc/middle-monitor/config.yaml and the install token comes from Settings, API Keys, Agent install tokens."
+  },
+  {
+    "id": "metrics",
+    "title": "System Metrics",
+    "category": "Infrastructure",
+    "excerpt": "CPU, RAM, disk, and network throughput collected on a configurable interval, 60 seconds by default.",
+    "keywords": [
+      "cpu",
+      "ram",
+      "disk",
+      "network",
+      "throughput",
+      "memory"
+    ],
+    "summary": "Once the agent runs, metrics appear on the host page within the first collection cycle. Each metric is stored as a dedicated agent service on the host (agent_cpu, agent_ram, agent_disk, agent_network). Collected automatically: CPU utilization across all cores and memory and root filesystem utilization as percentages, inbound and outbound throughput in bytes per second, and cumulative traffic counters."
+  },
+  {
+    "id": "scraping",
+    "title": "Prometheus Scraping",
+    "category": "Infrastructure",
+    "excerpt": "The agent pulls any Prometheus endpoint, filters series on the host, authenticates, and discovers targets from Nomad or http_sd.",
+    "keywords": [
+      "prometheus",
+      "scrape",
+      "node_exporter",
+      "nomad",
+      "http_sd",
+      "keep_metrics",
+      "relabel",
+      "bearer token",
+      "blackbox"
+    ],
+    "summary": "Beyond its own system metrics the agent pulls any endpoint serving the Prometheus text exposition format and ships the series with their labels. Series are filtered on the host with keep_metrics, drop_metrics, keep_if_labels and drop_labels, in that order, so what is dropped never crosses the network. Targets can present a bearer token (inline, from a file re-read at every scrape, or from the environment), basic auth, free headers and a tls_config including insecure_skip_verify and mTLS. Query parameters are set per target, and a list of values expands into one target per combination with the values attached as labels, which is what makes prober exporters like blackbox, script and dns usable. Fragment files under an include glob are merged and deduplicated by name so each deployment role can drop its own scrape config; --config-check validates before a restart and SIGHUP reloads without losing the running cycles. Discovery reads one or several Nomad blocks, each with its own service regex, metrics path, port override and tag-to-label mapping, DNS SRV records, or any endpoint answering the Prometheus http_sd format. The platform can also serve a scrape fragment for a host, which the agent fetches with its install token; it is off by default, validated by the API before it is stored, and a locally configured target wins over a served one of the same name. The agent can also serve everything it holds back in the Prometheus format so an existing Prometheus keeps scraping during the migration."
+  },
+  {
+    "id": "custom-metrics",
+    "title": "Custom Metrics",
+    "category": "Infrastructure",
+    "excerpt": "Query any labelled metric: filter, group by, aggregate or rate, combine queries with math, and scope to a host or host group.",
+    "keywords": [
+      "custom metrics",
+      "labels",
+      "series",
+      "group by",
+      "aggregation",
+      "percentile",
+      "correlation",
+      "host group",
+      "dashboard widget",
+      "alert",
+      "expression",
+      "rate",
+      "counter",
+      "ratio",
+      "math"
+    ],
+    "summary": "Any metric with arbitrary labels, scraped by the agent or pushed to the receiver as OTLP, is queryable from Infrastructure then Metrics. Pick a metric name, narrow it with label equality filters, break it down by a label, and aggregate with avg, min, max, sum, count, p50, p75, p90, p95 or p99, or turn a counter into a per-second rate computed per series so a restart is not read as a drop. Up to five queries, $A to $E, can be combined with an expression such as $A / $B * 100 using + - * /, parentheses, abs() and sum(); series are paired by labels, and a gap is left wherever a point is missing or a division is by zero. The scope selector answers the whole organization, one host group or a single host, and is resolved at query time against the current group membership so moving a host between groups re-reads history correctly. A group by producing more than eight series keeps the first eight. A dashboard chart widget can hold the same queries and expression, and an alert rule can watch a custom metric by setting custom_metric and custom_labels through the API, with the same aggregation, window and warning and critical thresholds as built-in rules."
+  },
+  {
+    "id": "limits",
+    "title": "Limits & Quotas",
+    "category": "Infrastructure",
+    "excerpt": "Metric ingestion is metered at 250 points per minute per plan host, pooled across the organization.",
+    "keywords": [
+      "limits",
+      "quota",
+      "points per minute",
+      "ingestion",
+      "budget",
+      "partial_success",
+      "rejected",
+      "drop_metrics",
+      "plan"
+    ],
+    "summary": "Metrics are metered in points per minute: every host a plan includes brings 250 points per minute, shared by the whole organization. Free gets 250 (1 host, 7 days of retention), Pro 2,500 (10 hosts, 30 days), a custom plan its purchased hosts times 250. A point is one value of one series received as an OTLP metric, from agent scraping, agent system metrics or SDK metrics; a histogram point counts twice. Past the limit within a minute, the extra points are rejected and the rest stored: the request is answered 200 with the OTLP partial_success field and a message the agent and SDKs log, and the next minute starts with a full budget. Settings shows the busiest minute of the last hour and the points rejected over 24 hours. To stay under it, drop histogram buckets with drop_metrics or scrape less often."
+  },
+  {
+    "id": "sdk",
+    "title": "SDK & OpenTelemetry",
+    "category": "Applications (APM)",
+    "excerpt": "Initialize the Go, Node.js, Python, or Rust SDK. Built on OpenTelemetry OTLP.",
+    "keywords": [
+      "opentelemetry",
+      "otlp",
+      "go",
+      "node",
+      "python",
+      "rust",
+      "token",
+      "initialize"
+    ],
+    "summary": "The SDKs are built on OpenTelemetry (OTLP) and add Middle Monitor features on top: error grouping, profiling and RCA correlation. Create an Error Service from the Errors page to get its token, which authenticates the errors, traces and profiles sent for that service. All four SDKs read the same environment variables when initialized without an explicit config (MIDDLE_MONITOR_API_URL, MIDDLE_MONITOR_SERVICE, MIDDLE_MONITOR_TOKEN, MIDDLE_MONITOR_PROTOCOL, MIDDLE_MONITOR_TRACES_SAMPLING and the log-level variables), each falling back to the matching OTEL_ standard variable. The Node.js package ships its own TypeScript definitions, so there is no separate TypeScript package."
+  },
+  {
+    "id": "errors",
+    "title": "Errors & Exceptions",
+    "category": "Applications (APM)",
+    "excerpt": "Automatic panic/exception capture with full stacktraces. Manual reporting with metadata tags.",
+    "keywords": [
+      "exception",
+      "panic",
+      "stacktrace",
+      "crash",
+      "capture",
+      "report"
+    ],
+    "summary": "Wire the global capture once at startup to report unhandled panics and exceptions, then report caught errors manually where you handle them. Each error is reported with its full stacktrace, file and exact line, and occurrences are grouped by a stable fingerprint so recurrences and regressions are detected."
+  },
+  {
+    "id": "correlation-links",
+    "title": "Correlation Links",
+    "category": "Applications (APM)",
+    "excerpt": "Link an app to the hosts/services it depends on so error details show infra & dependency context.",
+    "keywords": [
+      "correlation",
+      "link",
+      "context",
+      "rca",
+      "database",
+      "host",
+      "dependency",
+      "trace",
+      "suggestion"
+    ],
+    "summary": "A correlation link connects one of your applications to the monitored hosts and services it depends on, such as its database, cache or the machine it runs on, or directly to another application it calls. Once linked, the error details panel shows what was happening around that resource at the moment of the error, turning a raw stacktrace into context like a database host with a full disk. Middle Monitor also infers candidates from your distributed traces and proposes them for you to accept or ignore."
+  },
+  {
+    "id": "traces",
+    "title": "Distributed Traces",
+    "category": "Applications (APM)",
+    "excerpt": "Follow requests across microservices. Auto-instrument HTTP with one middleware line.",
+    "keywords": [
+      "span",
+      "middleware",
+      "http",
+      "distributed",
+      "request",
+      "context"
+    ],
+    "summary": "Distributed traces let you follow a request's full lifecycle across services and databases. The SDKs auto-instrument your HTTP layer through middleware: Echo, Gin and net/http in Go, Express in Node.js, Flask in Python and axum in Rust. For non-HTTP work such as queue consumers, background jobs or database calls, you create manual spans with the standard OpenTelemetry API, which the SDK is built on."
+  },
+  {
+    "id": "profiling",
+    "title": "Continuous Profiling",
+    "category": "Applications (APM)",
+    "excerpt": "Heap and CPU flame graphs from production via pprof integration.",
+    "keywords": [
+      "heap",
+      "pprof",
+      "memory",
+      "performance",
+      "cpu",
+      "flamegraph"
+    ],
+    "summary": "Continuous profiling captures heap and CPU profiles from production services and renders them as interactive flame graphs. It is implemented in the Go SDK only for now, through a native integration with net/http/pprof; the Node.js, Python and Rust SDKs do not expose an equivalent yet. Profiling is not automatic: you start the pprof server in your own service and schedule the captures, and Middle Monitor stores and renders what your app sends."
+  },
+  {
+    "id": "services",
+    "title": "Create a Service",
+    "category": "Monitoring",
+    "excerpt": "Services represent endpoints, databases, or certificates to monitor.",
+    "keywords": [
+      "check",
+      "uptime",
+      "create"
+    ],
+    "summary": "A Service represents an endpoint, database or certificate to monitor. Attach it to a host and pick a check type (HTTP, ping, SQL, SSL certificate or SNMP), and the backend then polls it periodically without needing an agent on the target machine."
+  },
+  {
+    "id": "checks",
+    "title": "Check Details",
+    "category": "Monitoring",
+    "excerpt": "HTTP, ping, SQL, SSL certificate and SNMP checks with configurable latency thresholds.",
+    "keywords": [
+      "http",
+      "ping",
+      "sql",
+      "ssl",
+      "certificate",
+      "latency",
+      "threshold",
+      "snmp"
+    ],
+    "summary": "Checks are executed periodically by the Middle Monitor backend workers, so no agent is required on the target. HTTP and HTTPS checks verify the status code, measure response time against warning and critical thresholds and can assert a keyword or JSON path, with Bearer and Basic authentication supported. Ping uses ICMP for reachability and round-trip latency. SQL performs a connection check plus built-in diagnostics for locks, replication lag and connection saturation, with no user-provided query. SSL certificate checks validity and expiry against a days-before-expiry threshold, and SNMP reads a numeric OID over UDP 161."
+  },
+  {
+    "id": "channels",
+    "title": "Notification Channels",
+    "category": "Alerting",
+    "excerpt": "Slack, email, JSM, WhatsApp and webhook channels, with a typed payload, signature, retries and grouping.",
+    "keywords": [
+      "slack",
+      "email",
+      "webhook",
+      "whatsapp",
+      "jsm",
+      "jira",
+      "pagerduty",
+      "hmac",
+      "signature",
+      "retry",
+      "group_by"
+    ],
+    "summary": "Email alerts are delivered through your organization's own SMTP server, configured once in Settings. Slack uses an incoming webhook URL. Jira Service Management uses an API key and creates alerts that auto-close on resolution. WhatsApp uses the Meta WhatsApp Business Cloud API. The generic webhook sends a JSON POST, by default in the Slack-compatible shape; setting format to structured sends a typed payload instead, carrying the event type, the incident id, a stable dedup_key, the severity as an enumerated value, the rule with its threshold and observed value, and the impacted host and service. Events are published for every transition: incident.opened, incident.escalated, incident.acknowledged, incident.resolved and incident.reopened. Each request carries X-Middmonitor-Timestamp and X-Middmonitor-Signature-256, an HMAC-SHA256 over timestamp plus body so a replayed capture can be rejected, alongside the original body-only signature. Failed deliveries are retried with backoff over roughly fifteen minutes, every attempt is recorded and can be replayed from the API, A channel can also ask for a periodic heartbeat event, so a receiver can tell silence meaning nothing is wrong from silence meaning the notification path is dead. group_by with group_wait folds a burst into a single delivery while repeat_interval throttles repeats without ever suppressing a resolution."
+  },
+  {
+    "id": "incidents",
+    "title": "Incident Management",
+    "category": "Alerting",
+    "excerpt": "Incident lifecycle from open to resolved, acknowledged by a person or by an automated system.",
+    "keywords": [
+      "incident",
+      "acknowledge",
+      "resolve",
+      "dedup_key",
+      "automation",
+      "idempotent"
+    ],
+    "summary": "An incident opens when a rule breaches its threshold and moves through open, acknowledged and resolved. A resolution can come from the condition clearing or from a person closing it. An automated system acknowledges through PUT /incidents/{id}/status with a note and an actor field, since acknowledged_by is a user id and the acknowledger may be a machine. Acknowledging is idempotent: replaying it answers 200 and keeps the first acknowledgement time. The response carries the dedup_key, and PUT /incidents/dedup/{key}/status accepts that key in place of the numeric id so a webhook receiver stores nothing between two messages."
+  },
+  {
+    "id": "api-auth",
+    "title": "API Authentication",
+    "category": "REST API",
+    "excerpt": "Authenticate with JWT Bearer tokens or long-lived API keys via Authorization: Bearer header.",
+    "keywords": [
+      "jwt",
+      "bearer",
+      "login",
+      "refresh",
+      "authentication",
+      "api key",
+      "personal token",
+      "organization key",
+      "install token"
+    ],
+    "summary": "Two authentication methods are supported, both through the Authorization Bearer header, which the server disambiguates automatically. A JWT access token obtained from the login endpoint is valid 24 hours and is paired with a refresh token valid 7 days whose only purpose is to exchange for a fresh pair. Long-lived API keys carry an mm_ prefix and are created from Settings or the API itself; an organization key has read and write access to the organization API but never reaches admin-only endpoints, while a personal token authenticates as you with your own role. An expiry date is mandatory."
+  },
+  {
+    "id": "api-endpoints",
+    "title": "API Endpoints",
+    "category": "REST API",
+    "excerpt": "Hosts, host groups, services, errors, alert rules, incidents, channels, webhook deliveries and agent releases.",
+    "keywords": [
+      "rest",
+      "endpoints",
+      "hosts",
+      "services",
+      "curl",
+      "json",
+      "rules",
+      "openapi",
+      "pagination",
+      "rate limit"
+    ],
+    "summary": "All endpoints are versioned under /api/v1 and return JSON, with organization-scoped resources nested under /api/v1/organizations/{slug}/. The whole API is described by an OpenAPI document served without authentication at /openapi.json, generated from the routes the server registers. List endpoints accept limit and offset and return the total in X-Total-Count; since and until bound a listing on incidents, errors and service results, in RFC 3339 or unix seconds. Hosts and host groups are unique by name per organization, so re-creating one answers 409 with the existing id in the body, while services, alert rules and notification channels have no natural key and a replayed creation duplicates. An Idempotency-Key header on a create makes a retry replay the first answer instead of creating a second row, which is what closes the gap for the resources with no natural key. The authentication, contact and public status endpoints are rate limited per IP and publish RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset, with Retry-After on a 429; organization-scoped routes are not limited today. Beyond the core resources the API covers host groups, webhook deliveries with replay, and the public agent release endpoints that publish the version, the sha256 and pinnable download URLs."
+  },
+  {
+    "id": "terraform-setup",
+    "title": "Terraform Setup",
+    "category": "Terraform Provider",
+    "excerpt": "Configure the middmonitor provider with base_url, access_token, org_slug.",
+    "keywords": [
+      "iac",
+      "provider",
+      "configuration",
+      "hcl",
+      "variables"
+    ],
+    "summary": "Declare the middmonitor provider in versions.tf, then configure base_url, access_token and org_slug, plus receiver_base_url when the receiver is served on its own hostname. access_token accepts either an organization API key (mm_) or a JWT from POST /api/v1/auth/login; use the API key outside an interactive session, since a JWT expires after 24 hours. All arguments can be supplied through MIDDLE_MONITOR_ environment variables instead - note the prefix is MIDDLE_MONITOR_, not MIDDMONITOR_, and a misspelled prefix fails on a missing argument rather than on the credential. Run terraform init then terraform plan before apply, and use terraform import on first run against an existing organization to bring resources under management without recreating them."
+  },
+  {
+    "id": "terraform-resources",
+    "title": "Resources & Data Sources",
+    "category": "Terraform Provider",
+    "excerpt": "Hosts, host groups, services, install tokens, alert rules, notification channels and maintenance windows.",
+    "keywords": [
+      "terraform",
+      "provider",
+      "resource",
+      "alert rule",
+      "notification channel",
+      "maintenance window",
+      "host group"
+    ],
+    "summary": "The provider exposes seven resources — middmonitor_host, middmonitor_host_group, middmonitor_service, middmonitor_install_token, middmonitor_alert_rule, middmonitor_notification_channel and middmonitor_maintenance_window — plus two data sources, middmonitor_organization and middmonitor_agent_install. Alerting is fully manageable from Terraform; nothing has to be configured from the dashboard. On a host, name and hostname are immutable and changing either forces replacement; only display_name updates in place. Provider argument names are not always the REST API shape: an alert rule takes custom_labels as a map(string) where the API takes a list of key/value objects, and it has no type argument. A service exposes warning_threshold and critical_threshold besides the legacy failure_threshold. A notification channel config is a JSON string that Terraform cannot validate, so a wrong key such as url instead of webhook_url applies cleanly and delivers nowhere. A maintenance window has no update in the API, so any change replaces it."
+  }
+]

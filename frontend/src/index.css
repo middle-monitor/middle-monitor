@@ -1,0 +1,576 @@
+@import 'tailwindcss';
+
+/* Build-time SEO prerender (scripts/seo-prerender.mjs) injects static markup
+   into #root for crawlers that don't run JS. React discards it on mount, but the
+   browser paints it first — an unstyled flash on every load. This stylesheet is
+   render-blocking, so the block never paints; crawlers that don't apply CSS
+   still read it. */
+[data-prerender] {
+  display: none;
+}
+
+/* ============================================
+   Middle-Monitor Design System
+   d/s inspired - Light/Dark Mode
+   ============================================ */
+
+/* Light Mode (Default) */
+:root {
+  /* Background colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f1f3f5;
+  --bg-elevated: #ffffff;
+  --bg-hover: #f1f3f5;
+  --bg-active: #e9ecef;
+
+  /* Surface colors (cards, modals) */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8f9fa;
+  --surface-elevated: #ffffff;
+
+  /* Border colors */
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+  --border-hover: #9ca3af;
+
+  /* Text colors */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-muted: #d1d5db;
+  --text-inverse: #ffffff;
+
+  /* Brand colors */
+  --brand-primary: #8b5cf6; /* Purple base */
+  --brand-primary-hover: #a78bfa;
+  --brand-primary-light: rgba(139, 92, 246, 0.15);
+  --brand-primary-border: rgba(139, 92, 246, 0.4);
+
+  /* Status colors */
+  --status-success: #10b981;
+  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-success-border: rgba(16, 185, 129, 0.4);
+
+  --status-warning: #f59e0b;
+  --status-warning-bg: rgba(245, 158, 11, 0.15);
+  --status-warning-border: rgba(245, 158, 11, 0.4);
+
+  --status-error: #ec4899;
+  --status-error-bg: rgba(236, 72, 153, 0.15);
+  --status-error-border: rgba(236, 72, 153, 0.4);
+
+  --status-info: #06b6d4;
+  --status-info-bg: rgba(6, 182, 212, 0.15);
+  --status-info-border: rgba(6, 182, 212, 0.4);
+
+  /* Sidebar */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-item-hover: #f3f4f6;
+  --sidebar-item-active: rgba(139, 92, 246, 0.1);
+  --sidebar-item-active-border: #8b5cf6;
+
+  /* UI scale */
+  --layout-content-max: 1280px;
+  --layout-content-padding: clamp(0.875rem, 1.5vw, 1.25rem);
+  --card-padding: 0.75rem;
+  --card-gap: 0.75rem;
+  --card-radius: 8px;
+  --sidebar-width: 212px;
+  --sidebar-collapsed-width: 64px;
+  --page-title-size: 1.25rem;
+  --stat-value-size: 1.5rem;
+  --public-content-max: 1120px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Modal overlay */
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+
+  /* Scrollbar */
+  --scrollbar-track: #f1f3f5;
+  --scrollbar-thumb: #d1d5db;
+  --scrollbar-thumb-hover: #9ca3af;
+}
+
+/* Dark Mode */
+:root.dark {
+  /* Background colors (Linear/Vercel inspired deep dark) */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0c;
+  --bg-tertiary: #121214;
+  --bg-elevated: #16161a;
+  --bg-hover: #1e1e22;
+  --bg-active: #27272b;
+
+  /* Surface colors (cards, modals) - Glassmorphism hint */
+  --surface-primary: rgba(15, 15, 20, 0.6);
+  --surface-secondary: rgba(25, 25, 30, 0.6);
+  --surface-elevated: rgba(30, 30, 35, 0.8);
+
+  /* Border colors */
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --border-secondary: rgba(255, 255, 255, 0.15);
+  --border-hover: rgba(255, 255, 255, 0.25);
+
+  /* Text colors */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #71717a;
+  --text-muted: #52525b;
+  --text-inverse: #000000;
+
+  /* Brand colors (Vibrant purple/cyan like home) */
+  --brand-primary: #8b5cf6;
+  --brand-primary-hover: #a78bfa;
+  --brand-primary-light: rgba(139, 92, 246, 0.15);
+  --brand-primary-border: rgba(139, 92, 246, 0.4);
+
+  /* Status colors (Vibrant for dark mode) */
+  --status-success: #34d399;
+  --status-success-bg: rgba(52, 211, 153, 0.15);
+  --status-success-border: rgba(52, 211, 153, 0.3);
+
+  --status-warning: #fbbf24;
+  --status-warning-bg: rgba(251, 191, 36, 0.15);
+  --status-warning-border: rgba(251, 191, 36, 0.3);
+
+  --status-error: #f472b6; /* Pinkish error */
+  --status-error-bg: rgba(244, 114, 182, 0.15);
+  --status-error-border: rgba(244, 114, 182, 0.3);
+
+  --status-info: #22d3ee; /* Cyan info */
+  --status-info-bg: rgba(34, 211, 238, 0.15);
+  --status-info-border: rgba(34, 211, 238, 0.3);
+
+  /* Sidebar */
+  --sidebar-bg: #000000;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-item-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-item-active: rgba(139, 92, 246, 0.15);
+  --sidebar-item-active-border: #8b5cf6;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+
+  /* Modal overlay */
+  --overlay-bg: rgba(0, 0, 0, 0.8);
+
+  /* Scrollbar */
+  --scrollbar-track: #0a0a0c;
+  --scrollbar-thumb: #27272b;
+  --scrollbar-thumb-hover: #3f3f46;
+}
+
+/* Tailwind theme integration */
+@theme {
+  /* Gray scale mapped for deeper darks */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f4f4f5;
+  --color-gray-200: #e4e4e7;
+  --color-gray-300: #d4d4d8;
+  --color-gray-400: #a1a1aa;
+  --color-gray-500: #71717a;
+  --color-gray-600: #52525b;
+  --color-gray-700: #3f3f46;
+  --color-gray-800: #27272a;
+  --color-gray-900: #18181b;
+  --color-gray-950: #09090b;
+
+  /* Brand */
+  --color-brand-50: #f5f3ff;
+  --color-brand-100: #ede9fe;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c3aed;
+  --color-brand-700: #6d28d9;
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;
+
+  /* Status colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ec4899;
+  --color-info: #06b6d4;
+
+  /* Shared brand logo - homogeneous across all pages */
+  --brand-logo-gradient: linear-gradient(
+    135deg,
+    var(--brand-primary) 0%,
+    var(--status-info) 100%
+  );
+  --brand-logo-radius: 8px;
+  --brand-logo-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
+}
+
+@layer base {
+  * {
+    border-color: var(--border-primary);
+  }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family:
+      'Plus Jakarta Sans',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      'Roboto',
+      'Inter',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    font-size: 15px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--brand-primary-light);
+    color: var(--text-primary);
+  }
+}
+
+/* Utility classes for theme-aware colors */
+@layer utilities {
+  .bg-theme-primary {
+    background-color: var(--bg-primary);
+  }
+
+  .bg-theme-secondary {
+    background-color: var(--bg-secondary);
+  }
+
+  .bg-theme-tertiary {
+    background-color: var(--bg-tertiary);
+  }
+
+  .bg-theme-surface {
+    background-color: var(--surface-primary);
+  }
+
+  .text-theme-primary {
+    color: var(--text-primary);
+  }
+
+  .text-theme-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-theme-tertiary {
+    color: var(--text-tertiary);
+  }
+
+  .border-theme-primary {
+    border-color: var(--border-primary);
+  }
+
+  .border-theme-secondary {
+    border-color: var(--border-secondary);
+  }
+
+  .shadow-theme-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-theme-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-theme-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Shared brand logo icon - homogeneous across Home, Sidebar, Doc, Auth */
+  .brand-logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: var(--brand-logo-gradient);
+    border-radius: var(--brand-logo-radius);
+    box-shadow: var(--brand-logo-shadow);
+  }
+  .brand-logo-icon-sm {
+    width: 24px;
+    height: 24px;
+    font-size: 0.875rem;
+  }
+  .brand-logo-icon-md {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+  .brand-logo-icon-lg {
+    width: 32px;
+    height: 32px;
+    font-size: 1.125rem;
+  }
+  .brand-logo-icon-xl {
+    width: 44px;
+    height: 44px;
+    font-size: 1.375rem;
+  }
+}
+
+/* Shared date range trigger (Logs, Traces, Metrics, etc.) */
+.date-range-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.date-range-trigger:hover {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary-light);
+}
+
+/* ============================================
+   Shared Page Headers (consistent across views)
+   ============================================ */
+.page-header,
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.page-title,
+.view-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle,
+.view-header .subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.view-header h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-header h2 + .subtitle {
+  margin-top: 0.25rem;
+}
+
+/* Mobile: shared page/view headers stack so the title and any right-side
+   actions/subtitle wrap onto their own rows instead of overflowing. */
+@media (max-width: 640px) {
+  .page-header,
+  .view-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+}
+
+/* ============================================
+   Shared Form Controls (aligned input/select)
+   ============================================ */
+
+/* Custom chevron icon for all selects (replaces the native arrow) */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M12.53 16.28a.75.75 0 01-1.06 0l-7.5-7.5a.75.75 0 011.06-1.06L12 14.69l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.125rem;
+}
+
+.form-control {
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: border-color 0.15s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+.form-control::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Shared alert-modal form (API Keys, Alerts, Incidents, etc.) */
+.alert-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.alert-modal {
+  background: var(--surface-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-primary);
+}
+
+.alert-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.alert-modal-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.alert-form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.form-row label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  min-height: 42px;
+  height: 42px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  box-sizing: border-box;
+}
+
+.form-row select {
+  min-height: 42px;
+  height: 42px;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.form-row textarea {
+  height: auto;
+  min-height: 60px;
+}
+
+.form-row textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+.form-row-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.form-row-group .form-row {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-primary);
+}

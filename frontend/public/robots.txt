@@ -1,0 +1,23 @@
+# Middle Monitor — all crawlers welcome, including AI answer engines.
+# Google-Extended, GPTBot, ClaudeBot, PerplexityBot, etc. inherit this block
+# (no per-bot Disallow), so the marketing pages can be used and cited by them.
+User-agent: *
+Allow: /
+
+# The authenticated app has no public content to index.
+Disallow: /organizations/
+Disallow: /login
+Disallow: /account
+Disallow: /reset-password
+Disallow: /accept-invite
+Disallow: /verify-email
+Disallow: /unsub
+
+Sitemap: https://middlemonitor.io/sitemap.xml
+
+# Machine-readable documentation, for the agents that read docs rather than
+# render them: an index and the whole thing in one request.
+# https://llmstxt.org/
+# /llms.txt
+# /llms-full.txt
+# /openapi.json

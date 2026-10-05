@@ -1,0 +1,147 @@
+/* ============================================
+   Shared marketing-site header (Home, Docs, Pricing)
+   Dark by default; pages that support light mode (Docs)
+   override the --site-header-* variables to follow theirs.
+   ============================================ */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--site-header-bg, rgba(9, 9, 11, 0.85));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--site-header-border, rgba(255, 255, 255, 0.08));
+}
+
+.site-header-inner {
+  max-width: var(--public-content-max);
+  margin: 0 auto;
+  padding: 0.875rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--site-header-text, #ffffff);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.site-logo-icon {
+  flex-shrink: 0;
+}
+
+.site-nav {
+  display: none;
+}
+@media (min-width: 768px) {
+  .site-nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+}
+
+.site-nav-link {
+  color: var(--site-header-muted, #a1a1aa);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.site-nav-link:hover {
+  color: var(--site-header-text, #ffffff);
+}
+
+.site-nav-active {
+  color: var(--site-header-accent, #8b5cf6);
+}
+
+.site-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.site-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.site-btn-ghost {
+  color: var(--site-header-muted, #a1a1aa);
+  background: transparent;
+}
+.site-btn-ghost:hover {
+  color: var(--site-header-text, #ffffff);
+  background: var(--site-header-hover, rgba(255, 255, 255, 0.06));
+}
+
+.site-btn-primary {
+  background: var(--site-header-btn-primary-bg, #ffffff);
+  color: var(--site-header-btn-primary-text, #09090b);
+}
+.site-btn-primary:hover {
+  background: var(--site-header-btn-primary-hover, #e4e4e7);
+  transform: translateY(-1px);
+}
+
+.site-btn-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ============================================
+   Mobile (< 768px, where .site-nav is already hidden)
+   The logo, language switcher and both auth buttons don't fit a phone:
+   the primary CTA was being cut off at the right edge. Tighten spacing,
+   keep the logo on one line, and drop the secondary "sign in" button —
+   the primary CTA stays reachable, unlike on Docs which swaps in a
+   mobile-nav trigger instead.
+   ============================================ */
+@media (max-width: 767px) {
+  .site-header-inner {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .site-logo {
+    font-size: 1rem;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .site-header-actions {
+    gap: 0.5rem;
+  }
+
+  .site-btn {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .site-btn-group .site-btn-ghost {
+    display: none;
+  }
+}

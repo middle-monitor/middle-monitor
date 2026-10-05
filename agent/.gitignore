@@ -1,0 +1,17 @@
+# Secrets
+.env
+.env.*
+config.yaml
+!config.yaml.example
+
+# OS / editors
+.DS_Store
+.history/
+
+# Logs
+*.log
+
+# Build artifacts
+/middle-monitor-agent
+/middle-monitor-agent-*
+dist/

@@ -1,0 +1,57 @@
+.number-input {
+  position: relative;
+  width: 100%;
+}
+
+/* Reserve room on the right for the steppers (overrides .input's padding-right
+   via the extra `.number-input` ancestor specificity). */
+.number-input .number-input-field {
+  width: 100%;
+  padding-right: 1.9rem;
+}
+
+.number-input .number-input-field::-webkit-inner-spin-button,
+.number-input .number-input-field::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.number-input-steppers {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  display: flex;
+  flex-direction: column;
+  width: 1.5rem;
+  border-left: 1px solid var(--border-primary);
+  overflow: hidden;
+  border-radius: 0 7px 7px 0;
+}
+
+.number-input-step {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: var(--surface-secondary);
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.number-input-step + .number-input-step {
+  border-top: 1px solid var(--border-primary);
+}
+
+.number-input-step:hover {
+  background: var(--surface-elevated);
+  color: var(--brand-primary);
+}
+
+.number-input-step:active {
+  background: var(--brand-primary-light);
+}

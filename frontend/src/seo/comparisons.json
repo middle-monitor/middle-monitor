@@ -1,0 +1,258 @@
+{
+  "intro": {
+    "h1": "Middle Monitor alternatives comparison",
+    "lead": "How Middle Monitor covers the jobs teams currently use other observability, error tracking, uptime and infrastructure monitoring tools for.",
+    "note": "These pages describe what Middle Monitor does. They deliberately avoid quoting competitor pricing or feature matrices, which change often and are best checked on the vendor's own site."
+  },
+  "pages": [
+    {
+      "slug": "datadog",
+      "competitor": "Datadog",
+      "h1": "A Datadog alternative for teams that want one platform, not one bill per signal",
+      "lead": "Middle Monitor unifies traces, metrics, logs and error tracking in a single OpenTelemetry-native platform. It is aimed at engineering teams who want full-stack correlation without an enterprise procurement cycle.",
+      "fair": "Datadog is a mature, extremely broad platform with a large integration catalogue. If you need hundreds of turnkey integrations or deep enterprise compliance tooling, it remains a strong fit.",
+      "sections": [
+        {
+          "title": "One platform across four signals",
+          "body": "Traces, metrics, logs and errors land in the same system rather than in four tools. Correlation links tie an application to the hosts and services it depends on, so an error detail view shows the infrastructure and dependency checks that were failing in the same window."
+        },
+        {
+          "title": "OpenTelemetry-native, so you are not locked in",
+          "body": "Instrumentation is standard OTLP. The Go, Node.js, Python, Rust and browser SDKs wrap OpenTelemetry rather than replacing it, so the same instrumentation can be pointed elsewhere if you ever move."
+        },
+        {
+          "title": "Infrastructure without agent configuration",
+          "body": "The binary agent installs with a single command on Linux and macOS and reports CPU, memory, disk and network on a configurable interval, 60 seconds by default. Host groups scope alert correlation to a machine and its role."
+        },
+        {
+          "title": "Transparent, self-serve pricing",
+          "body": "A free tier covers one host with 7-day retention. Pro covers up to 10 hosts, 50 monitored services, continuous profiling and 30-day retention. There is no per-signal quote process."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can Middle Monitor replace Datadog APM?",
+          "a": "For distributed tracing, error tracking, continuous profiling and alerting, yes — those are core Middle Monitor features. Teams with a large existing library of Datadog-specific integrations should check that catalogue coverage first."
+        },
+        {
+          "q": "Does migrating require re-instrumenting my services?",
+          "a": "If you already emit OpenTelemetry, you point the OTLP exporter at Middle Monitor. If you use Datadog's proprietary tracer, you move to the OpenTelemetry SDK for your language first."
+        }
+      ]
+    },
+    {
+      "slug": "sentry",
+      "competitor": "Sentry",
+      "h1": "A Sentry alternative where errors are not a separate silo",
+      "lead": "Middle Monitor captures unhandled panics and exceptions with full stacktraces, file and line — and then correlates them with the host metrics and service checks from the same time window.",
+      "fair": "Sentry is a focused, very well-executed error tracking product with broad framework coverage and strong release health tooling. If error tracking is all you need, it is a specialist worth considering.",
+      "sections": [
+        {
+          "title": "Automatic capture, manual reporting when you want it",
+          "body": "The SDKs capture unhandled errors on their own and expose a manual reporting call for caught errors, with metadata tags. Every error carries its full stacktrace down to the exact line."
+        },
+        {
+          "title": "Errors linked to infrastructure context",
+          "body": "Correlation links tie an application to the hosts and services it depends on. When an error spikes, the detail view surfaces the failing database check or the CPU saturation on the host behind it, rather than leaving you to correlate by timestamp."
+        },
+        {
+          "title": "Same SDK for errors, traces, logs and profiling",
+          "body": "One initialization in Go, Node.js, Python or Rust turns on error capture, HTTP request tracing and log forwarding together, and the browser SDK covers errors and fetch/XHR tracing. There is no second vendor SDK to add later."
+        },
+        {
+          "title": "Root cause analysis on top",
+          "body": "An RCA engine correlates anomalies across signals within a fifteen-minute window and qualifies them into incidents, so an error rate spike arrives with a likely cause attached."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Does Middle Monitor show full stacktraces like Sentry?",
+          "a": "Yes. Each captured error is reported with its complete stacktrace, including the file and exact line."
+        },
+        {
+          "q": "Can I use Middle Monitor for frontend errors?",
+          "a": "Yes, through the browser SDK, which is framework-agnostic and authenticates with a service token."
+        }
+      ]
+    },
+    {
+      "slug": "nagios",
+      "competitor": "Nagios, Icinga and Zabbix",
+      "h1": "An alternative to Nagios, Icinga and Zabbix without the configuration overhead",
+      "lead": "Middle Monitor's agent collects CPU, memory, disk and network metrics automatically once installed, so the common case does not require writing per-check definitions by hand.",
+      "fair": "Nagios, Icinga and Zabbix are proven, self-hostable and endlessly extensible. If you need full on-premise control or have an established library of custom check plugins, that flexibility is real and hard to replace.",
+      "sections": [
+        {
+          "title": "Metrics without per-check definitions",
+          "body": "Install the binary agent with one command on Linux or macOS. It runs in the background and reports system metrics on a configurable interval, 60 seconds by default — no check definition files, no per-metric configuration."
+        },
+        {
+          "title": "The check types you actually configure",
+          "body": "HTTP and HTTPS with expected keywords and latency thresholds, ICMP ping, SQL connection checks, SSL certificate expiry, and SNMP. Checks are executed periodically by the Middle Monitor backend, so nothing has to be installed on the target."
+        },
+        {
+          "title": "Alerting built in, not bolted on",
+          "body": "Slack, email, Jira Service Management, WhatsApp and SMS, or a generic JSON webhook. Each channel can be toggled without touching configuration files. Alerts fire only after N consecutive bad results, so a single blip does not page anyone."
+        },
+        {
+          "title": "Applications in the same place as infrastructure",
+          "body": "The same platform holds distributed traces, application errors and profiling. A host CPU spike and the latency regression it caused are visible together instead of in two different tools."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Is Middle Monitor self-hostable?",
+          "a": "On-premise deployment is available on the Custom plan. The Free and Pro plans are hosted."
+        },
+        {
+          "q": "Does it support SNMP?",
+          "a": "Yes, SNMP is one of the supported check types alongside HTTP, ping, SQL and certificate checks."
+        }
+      ]
+    },
+    {
+      "slug": "new-relic",
+      "competitor": "New Relic and Dynatrace",
+      "h1": "A New Relic and Dynatrace alternative scoped for engineering teams, not procurement",
+      "lead": "Middle Monitor covers the core APM workflow — distributed tracing, root cause analysis, profiling and alerting — without the enterprise sales motion that typically surrounds these platforms.",
+      "fair": "New Relic and Dynatrace are deep, enterprise-grade platforms with extensive auto-instrumentation and AI-assisted analysis built over many years. At large scale, with dedicated observability teams, they offer more surface area than Middle Monitor does today.",
+      "sections": [
+        {
+          "title": "Distributed tracing with one middleware line",
+          "body": "Adding the SDK's HTTP middleware is a single line — net/http, Echo and Gin in Go, and the equivalent in Node.js, Python and Rust. From there incoming and outgoing requests are traced without further work, and W3C trace context propagates across services so a request's full path stays intact."
+        },
+        {
+          "title": "Continuous profiling included",
+          "body": "Heap and CPU flame graphs come from production through pprof integration in Go, included on the Pro plan rather than priced as a separate module. Profiling is Go-only today; the other SDKs cover traces, errors and logs."
+        },
+        {
+          "title": "Root cause analysis that names a cause",
+          "body": "When an error rate or latency threshold is crossed, the engine looks for infrastructure spikes and failed network checks in the same window and states a likely cause — a CPU spike on a named host, or an unreachable DNS — instead of only showing you a chart."
+        },
+        {
+          "title": "Infrastructure as code",
+          "body": "A Terraform provider manages hosts, services and install tokens, and a REST API covers hosts, services, errors, alert rules, incidents, channels and API keys."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Which languages are supported?",
+          "a": "Go, Node.js, Python and Rust on the server, plus a browser SDK. All are built on OpenTelemetry."
+        },
+        {
+          "q": "Is profiling always on?",
+          "a": "Continuous profiling is available on the Pro plan. In Go it integrates through net/http/pprof."
+        }
+      ]
+    },
+    {
+      "slug": "prometheus-grafana",
+      "competitor": "Prometheus, Grafana and Jaeger",
+      "h1": "A managed alternative to running Prometheus, Grafana and Jaeger yourself",
+      "lead": "Middle Monitor is OpenTelemetry-native, so it ingests the same trace, metric and log data you would otherwise route into a self-hosted stack — already correlated, without the operational burden of running the stack.",
+      "fair": "The Prometheus, Grafana and Jaeger stack is open source, vendor-neutral and infinitely customizable, and it is the right answer for teams who want to own their data plane end to end. Middle Monitor trades some of that control for not having to operate it.",
+      "sections": [
+        {
+          "title": "Same instrumentation, no data plane to run",
+          "body": "Point your existing OTLP exporters at Middle Monitor. Because the SDKs wrap OpenTelemetry rather than replacing it, the instrumentation you already wrote keeps working."
+        },
+        {
+          "title": "One platform instead of four you assemble",
+          "body": "A self-hosted stack usually means Prometheus for metrics, Jaeger for traces, Loki for logs and something else for errors, each with its own storage, retention and dashboards. Here the four signals arrive through one ingestion path and are queried in one interface, and the incident engine correlates anomalies across them by time window."
+        },
+        {
+          "title": "Alerting and incidents without a separate Alertmanager",
+          "body": "Alert rules, notification channels and incident correlation are part of the platform, including consecutive-failure smoothing so transient blips do not page."
+        },
+        {
+          "title": "Uptime checks in the same tool",
+          "body": "HTTP, ping, SQL, certificate and SNMP checks run alongside your application telemetry, covering ground that usually needs Blackbox Exporter plus glue."
+        },
+        {
+          "title": "Your exporters keep working, and so does your Prometheus",
+          "body": "The agent scrapes any endpoint serving the Prometheus exposition format, so node_exporter and your instrumented applications are reused as they are, with their labels. Targets can be discovered from Nomad's service registry or DNS SRV records instead of being listed by hand. The agent can also serve everything it holds back in the same format, so an existing Prometheus keeps scraping while you move collection over."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Do I have to abandon OpenTelemetry?",
+          "a": "No — it is the ingestion path. Middle Monitor speaks OTLP over protobuf, and the SDKs are thin wrappers over the OpenTelemetry SDKs."
+        },
+        {
+          "q": "Can I still export my data elsewhere?",
+          "a": "Your instrumentation stays standard OpenTelemetry, so it can fan out to another backend at the exporter level. The agent can also expose its own metrics endpoint in the Prometheus exposition format, so a Prometheus you keep running can read what it collects."
+        }
+      ]
+    },
+    {
+      "slug": "splunk-elk",
+      "competitor": "Splunk and the ELK stack",
+      "h1": "A Splunk and ELK alternative for application logs, without running a search cluster",
+      "lead": "Middle Monitor collects application logs through the same SDK that handles your traces and errors, so they live in one observability platform instead of a search cluster you size, shard and operate yourself.",
+      "fair": "Splunk and Elastic are powerful general-purpose search and analytics engines that go far beyond application logs, covering security analytics and arbitrary machine data. Middle Monitor is scoped to observability logs, not to that wider remit.",
+      "sections": [
+        {
+          "title": "Logs next to the traces and errors from the same service",
+          "body": "Logs are emitted through the same SDK that traces requests and captures exceptions, so all three land in one platform under the same service and time range instead of in a separate cluster you query on its own."
+        },
+        {
+          "title": "No cluster to operate",
+          "body": "There is no index lifecycle policy, shard sizing or hot-warm tiering to manage. Retention follows the plan: 7 days on Free, 30 days on Pro, and 90 days or more on Custom."
+        },
+        {
+          "title": "Errors as first-class objects",
+          "body": "Unhandled exceptions are captured as structured errors with stacktraces rather than being grepped out of log text after the fact."
+        },
+        {
+          "title": "EU hosting",
+          "body": "Telemetry is hosted in the EU, with retention governed by your plan and documented in the privacy policy."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Can I send arbitrary application logs?",
+          "a": "Yes, through the SDK's log forwarding, which is part of the same initialization as tracing and error capture."
+        },
+        {
+          "q": "How long are logs kept?",
+          "a": "7 days on the Free plan, 30 days on Pro, and custom retention of 90 days or more on the Custom plan."
+        }
+      ]
+    },
+    {
+      "slug": "pingdom-uptimerobot",
+      "competitor": "Pingdom, UptimeRobot and Better Stack",
+      "h1": "An uptime monitoring alternative that also tells you why the check failed",
+      "lead": "Middle Monitor runs HTTP, ping, SQL, certificate and SNMP checks with incident alerting — in the same platform that holds the traces and logs explaining the failure.",
+      "fair": "Pingdom, UptimeRobot and Better Stack are simple, focused and quick to set up, often with more global probe locations than a general observability platform offers. If you only want external uptime checks, a specialist is a reasonable choice.",
+      "sections": [
+        {
+          "title": "Checks beyond HTTP",
+          "body": "HTTP and HTTPS with expected keyword matching and latency thresholds, ICMP ping with latency alerting, SQL connection checks, SSL certificate expiry warnings ahead of the deadline, and SNMP."
+        },
+        {
+          "title": "From alert to root cause in one place",
+          "body": "When a check fails, the incident is correlated with host metrics and application errors from the same window, so the notification can name a likely cause instead of only reporting that something is down."
+        },
+        {
+          "title": "Alert smoothing",
+          "body": "Status badges and alerts only change after N consecutive bad results, which keeps a single transient timeout from generating a page. Certificate expiry alerts fire immediately."
+        },
+        {
+          "title": "Notification channels",
+          "body": "Slack, email, Jira Service Management, WhatsApp and SMS, or a JSON webhook to your own API. Channels are toggled from the interface."
+        }
+      ],
+      "faq": [
+        {
+          "q": "Does it alert before a TLS certificate expires?",
+          "a": "Yes. Certificate checks alert when the certificate expires in fewer than a configurable number of days."
+        },
+        {
+          "q": "Where do checks run from?",
+          "a": "Checks are executed periodically by the Middle Monitor backend workers, so no agent is required on the machine or endpoint being checked."
+        }
+      ]
+    }
+  ]
+}

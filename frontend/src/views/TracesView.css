@@ -1,0 +1,52 @@
+/* Traces View */
+.traces-view { max-width: 100%; }
+
+.traces-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+.traces-header h1 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+.traces-header .subtitle { color: var(--text-tertiary); margin-top: 0.25rem; font-size: 0.875rem; }
+
+.traces-filters { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+.traces-search-form { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; }
+.traces-search-form input { flex: 1; border: none; background: transparent; color: var(--text-primary); font-size: 0.875rem; outline: none; }
+.traces-search-form svg { color: var(--text-tertiary); font-size: 1.1rem; }
+.traces-filter-controls { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+
+.traces-results-info { font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.75rem; }
+
+.traces-table-card { background: var(--surface-primary); border: 1px solid var(--border-primary); border-radius: 8px; overflow: hidden; }
+.traces-loading { text-align: center; padding: 3rem; color: var(--text-tertiary); }
+
+.traces-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.traces-table th { padding: 0.6rem 0.75rem; text-align: left; font-weight: 600; color: var(--text-secondary); background: var(--bg-secondary); border-bottom: 1px solid var(--border-primary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.traces-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-primary); }
+.trace-row { cursor: pointer; transition: background 0.1s; }
+.trace-row:hover { background: var(--bg-secondary); }
+.trace-timestamp { color: var(--text-tertiary); font-family: monospace; font-size: 0.75rem; white-space: nowrap; }
+.trace-service { font-weight: 500; }
+.trace-operation { font-family: monospace; }
+.trace-duration { font-family: monospace; font-weight: 500; }
+
+.trace-kind-badge { padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 500; background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); }
+.trace-status-badge { padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+.trace-status-ok { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.trace-status-error { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.trace-status-unset { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+
+.trace-detail-row td { padding: 0; }
+.trace-detail { padding: 1rem; background: var(--bg-secondary); border-left: 3px solid var(--brand-primary); }
+.trace-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem; }
+.trace-detail-grid > div { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.8rem; }
+.trace-detail-grid strong { font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; }
+.trace-detail-grid code { background: var(--surface-primary); padding: 0.15rem 0.3rem; border-radius: 3px; font-size: 0.75rem; word-break: break-all; }
+.trace-attributes { margin-top: 0.5rem; }
+.trace-attributes strong { font-size: 0.75rem; color: var(--text-secondary); }
+.trace-attributes pre { margin: 0.25rem 0 0; padding: 0.5rem; background: var(--surface-primary); border-radius: 4px; font-size: 0.75rem; overflow-x: auto; }
+
+.trace-duration-bar { margin-top: 0.75rem; height: 20px; background: var(--bg-tertiary); border-radius: 4px; position: relative; overflow: hidden; }
+.trace-duration-fill { height: 100%; background: var(--brand-primary); border-radius: 4px; transition: width 0.3s ease; min-width: 2px; }
+.trace-duration-bar span { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; font-weight: 600; color: var(--text-primary); }
+
+.traces-pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; }
+.traces-pagination button { display: flex; align-items: center; gap: 0.25rem; padding: 0.4rem 0.75rem; border: 1px solid var(--border-primary); border-radius: 6px; background: var(--surface-primary); color: var(--text-secondary); font-size: 0.8rem; cursor: pointer; }
+.traces-pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.traces-pagination span { font-size: 0.8rem; color: var(--text-tertiary); }

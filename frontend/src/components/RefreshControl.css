@@ -1,0 +1,62 @@
+.refresh-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* No .btn-icon here: three view stylesheets redefine it globally at the same
+   specificity, and whichever the bundle orders last would win over these. */
+.refresh-control-button {
+  display: flex;
+  align-items: center;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.refresh-control-button:hover:not(:disabled) {
+  border-color: var(--border-secondary);
+  color: var(--text-primary);
+}
+
+.refresh-control-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.refresh-control-spinning {
+  animation: refresh-control-spin 1s linear infinite;
+}
+
+@keyframes refresh-control-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Element selector on purpose: .select in App.css sets width: 100%. */
+select.refresh-control-select {
+  width: auto;
+  flex: 0 0 auto;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.8125rem;
+}
+
+.refresh-control-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.refresh-control-status-failed {
+  color: var(--status-warning);
+}

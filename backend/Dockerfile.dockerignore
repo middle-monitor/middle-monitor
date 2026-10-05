@@ -1,0 +1,9 @@
+# Build context is the repository root; only backend/ and agent/ are needed.
+**/.env
+**/.env.*
+**/*.log
+**/.DS_Store
+.git
+frontend
+deploy
+agent/dist

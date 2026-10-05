@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Middle Monitor">
+  <defs>
+    <linearGradient id="mm-brand" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#mm-brand)"/>
+  <path fill="#FFFFFF" d="M18.35 4.5 8.25 18.1h6.45l-1.55 9.4L23.75 14h-6.35l1-9.5z"/>
+</svg>

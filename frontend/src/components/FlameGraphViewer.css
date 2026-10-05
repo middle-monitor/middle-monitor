@@ -1,0 +1,31 @@
+.flame-graph-viewer {
+  position: relative;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  overflow: auto;
+}
+.flame-graph-viewer svg {
+  display: block;
+}
+.flame-graph-tooltip {
+  position: fixed;
+  z-index: 1000;
+  padding: 6px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  font-size: 12px;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.flame-graph-tooltip-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 320px;
+  word-break: break-all;
+}
+.flame-graph-tooltip-value {
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}

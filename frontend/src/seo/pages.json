@@ -1,0 +1,87 @@
+{
+  "siteUrl": "https://middlemonitor.io",
+  "siteName": "Middle Monitor",
+  "ogImage": "/og-image.png",
+  "pages": {
+    "home": {
+      "path": "/",
+      "title": "Middle Monitor — Unified Observability for Your Whole Stack",
+      "description": "The unified observability platform that correlates traces, metrics, logs and errors so you find the root cause in seconds, not hours. OpenTelemetry-native."
+    },
+    "pricing": {
+      "path": "/pricing",
+      "title": "Pricing — Middle Monitor Observability Platform",
+      "description": "Simple, transparent observability pricing. Every new organization starts with a 14-day Pro trial, no credit card. Then stay free with 1 host, or go Pro for 10 hosts, profiling, alerting and root cause analysis."
+    },
+    "docs": {
+      "path": "/docs",
+      "title": "Documentation — Middle Monitor",
+      "description": "Middle Monitor docs: install the agent and SDKs (Go, Node.js, Python, Rust), instrument traces, metrics, logs and errors, and set up alerting and the API."
+    },
+    "contact": {
+      "path": "/contact",
+      "title": "Contact Us — Middle Monitor",
+      "description": "Get in touch with the Middle Monitor team: questions about the observability platform, pricing, onboarding or support. We respond as soon as possible."
+    },
+    "status": {
+      "path": "/status",
+      "title": "Status Page — Middle Monitor",
+      "description": "Middle Monitor status page: live availability of the dashboard, API and ingestion pipeline, measured by the checks the platform runs against itself."
+    },
+    "legal": {
+      "path": "/legal",
+      "title": "Legal Notice — Middle Monitor",
+      "description": "Legal notice for middlemonitor.io: who publishes and operates the Middle Monitor observability platform, how to contact us, and where the service is hosted."
+    },
+    "privacy": {
+      "path": "/privacy",
+      "title": "Privacy Policy — Middle Monitor",
+      "description": "How Middle Monitor handles your data: account and telemetry data, EU hosting, plan-based retention, subprocessors, security measures and your GDPR rights."
+    },
+    "terms": {
+      "path": "/terms",
+      "title": "Terms of Service — Middle Monitor",
+      "description": "Terms of service for the Middle Monitor observability platform: accounts, acceptable use, data ownership, plans and billing, availability and liability."
+    },
+    "alternatives": {
+      "path": "/alternatives",
+      "title": "Middle Monitor Alternatives — Compare Observability Tools",
+      "description": "How Middle Monitor compares to Datadog, Sentry, New Relic, Prometheus, Splunk, Nagios and Pingdom for tracing, error tracking, logs, infrastructure monitoring and uptime."
+    },
+    "alt-datadog": {
+      "path": "/alternatives/datadog",
+      "title": "Datadog Alternative — Middle Monitor Unified Observability",
+      "description": "Looking for a Datadog alternative? Middle Monitor correlates traces, metrics, logs and errors in one OpenTelemetry-native platform, with a free tier and self-serve pricing."
+    },
+    "alt-sentry": {
+      "path": "/alternatives/sentry",
+      "title": "Sentry Alternative — Error Tracking Correlated With Traces & Logs",
+      "description": "A Sentry alternative where error tracking sits alongside traces, metrics and logs. Full stacktraces, automatic panic and exception capture, and root cause correlation with your infrastructure."
+    },
+    "alt-nagios": {
+      "path": "/alternatives/nagios",
+      "title": "Nagios, Icinga & Zabbix Alternative — Monitoring Without Check Config",
+      "description": "A simpler alternative to Nagios, Icinga and Zabbix. System metrics collected automatically by a one-command agent, plus HTTP, ping, SQL, certificate and SNMP checks with built-in alerting."
+    },
+    "alt-new-relic": {
+      "path": "/alternatives/new-relic",
+      "title": "New Relic & Dynatrace Alternative — Self-Serve APM",
+      "description": "A New Relic and Dynatrace alternative for smaller engineering teams: distributed tracing, root cause analysis, continuous profiling and alerting on a self-serve platform."
+    },
+    "alt-prometheus-grafana": {
+      "path": "/alternatives/prometheus-grafana",
+      "title": "Prometheus, Grafana & Jaeger Alternative — Managed OTLP Stack",
+      "description": "A managed alternative to a self-hosted Prometheus, Grafana, Jaeger or Zipkin stack. OpenTelemetry-native ingestion with traces, metrics, logs and errors correlated in one place."
+    },
+    "alt-splunk-elk": {
+      "path": "/alternatives/splunk-elk",
+      "title": "Splunk & ELK Alternative — Application Logs Without a Cluster",
+      "description": "A Splunk and Elastic (ELK) alternative for application logs: collect logs through the same SDK as your traces and errors, in one observability platform, without operating a search cluster."
+    },
+    "alt-pingdom-uptimerobot": {
+      "path": "/alternatives/pingdom-uptimerobot",
+      "title": "Pingdom & UptimeRobot Alternative — Uptime Plus Full Observability",
+      "description": "A Pingdom, UptimeRobot and Better Stack alternative: HTTP, ping, SQL, certificate and SNMP checks with incident alerting, in the same platform as your traces, logs and errors."
+    }
+  }
+}

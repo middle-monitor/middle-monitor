@@ -1,0 +1,179 @@
+api:
+  url: "https://api.middlemonitor.io"
+  # api_key: "optional-api-key"
+
+host:
+  name: "my-server"  # Optional, defaults to hostname
+  service: "my-service"
+
+metrics:
+  cpu: true     # Default: true
+  ram: true     # Default: true
+  disk: true    # Default: true
+  network: true # Default: true
+
+interval: 60  # Collection interval in seconds, default: 60
+
+# Pull metrics from endpoints exposing the Prometheus text format
+# (node_exporter, an instrumented app, any /metrics endpoint).
+# Disabled by default: an upgraded agent behaves exactly as before until
+# you turn this on.
+#
+# Validate this file before restarting the agent:
+#   middle-monitor-agent --config-check --config /etc/middle-monitor/config.yaml
+# Apply a change without dropping the running scrape cycles:
+#   systemctl reload middle-monitor-agent   (or: kill -HUP <pid>)
+scrape:
+  enabled: false
+  interval: 15   # Default seconds between scrapes, per target override below
+  timeout: 10    # Default seconds before a target is given up on
+
+  # Applied to every target of this agent, unless the target sets the same
+  # label itself.
+  labels:
+    cluster: prod
+    namespace: default
+
+  # Extra target files merged into targets below, deduplicated by name (the
+  # main file wins). Each role can drop the scrape config of the exporter it
+  # installs instead of editing this shared file.
+  # A pattern that matches nothing is not an error.
+  include: /etc/middle-monitor/scrape.d/*.yaml
+
+  targets:
+    - name: node
+      url: "http://localhost:9100/metrics"
+      # labels are added to every series from this target and win over a
+      # label of the same name coming from the endpoint
+      labels:
+        env: prod
+
+      # Series filtering, applied in this order. A single node_exporter serves
+      # over a thousand series; filtering here means the rest never crosses the
+      # network.
+      #   1. keep_metrics: when non-empty it is a whitelist, everything else goes
+      #   2. drop_metrics: removes what is left
+      #   3. keep_if_labels: keeps a named metric only for a matching label value
+      #   4. drop_labels: removes a label without losing the series
+      keep_metrics:
+        - '^node_(cpu|memory|disk_io|vmstat)_.*'
+        - '^node_(boot_time_seconds|load(1|5|15))$'
+        - '^node_uname_info$'
+      drop_metrics:
+        - '^(go_|prometheus_|promhttp_).*'
+      keep_if_labels:
+        - metric: '^node_filesystem_.*'
+          label: fstype
+          matches: '^ext4$'
+        - metric: '^node_network_.*_total$'
+          label: device
+          matches: '^(eth[01]|lan[1234]|wan)$'
+      drop_labels: [id, uuid]
+
+    - name: my-app
+      url: "http://localhost:8080/metrics"
+      interval: 30
+      timeout: 5
+
+    # Protected endpoints. Files are re-read at every scrape, so a rotated
+    # credential is picked up without restarting the agent. ${VAR} is expanded
+    # from the process environment in bearer_token, basic_auth and headers, so
+    # a systemd unit can carry the secret instead of this file.
+    - name: nomad
+      url: "https://127.0.0.1:4646/v1/metrics"
+      params: { format: prometheus }
+      bearer_token_file: /etc/middle-monitor/nomad.token
+      # bearer_token: "${NOMAD_TOKEN}"
+      # basic_auth: { username: ops, password_file: /etc/middle-monitor/pw }
+      # headers: { X-Scope-OrgID: demo }
+      tls_config:
+        insecure_skip_verify: true   # internal self-signed certificate
+        # ca_file: /etc/ssl/internal-ca.pem
+        # cert_file: /etc/middle-monitor/client.pem   # mTLS: both halves needed
+        # key_file: /etc/middle-monitor/client-key.pem
+        # server_name: nomad.internal
+
+    # Probers are asked what to probe in the URL. A scalar parameter is fixed;
+    # a list expands into one target per value, crossed with every other list.
+    # The values used are attached as labels, so the results stay distinct.
+    - name: speedtest
+      url: "http://127.0.0.1:9469/probe"
+      params: { script: speedtest }
+      interval: 3600
+
+    # 4 modules x 3 domains = 12 targets, each with its own loop and labels.
+    # params_matrix is the same mechanism as params; it exists so the axis
+    # being crossed can be read apart from the fixed parameters.
+    - name: dns_query
+      url: "http://127.0.0.1:15353/query"
+      params: { module: [custom_dns1, custom_dns2, cloudflare_dns1, quad9_dns1] }
+      params_matrix: { query_name: [gmail.com, outlook.com, google.com] }
+
+  # Service discovery. Targets are refreshed every discovery_interval seconds;
+  # an instance that disappears has its scrape loop stopped. When a source is
+  # unreachable for a cycle, the current targets are kept rather than dropped.
+  discovery_interval: 30
+
+  # One block per family of services: each piece of software decides where it
+  # serves its metrics, so a real cluster needs several.
+  nomad:
+    - address: "https://10.0.1.10:4646"
+      namespace: ""            # empty uses Nomad's default namespace
+      region: ""               # empty uses the region of the server contacted
+      token_file: ""           # ACL token file, if your cluster requires one
+      tag: "middle-monitor"    # only services carrying this tag; empty means all
+      service: '^(web|worker|cache-exporter)$'  # regex on the service name
+      metrics_path: "/metrics"
+      scheme: "http"           # scheme of the discovered targets, not of the API
+      labels:                  # added to the series of this block's targets only
+        project: platform
+      tls_config:              # presented to the Nomad API, not to the targets
+        insecure_skip_verify: true   # internal self-signed certificate
+        # ca_file: /etc/ssl/internal-ca.pem
+      tag_labels:              # tag "fqdn:app.example.com" -> label fqdn
+        - prefix: "fqdn:"
+          label: fqdn
+    - address: "http://localhost:4646"
+      service: '^object-store$'
+      metrics_path: "/v2/metrics/cluster"   # software that does not serve /metrics
+    - address: "http://localhost:4646"
+      service: '^edge-router$'
+      port: 8081               # replaces the port registered in Nomad
+
+  # Any endpoint answering the Prometheus http_sd format:
+  #   [{"targets": ["10.0.1.5:9100"], "labels": {"job": "node"}}]
+  # The reserved labels __metrics_path__ and __scheme__ are honoured and are
+  # not kept as series dimensions. This is the escape hatch for orchestrators
+  # the agent does not know about.
+  http_sd:
+    - url: "http://127.0.0.1:8500/targets.json"
+      metrics_path: "/metrics"
+      scheme: "http"
+      # bearer_token_file: /etc/middle-monitor/sd.token
+      labels:
+        source: internal-sd
+
+  srv:
+    - name: "_metrics._tcp.service.consul"
+      metrics_path: "/metrics"
+      scheme: "http"
+      labels:
+        source: consul
+
+# Extra scrape targets served by the platform for this host, fetched with the
+# install token above. Off by default: an upgrade must never make an agent start
+# taking instructions from the network. A target configured locally wins over a
+# served one carrying the same name, and a served config that does not validate
+# is refused, leaving the running one in place.
+remote_config:
+  enabled: false
+  interval: 300  # seconds between refreshes
+
+# Serve what the agent holds in the Prometheus text format, so an existing
+# Prometheus can keep scraping while you migrate. Disabled by default: turning
+# it on makes the agent listen on a port.
+expose:
+  enabled: false
+  listen: "127.0.0.1:9099"  # bound to localhost unless you widen it
+  path: "/metrics"
+  staleness: 300  # seconds; a series not refreshed for this long is dropped

@@ -1,0 +1,215 @@
+/* Dashboards View */
+.dashboards-view { max-width: 100%; }
+.dashboards-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+.dashboards-header h1 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+.dashboards-header .subtitle { color: var(--text-tertiary); margin-top: 0.25rem; font-size: 0.875rem; }
+.dashboards-header-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.dashboards-date-trigger { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem; border: 1px solid var(--border-primary); border-radius: 6px; background: var(--surface-primary); color: var(--text-primary); font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+.dashboards-date-trigger:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+
+/* Dashboard Tabs */
+.dashboard-tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-primary); padding-bottom: 0; }
+.dashboard-tab { display: flex; align-items: center; gap: 0.25rem; }
+.tab-name { padding: 0.5rem 0.75rem; border: none; background: transparent; color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.dashboard-tab.active .tab-name { color: var(--brand-primary); border-bottom-color: var(--brand-primary); font-weight: 500; }
+.tab-delete, .tab-edit { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 0.8rem; padding: 0.25rem; opacity: 0; transition: opacity 0.15s; }
+.dashboard-tab:hover .tab-delete, .dashboard-tab:hover .tab-edit { opacity: 1; }
+.tab-delete:hover { color: #ef4444; }
+.tab-edit:hover { color: var(--brand-primary); }
+.tab-rename-input { padding: 0.35rem 0.5rem; margin-bottom: 2px; border: 1px solid var(--brand-primary); border-radius: 6px; background: var(--surface-primary); color: var(--text-primary); font-size: 0.85rem; outline: none; width: 160px; }
+
+/* Toolbar */
+.dashboard-toolbar { margin-bottom: 1rem; }
+.btn-add-widget { display: flex; align-items: center; gap: 0.3rem; padding: 0.4rem 0.75rem; border: 1px dashed var(--border-primary); border-radius: 6px; background: transparent; color: var(--text-tertiary); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+.btn-add-widget:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+
+/* Dashboard Grid */
+.dashboard-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+/* ============================================
+   Draggable Dashboard Grid & Widgets
+   ============================================ */
+.dashboard-grid-container { min-height: 400px; }
+
+.dashboard-widget {
+  background: rgba(255, 255, 255, 0.05); /* Glassmorphism base */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  height: 100%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-widget:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.3); /* Brand glow */
+}
+
+/* Header Controls appearing on hover */
+.widget-header-controls {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.dashboard-widget:hover .widget-header-controls {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Drag Handle */
+.widget-drag-handle {
+  color: var(--text-tertiary);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 4px;
+  background: var(--surface-tertiary, rgba(0,0,0,0.2));
+  transition: all 0.2s ease;
+}
+
+.widget-drag-handle:hover {
+  color: var(--text-primary);
+  background: var(--brand-primary);
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+.widget-remove, .widget-expand {
+  background: var(--surface-tertiary, rgba(0,0,0,0.2));
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.widget-remove:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--status-error);
+}
+
+.widget-expand:hover {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--brand-primary);
+}
+
+/* Stat widget */
+.widget-stat { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; }
+.widget-icon { font-size: 1.5rem; color: var(--brand-primary); }
+.widget-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.widget-label { font-size: 0.75rem; color: var(--text-tertiary); }
+
+/* Chart widget */
+.widget-chart-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.widget-chart-header svg { color: var(--brand-primary); font-size: 1.125rem; }
+.widget-sparkline { flex: 1; display: flex; align-items: flex-end; min-height: 80px; width: 100%; }
+.widget-sparkline svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 4px 6px rgba(139, 92, 246, 0.3)); }
+.widget-sparkline .no-data { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary); font-size: 0.8rem; }
+.widget-chart-footer { display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-tertiary); }
+
+/* Ensure React Grid Layout interactions appear above everything */
+.react-grid-item.react-grid-placeholder {
+  background: var(--brand-primary) !important;
+  opacity: 0.2 !important;
+  border-radius: 16px !important;
+}
+
+.react-resizable-handle {
+  background-image: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  right: 4px !important;
+  bottom: 4px !important;
+}
+
+.react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-tertiary);
+  border-bottom: 2px solid var(--text-tertiary);
+  border-radius: 2px;
+  transition: border-color 0.2s ease;
+}
+
+.dashboard-widget:hover .react-resizable-handle::after {
+  border-color: var(--brand-primary);
+}
+
+/* Widget picker */
+.widget-picker { max-width: 600px; }
+.widget-templates { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; padding: 1.5rem; }
+.widget-template { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-primary); cursor: pointer; text-align: left; transition: all 0.15s; }
+.widget-template:hover { border-color: var(--brand-primary); background: var(--brand-primary-light); }
+.widget-template-icon { font-size: 1.25rem; color: var(--brand-primary); }
+.widget-template-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+.widget-template-type { font-size: 0.65rem; color: var(--text-tertiary); text-transform: uppercase; }
+
+/* Widget chart: filter label */
+.widget-chart-filter { font-size: 0.7rem; font-weight: 500; color: var(--text-tertiary); margin-left: 0.5rem; }
+
+/* Widget config modal (host / service / env) */
+.widget-config { max-width: 420px; }
+.widget-config-filters { padding: 0 1.5rem 1rem; }
+.widget-config-filters .form-row { margin-bottom: 0.75rem; }
+.widget-config-filters label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.25rem; }
+/* background-color and padding-right only: the shorthands erased the global select chevron. */
+.widget-config-filters select { width: 100%; padding: 0.5rem 2.25rem 0.5rem 0.5rem; border-radius: 6px; border: 1px solid var(--border-primary); background-color: var(--surface-primary); color: var(--text-primary); font-size: 0.875rem; }
+.widget-config-hint { font-size: 0.8rem; color: var(--text-tertiary); margin: 0 0 0.75rem; padding: 0.5rem; background: var(--bg-secondary); border-radius: 6px; }
+
+/* Expanded chart modal with zoom */
+.chart-expanded-overlay { align-items: center; justify-content: center; padding: 1rem; }
+.chart-expanded-modal { background: var(--bg-elevated); border: 1px solid var(--border-primary); border-radius: 12px; max-width: 92vw; width: 680px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+.chart-expanded-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1rem; border-bottom: 1px solid var(--border-primary); flex-shrink: 0; }
+.chart-expanded-title { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem; }
+.chart-expanded-header .btn-close { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-tertiary); padding: 0.35rem; border-radius: 6px; }
+.chart-expanded-header .btn-close:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.chart-expanded-toolbar { display: flex; align-items: center; gap: 0.35rem; padding: 0.45rem 1rem; border-bottom: 1px solid var(--border-primary); flex-shrink: 0; flex-wrap: wrap; }
+.chart-expanded-toolbar .btn-icon { padding: 0.3rem 0.4rem; border-radius: 6px; border: 1px solid var(--border-primary); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; display: flex; font-size: 0.9rem; }
+.chart-expanded-toolbar .btn-icon:hover:not(:disabled) { color: var(--brand-primary); border-color: var(--brand-primary); background: var(--surface-primary); }
+.chart-expanded-toolbar .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
+.chart-expanded-toolbar .btn-text { padding: 0.2rem 0.35rem; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--border-primary); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; }
+.chart-expanded-toolbar .btn-text:hover { color: var(--brand-primary); border-color: var(--brand-primary); }
+.chart-zoom-pan { margin-left: 0.15rem; display: flex; gap: 0.1rem; }
+.chart-zoom-hint { font-size: 0.65rem; color: var(--text-tertiary); margin-left: 0.4rem; }
+.chart-zoom-label { margin-left: auto; font-size: 0.65rem; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.chart-expanded-body { flex: 1; min-height: 200px; min-width: 0; padding: 0.5rem 0; overflow: hidden; position: relative; user-select: none; display: flex; flex-direction: column; }
+.chart-expanded-body-interactive { cursor: crosshair; }
+.chart-expanded-inner { position: relative; flex: 1; width: 100%; min-width: 0; min-height: 180px; background: var(--bg-secondary); overflow: hidden; }
+.chart-expanded-body .chart-expanded-svg { display: block; width: 100% !important; height: 100% !important; min-width: 0; min-height: 180px; }
+.chart-expanded-body .no-data { display: flex; align-items: center; justify-content: center; height: 100%; min-height: 160px; color: var(--text-tertiary); cursor: default; }
+.chart-selection-overlay { position: absolute; top: 0; bottom: 0; background: var(--brand-primary); opacity: 0.15; pointer-events: none; }
+.chart-expanded-footer { display: flex; justify-content: space-between; padding: 0.45rem 1rem; font-size: 0.7rem; color: var(--text-tertiary); border-top: 1px solid var(--border-primary); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  /* Stack the title above the toolbar so the date trigger + actions wrap
+     onto their own row instead of overflowing. */
+  .dashboards-header { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+}

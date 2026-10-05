@@ -1,0 +1,5 @@
+.skeleton { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.5rem 0; }
+.skeleton-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.skeleton-row { height: 2.5rem; border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--border-primary); animation: skeleton-pulse 1.4s ease-in-out infinite; }
+@keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .skeleton-row { animation: none; } }

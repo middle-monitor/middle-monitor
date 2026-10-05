@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://middlemonitor.io/schemas/agent-config.json",
+  "title": "Middle Monitor agent configuration",
+  "description": "Schema of /etc/middle-monitor/config.yaml. Point an editor at it with a first line comment:\n# yaml-language-server: $schema=https://middlemonitor.io/schemas/agent-config.json",
+  "type": "object",
+  "properties": {
+    "api": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "api_key": {
+          "type": "string",
+          "description": "Install token."
+        }
+      },
+      "required": [
+        "url"
+      ]
+    },
+    "host": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Defaults to the OS hostname."
+        },
+        "service": {
+          "type": "string",
+          "description": "Logical stack label, defaults to \"default\"."
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "boolean",
+          "default": true
+        },
+        "ram": {
+          "type": "boolean",
+          "default": true
+        },
+        "disk": {
+          "type": "boolean",
+          "default": true
+        },
+        "network": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "interval": {
+      "type": "integer",
+      "default": 60,
+      "description": "Seconds between metric pushes."
+    },
+    "scrape": {
+      "$ref": "#/$defs/scrape"
+    },
+    "expose": {
+      "type": "object",
+      "description": "Serve what the agent holds in the Prometheus text format, so an existing Prometheus keeps scraping during a migration.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "listen": {
+          "type": "string",
+          "default": "127.0.0.1:9099"
+        },
+        "path": {
+          "type": "string",
+          "default": "/metrics"
+        },
+        "staleness": {
+          "type": "integer",
+          "default": 300,
+          "description": "Seconds before an unrefreshed series is dropped from the output."
+        }
+      }
+    },
+    "remote_config": {
+      "type": "object",
+      "description": "Extra scrape targets served by the platform for this host, so a target can be added without touching the machine. Off by default: an upgrade must never make an agent start taking instructions from the network. A target configured locally wins over a served one of the same name.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "interval": {
+          "type": "integer",
+          "default": 300,
+          "description": "Seconds between refreshes."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "tlsConfig": {
+      "type": "object",
+      "properties": {
+        "insecure_skip_verify": {
+          "type": "boolean"
+        },
+        "ca_file": {
+          "type": "string"
+        },
+        "cert_file": {
+          "type": "string",
+          "description": "Requires key_file."
+        },
+        "key_file": {
+          "type": "string",
+          "description": "Requires cert_file."
+        },
+        "server_name": {
+          "type": "string"
+        }
+      }
+    },
+    "paramValues": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          }
+        ]
+      },
+      "description": "A scalar is a fixed query parameter; a list expands into one target per value, crossed with the other lists."
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Added to every series as scrape_target."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "interval": {
+          "type": "integer",
+          "description": "Seconds; 0 uses the global default."
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Seconds; 0 uses the global default."
+        },
+        "labels": {
+          "$ref": "#/$defs/labels",
+          "description": "Win over labels of the same name coming from the endpoint."
+        },
+        "params": {
+          "$ref": "#/$defs/paramValues"
+        },
+        "params_matrix": {
+          "$ref": "#/$defs/paramValues"
+        },
+        "keep_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "regex"
+          },
+          "description": "Whitelist on the metric name. When non-empty, everything it does not match is dropped."
+        },
+        "drop_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "regex"
+          },
+          "description": "Applied to what keep_metrics left."
+        },
+        "keep_if_labels": {
+          "type": "array",
+          "description": "Keeps a named metric only for a matching label value. A metric the rule does not name is untouched.",
+          "items": {
+            "type": "object",
+            "required": [
+              "label",
+              "matches"
+            ],
+            "properties": {
+              "metric": {
+                "type": "string",
+                "format": "regex",
+                "default": ".*"
+              },
+              "label": {
+                "type": "string"
+              },
+              "matches": {
+                "type": "string",
+                "format": "regex"
+              }
+            }
+          }
+        },
+        "drop_labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Removes a label without losing the series."
+        },
+        "bearer_token": {
+          "type": "string",
+          "description": "${VAR} is expanded from the process environment."
+        },
+        "bearer_token_file": {
+          "type": "string",
+          "description": "Re-read at every scrape, so a rotated token needs no restart."
+        },
+        "basic_auth": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "password_file": {
+              "type": "string"
+            }
+          }
+        },
+        "headers": {
+          "$ref": "#/$defs/labels"
+        },
+        "tls_config": {
+          "$ref": "#/$defs/tlsConfig"
+        }
+      }
+    },
+    "nomadBlock": {
+      "type": "object",
+      "required": [
+        "address"
+      ],
+      "properties": {
+        "address": {
+          "type": "string",
+          "format": "uri"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string",
+          "description": "Nomad region queried; empty means the region of the server contacted."
+        },
+        "token": {
+          "type": "string"
+        },
+        "token_file": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Only services carrying this tag; empty means all."
+        },
+        "service": {
+          "type": "string",
+          "format": "regex",
+          "description": "Regex on the service name."
+        },
+        "metrics_path": {
+          "type": "string",
+          "default": "/metrics"
+        },
+        "scheme": {
+          "type": "string",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "http"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Replaces the port registered in Nomad."
+        },
+        "tag_labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "prefix",
+              "label"
+            ],
+            "properties": {
+              "prefix": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Turns a Nomad tag into a label: prefix 'fqdn:' on the tag 'fqdn:app.example.com' yields fqdn=app.example.com."
+        },
+        "labels": {
+          "$ref": "#/$defs/labels",
+          "description": "Added to every series of the targets this block discovers."
+        },
+        "tls_config": {
+          "$ref": "#/$defs/tlsConfig",
+          "description": "TLS presented to the Nomad API itself, not to the discovered targets."
+        }
+      }
+    },
+    "scrape": {
+      "type": "object",
+      "description": "Pull configuration. Disabled by default: an upgraded agent behaves exactly as before until this is turned on.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "interval": {
+          "type": "integer",
+          "default": 15
+        },
+        "timeout": {
+          "type": "integer",
+          "default": 10
+        },
+        "labels": {
+          "$ref": "#/$defs/labels",
+          "description": "Applied to every target of this agent unless the target sets them."
+        },
+        "include": {
+          "description": "Fragment files merged into targets, deduplicated by name, the main file winning. A pattern matching nothing is not an error.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/target"
+          }
+        },
+        "discovery_interval": {
+          "type": "integer",
+          "default": 30
+        },
+        "nomad": {
+          "description": "One block per family of services. A single block is also accepted, for configurations written before the list form.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/nomadBlock"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nomadBlock"
+              }
+            }
+          ]
+        },
+        "http_sd": {
+          "type": "array",
+          "description": "Any endpoint answering the Prometheus http_sd format. The reserved labels __metrics_path__ and __scheme__ are honoured and not kept as series dimensions.",
+          "items": {
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "metrics_path": {
+                "type": "string",
+                "default": "/metrics"
+              },
+              "scheme": {
+                "type": "string",
+                "enum": [
+                  "http",
+                  "https"
+                ],
+                "default": "http"
+              },
+              "labels": {
+                "$ref": "#/$defs/labels"
+              },
+              "bearer_token": {
+                "type": "string"
+              },
+              "bearer_token_file": {
+                "type": "string"
+              },
+              "headers": {
+                "$ref": "#/$defs/labels"
+              },
+              "tls_config": {
+                "$ref": "#/$defs/tlsConfig"
+              }
+            }
+          }
+        },
+        "srv": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Full DNS SRV record."
+              },
+              "metrics_path": {
+                "type": "string",
+                "default": "/metrics"
+              },
+              "scheme": {
+                "type": "string",
+                "enum": [
+                  "http",
+                  "https"
+                ],
+                "default": "http"
+              },
+              "labels": {
+                "$ref": "#/$defs/labels"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

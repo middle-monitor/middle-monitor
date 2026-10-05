@@ -1,0 +1,105 @@
+.email-gate {
+  position: relative;
+}
+
+/* Dashboard stays visible but blurred and non-interactive while locked. */
+.email-gate-content {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.email-gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-bg);
+  padding: 1rem;
+}
+
+.email-gate-modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.email-gate-icon {
+  margin-bottom: 0.5rem;
+}
+
+.email-gate-modal h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.email-gate-message {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.email-gate-hint {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.email-gate-feedback {
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.email-gate-feedback-ok {
+  color: var(--status-success);
+}
+
+.email-gate-feedback-error {
+  color: var(--status-error);
+}
+
+.email-gate .auth-button {
+  width: 100%;
+}
+
+.email-gate-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
+}
+
+.email-gate-checking {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.email-gate-logout {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.email-gate-logout:hover {
+  color: var(--text-primary);
+}

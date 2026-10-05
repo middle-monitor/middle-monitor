@@ -1,0 +1,50 @@
+/* Metric points per scrape target on the host page */
+.host-ingest { margin-top: 1.5rem; padding: 1.25rem; }
+.host-ingest-header h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
+.host-ingest-header p { margin: 0.25rem 0 1rem; font-size: 0.8125rem; color: var(--text-secondary); }
+
+.host-ingest-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.host-ingest-table th {
+  text-align: left;
+  padding: 0.5rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-primary);
+}
+.host-ingest-table td { padding: 0.5rem; color: var(--text-primary); border-bottom: 1px solid var(--border-primary); }
+.host-ingest-table td:not(:first-child) { font-variant-numeric: tabular-nums; }
+.host-ingest-suggestion-row td { padding-top: 0; border-bottom: 1px solid var(--border-primary); }
+
+.host-ingest-suggestion { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.25rem 0 0.5rem 1rem; }
+.host-ingest-suggestion-text { display: flex; align-items: flex-start; gap: 0.4rem; color: var(--text-secondary); }
+.host-ingest-suggestion-text svg { flex-shrink: 0; margin-top: 0.1rem; color: var(--brand-primary); }
+
+.host-ingest-snippet { display: flex; align-items: flex-start; gap: 0.5rem; }
+.host-ingest-snippet pre {
+  flex: 1;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  overflow-x: auto;
+}
+.host-ingest-snippet button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.host-ingest-snippet button:hover { color: var(--text-primary); border-color: var(--border-secondary); }
+
+.host-ingest-footnote { margin: 0.75rem 0 0; font-size: 0.75rem; color: var(--text-tertiary); }

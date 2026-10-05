@@ -1,0 +1,77 @@
+/* ServiceDateRangeSelector - aligned with .form-control */
+.service-date-range-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.service-date-range-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.service-date-range-select {
+  height: 42px;
+  min-height: 42px;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.service-date-range-select:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+.service-date-range-select:hover {
+  border-color: var(--border-hover);
+}
+
+.service-date-range-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+}
+
+.service-date-range-custom-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.service-date-range-custom-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.service-date-range-custom-input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+.service-date-range-custom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}

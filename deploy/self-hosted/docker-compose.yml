@@ -1,0 +1,138 @@
+# Self-hosted Middle Monitor. Run from this directory:
+#   cp .env.example .env && docker compose up -d --build
+# Everything is served on http://localhost:${HTTP_PORT:-8000}.
+
+x-db-env: &db-env
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: ${DB_USER:-middlemonitor}
+  DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+  DB_NAME: ${DB_NAME:-middlemonitor}
+  DB_SSLMODE: disable
+
+x-app-env: &app-env
+  <<: *db-env
+  JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+  CREDENTIALS_ENCRYPTION_KEY: ${CREDENTIALS_ENCRYPTION_KEY:-}
+  OPENSEARCH_URL: http://opensearch:9200
+  KAFKA_BROKERS: kafka:9092
+  FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8000}
+  PUBLIC_API_URL: ${PUBLIC_URL:-http://localhost:8000}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8000}:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on: [api, receiver, frontend]
+
+  api:
+    build: { context: ../.., dockerfile: backend/Dockerfile, target: api }
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      PORT: "8080"
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      UNSUB_SECRET: ${UNSUB_SECRET:-}
+      EXPLAIN_MODE: ${EXPLAIN_MODE:-rules}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+    # The API listens only once its migrations ran; the others wait for that.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/openapi.json >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      postgres: { condition: service_healthy }
+      opensearch: { condition: service_healthy }
+
+  receiver:
+    build: { context: ../.., dockerfile: backend/Dockerfile, target: receiver }
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      PORT: "8081"
+    depends_on:
+      api: { condition: service_healthy }
+      kafka: { condition: service_started }
+
+  worker:
+    build: { context: ../.., dockerfile: backend/Dockerfile, target: worker }
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+    depends_on:
+      api: { condition: service_healthy }
+      kafka: { condition: service_started }
+
+  frontend:
+    build: { context: ../../frontend }
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-middlemonitor}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      POSTGRES_DB: ${DB_NAME:-middlemonitor}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  opensearch:
+    image: opensearchproject/opensearch:2
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: ${OPENSEARCH_JAVA_OPTS:--Xms512m -Xmx512m}
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200 >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  kafka:
+    image: apache/kafka:3.7.0
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+volumes:
+  postgres_data:
+  opensearch_data:
+  kafka_data:

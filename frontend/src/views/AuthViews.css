@@ -1,0 +1,239 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  padding: 1rem;
+  position: relative;
+}
+
+/* Floating language switcher used by login/register/create-org pages */
+.auth-lang-switch {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 10;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  margin: 0 auto 1.5rem;
+}
+
+.auth-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+}
+
+.auth-header p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.auth-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--status-error-bg);
+  border: 1px solid var(--status-error-border);
+  border-radius: 8px;
+  color: var(--status-error);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-error svg {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-form .form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.auth-form .form-group input {
+  padding: 0.75rem 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.auth-form .form-group input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.auth-form .form-group input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--brand-primary-light);
+}
+
+.auth-form .form-group input.input-invalid {
+  border-color: var(--status-error-border);
+}
+
+.auth-form .form-group input.input-invalid:focus {
+  box-shadow: 0 0 0 3px var(--status-error-bg);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.password-hint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin: -0.5rem 0 0;
+}
+
+.auth-button {
+  padding: 0.875rem 1.5rem;
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 0.5rem;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: var(--brand-primary-hover);
+  transform: translateY(-1px);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Email verification result page (VerifyEmailView) */
+.verify-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.verify-status h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.verify-status p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.verify-status .auth-button {
+  display: inline-block;
+  text-decoration: none;
+  margin-top: 0.75rem;
+}
+
+.verify-icon {
+  font-size: 3rem;
+}
+
+.verify-icon-success {
+  color: var(--status-success);
+}
+
+.verify-icon-error {
+  color: var(--status-error);
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-primary);
+}
+
+.auth-footer p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.auth-footer a {
+  color: var(--brand-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.auth-form-aside {
+  margin-top: -0.5rem;
+  text-align: right;
+}
+
+.auth-form-aside a {
+  font-size: 0.8125rem;
+  color: var(--brand-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-form-aside a:hover {
+  text-decoration: underline;
+}
+
+.field-error {
+  color: var(--status-error);
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+}

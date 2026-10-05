@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://middlemonitor.io/schemas/webhook-payload.json",
+  "title": "Middle Monitor webhook payload",
+  "description": "Body posted to a notification channel of type webhook configured with format: structured. A channel left on the default format receives the Slack-compatible shape instead, which this schema does not describe.\n\nSignature: the request carries X-Middmonitor-Timestamp (unix seconds) and X-Middmonitor-Signature-256, which is 'sha256=' followed by the hex HMAC-SHA256, keyed with the channel secret, of the exact bytes '<timestamp>.<raw body>'. Reject a request whose timestamp is outside your tolerance window to refuse replays. The legacy X-Middmonitor-Signature header is the HMAC of the raw body alone and is kept for receivers written against it.",
+  "type": "object",
+  "required": ["version", "event", "event_id", "occurred_at"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1",
+      "description": "Payload shape version. A breaking change increments it."
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "incident.opened",
+        "incident.acknowledged",
+        "incident.resolved",
+        "incident.reopened",
+        "incident.escalated",
+        "error.new",
+        "test",
+        "heartbeat"
+      ],
+      "description": "The transition being published."
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Unique per delivery attempt group. A redelivery of the same event keeps it."
+    },
+    "dedup_key": {
+      "type": "string",
+      "description": "Stable across every event about the same underlying problem. Send it back to PUT /incidents/dedup/{key}/status to acknowledge or resolve without storing ids."
+    },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "title": { "type": "string", "description": "Human-readable summary." },
+    "message": { "type": "string" },
+    "organization": {
+      "type": "object",
+      "properties": { "slug": { "type": "string" } }
+    },
+    "incident": {
+      "type": "object",
+      "required": ["id", "title", "status", "severity", "started_at"],
+      "properties": {
+        "id": { "type": "integer" },
+        "title": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "acknowledged", "resolved"] },
+        "previous_status": { "type": "string" },
+        "severity": { "type": "string", "enum": ["warning", "critical"] },
+        "started_at": { "type": "string", "format": "date-time" },
+        "acknowledged_at": { "type": ["string", "null"], "format": "date-time" },
+        "resolved_at": { "type": ["string", "null"], "format": "date-time" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "alert_rule": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "metric": { "type": "string" },
+        "aggregation": { "type": "string" },
+        "operator": { "type": "string", "enum": ["gt", "gte", "lt", "lte", "eq"] },
+        "threshold": { "type": "number", "description": "The threshold that was crossed, at the severity of this incident." },
+        "observed_value": { "type": "number" },
+        "duration": { "type": "integer", "description": "Evaluation window, in seconds." }
+      }
+    },
+    "host": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "group": { "type": "string" },
+        "service": { "type": "string" }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "type": { "type": "string" }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Label constraints of the rule when it watches a custom metric, plus 'actor' when a machine requested the transition."
+    },
+    "grouped": {
+      "type": "object",
+      "description": "Present when the channel configured group_by: this delivery covers a burst.",
+      "properties": {
+        "count": { "type": "integer", "description": "Total events in the burst, including this one." },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#" },
+          "description": "The other events of the burst."
+        }
+      }
+    }
+  }
+}

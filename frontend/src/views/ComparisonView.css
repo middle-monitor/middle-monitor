@@ -1,0 +1,203 @@
+/* ============================================
+   Middle Monitor – Comparison pages (dark marketing theme)
+   ============================================ */
+
+.comparison-view {
+  min-height: 100vh;
+  background-color: #09090b;
+  color: #f4f4f5;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+}
+
+.comparison-main {
+  flex: 1;
+  padding: 3rem 0 4rem;
+}
+
+.comparison-container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.comparison-toc {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.comparison-toc a {
+  color: #a1a1aa;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid #27272a;
+  border-radius: 999px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.comparison-toc a:hover {
+  color: #f4f4f5;
+  border-color: #52525b;
+}
+
+.comparison-toc a.comparison-toc-active {
+  color: #f4f4f5;
+  border-color: var(--brand-primary, #8b5cf6);
+}
+
+.comparison-view h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+  line-height: 1.15;
+}
+
+.comparison-lead {
+  color: #d4d4d8;
+  font-size: 1.05rem;
+  margin: 0 0 1.25rem;
+}
+
+.comparison-fair {
+  color: #a1a1aa;
+  font-size: 0.9rem;
+  margin: 0 0 2.5rem;
+  padding: 0.85rem 1rem;
+  border-left: 2px solid #27272a;
+  background: #101012;
+  border-radius: 0 6px 6px 0;
+}
+
+.comparison-view section {
+  margin-bottom: 2rem;
+}
+
+.comparison-view h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+
+.comparison-view h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+}
+
+.comparison-view section p {
+  color: #a1a1aa;
+  font-size: 0.95rem;
+  margin: 0 0 0.75rem;
+}
+
+.comparison-faq-item {
+  margin-bottom: 1.25rem;
+}
+
+/* --- Index page --- */
+.comparison-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.comparison-index a {
+  display: block;
+  padding: 1rem 1.15rem;
+  border: 1px solid #27272a;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.comparison-index a:hover {
+  border-color: #52525b;
+  background: #101012;
+}
+
+.comparison-index strong {
+  display: block;
+  color: #f4f4f5;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.comparison-index span {
+  color: #a1a1aa;
+  font-size: 0.875rem;
+}
+
+/* --- CTA --- */
+.comparison-cta {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #27272a;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.comparison-cta a {
+  color: var(--brand-primary-hover, #a78bfa);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.comparison-cta a:hover {
+  text-decoration: underline;
+}
+
+/* --- Footer --- */
+.comparison-footer {
+  border-top: 1px solid #27272a;
+  padding: 2rem 1.5rem;
+}
+
+.comparison-footer-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.comparison-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.comparison-footer-links a {
+  color: #71717a;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.15s;
+}
+
+.comparison-footer-links a:hover {
+  color: #f4f4f5;
+}
+
+.comparison-footer-lang {
+  font-size: 0.85rem;
+}
+
+.comparison-footer-copy {
+  font-size: 0.8rem;
+  color: #71717a;
+  opacity: 0.6;
+  margin: 0;
+}

@@ -1,0 +1,332 @@
+/* Public status page. Same dark palette as the landing (HomeView.css owns the
+   --mm-* variables) so a visitor arriving from an alert lands on the same site. */
+
+.status-page {
+  min-height: 100vh;
+  background: var(--mm-bg, #09090b);
+  color: var(--mm-text-main, #f4f4f5);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.status-main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem 4rem;
+}
+
+.status-loading,
+.status-empty {
+  color: var(--mm-text-muted, #a1a1aa);
+  font-size: 0.9rem;
+}
+
+/* --- Overall banner --- */
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--mm-border, #27272a);
+  margin-bottom: 2.5rem;
+}
+.status-banner h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.status-banner p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mm-text-muted, #a1a1aa);
+}
+.status-banner-icon {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.status-banner.status-operational {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+}
+.status-banner.status-degraded {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+.status-banner.status-outage {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+.status-banner.status-unknown {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--mm-text-muted, #a1a1aa);
+}
+.status-banner h1 {
+  color: var(--mm-text-main, #f4f4f5);
+}
+
+/* --- Sections --- */
+.status-section {
+  margin-bottom: 2.5rem;
+}
+.status-section h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mm-text-muted, #a1a1aa);
+  margin: 0 0 1rem;
+}
+
+/* --- Components + uptime bars --- */
+.status-components {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--mm-bg-card, #18181b);
+  border: 1px solid var(--mm-border, #27272a);
+  border-radius: 14px;
+}
+
+.status-component header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+.status-component-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+/* The percentage sits between the two ends of the window it covers, so it can
+   never be read as "today". A rule on each side ties it to the timeline. */
+.status-footer-uptime {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--mm-text-muted, #a1a1aa);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.status-footer-uptime::before,
+.status-footer-uptime::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mm-border, #27272a);
+}
+
+.status-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.status-icon.status-operational {
+  color: #4ade80;
+}
+.status-icon.status-degraded {
+  color: #fbbf24;
+}
+.status-icon.status-outage {
+  color: #f87171;
+}
+.status-icon.status-unknown {
+  color: #52525b;
+}
+
+.status-bars {
+  display: flex;
+  gap: 2px;
+  height: 34px;
+}
+.status-bar {
+  position: relative;
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px;
+  background: #27272a;
+}
+.status-bar:hover {
+  filter: brightness(1.25);
+}
+
+/* --- Day tooltip --- */
+.status-tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 250px;
+  max-width: 300px;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #09090b;
+  border: 1px solid var(--mm-border-hover, #3f3f46);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+/* Above the bar by default; the component flips it below only when the bar sits
+   too high for the card to fit over it. */
+.status-tooltip.is-above {
+  bottom: calc(100% + 8px);
+}
+.status-tooltip.is-below {
+  top: calc(100% + 8px);
+}
+.status-tooltip strong {
+  font-size: 0.85rem;
+  color: var(--mm-text-main, #f4f4f5);
+}
+.status-tooltip-state {
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 600;
+}
+.status-tooltip-state em {
+  flex-shrink: 0;
+  font-style: normal;
+  font-weight: 500;
+  color: var(--mm-text-muted, #a1a1aa);
+}
+.status-tooltip-state.status-operational {
+  color: #4ade80;
+}
+.status-tooltip-state.status-degraded {
+  color: #fbbf24;
+}
+.status-tooltip-state.status-outage {
+  color: #f87171;
+}
+.status-tooltip-state.status-unknown {
+  color: var(--mm-text-muted, #a1a1aa);
+}
+.status-tooltip-line,
+.status-tooltip-related {
+  color: var(--mm-text-muted, #a1a1aa);
+  line-height: 1.45;
+}
+.status-tooltip-related {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--mm-border, #27272a);
+}
+
+/* The first and last bars would push their tooltip off the card. */
+.status-bar:first-child .status-tooltip {
+  left: 0;
+  transform: none;
+}
+.status-bar:last-child .status-tooltip {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.status-bar.status-operational {
+  background: #22c55e;
+}
+.status-bar.status-degraded {
+  background: #f59e0b;
+}
+.status-bar.status-outage {
+  background: #ef4444;
+}
+
+.status-component footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--mm-text-muted, #a1a1aa);
+}
+
+/* --- Incidents + maintenance --- */
+.status-incident-day h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--mm-border, #27272a);
+}
+.status-incident-day + .status-incident-day {
+  margin-top: 1.5rem;
+}
+
+.status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.status-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+.status-list li div {
+  display: flex;
+  flex-direction: column;
+}
+.status-list li span:last-child {
+  font-size: 0.8rem;
+  color: var(--mm-text-muted, #a1a1aa);
+}
+
+/* Severity reads as a colour next to the sentence, not as a second label. */
+.status-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 0.45rem;
+  border-radius: 50%;
+}
+.status-dot.status-severity-critical {
+  background: #ef4444;
+}
+.status-dot.status-severity-warning {
+  background: #f59e0b;
+}
+
+.status-maintenance svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--mm-brand-cyan, #06b6d4);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .status-main {
+    padding-top: 5rem;
+  }
+  /* Daily bars get unreadably thin on a phone; the percentage still tells the
+     story, so the history collapses instead of turning into a smear. */
+  .status-bars {
+    height: 24px;
+  }
+}
