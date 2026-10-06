@@ -291,3 +291,37 @@ func TestExplainStreamsAFreshReportOverSSE(t *testing.T) {
 		t.Fatalf("the answer is missing from the stream: %q", body)
 	}
 }
+
+// The LLM stream opens before it knows which engine will answer: a known
+// failure signature is settled by rules without calling the model. The engine
+// is reported once the answer is in, so the UI never labels rules as AI.
+func TestExplainStreamReportsTheEngineThatAnswered(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	mock.MatchExpectationsInOrder(false)
+	t.Setenv("EXPLAIN_MODE", "single_shot")
+	at := time.Now().UTC()
+
+	mock.ExpectQuery("SELECT EXISTS").WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
+	mock.ExpectQuery("FROM service_results sr").WillReturnRows(serviceResultContextRows().AddRow(
+		int64(9), int64(4), "fail", nil, "dial tcp: connection refused", at,
+		"api", "tcp", "db.internal:5432", nil))
+	for i := 0; i < 8; i++ {
+		mock.ExpectQuery(".*").WillReturnError(errors.New("db down"))
+	}
+
+	req := orgContext(httptest.NewRequest("POST", "/x?locale=en", nil), 1, 7)
+	req.Header.Set("Accept", "text/event-stream")
+	rec := httptest.NewRecorder()
+	handleExplainServiceResult(db)(rec, muxVars(req, map[string]string{"resultId": "9"}))
+
+	body := rec.Body.String()
+	last := strings.LastIndex(body, "event: metadata")
+	done := strings.Index(body, "data: [DONE]")
+	if last < 0 || done < 0 || last > done {
+		t.Fatalf("no metadata before the end of the stream: %q", body)
+	}
+	if !strings.Contains(body[last:done], `"model":"deterministic"`) {
+		t.Fatalf("the closing metadata does not name the engine: %q", body[last:done])
+	}
+}

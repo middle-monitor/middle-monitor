@@ -198,6 +198,12 @@ func runExplain(w http.ResponseWriter, r *http.Request, db *sql.DB, orgID int64,
 				return
 			}
 
+			// The engine is only known now: rules may have answered without the model.
+			finalMeta := initialMeta
+			finalMeta.Model = finalModel
+			finalMeta.DurationMS = finalDuration
+			metaBytes, _ = json.Marshal(finalMeta)
+			fmt.Fprintf(w, "event: metadata\ndata: %s\n\n", metaBytes)
 			fmt.Fprintf(w, "data: [DONE]\n\n")
 			flusher.Flush()
 

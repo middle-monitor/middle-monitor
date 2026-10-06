@@ -89,18 +89,29 @@ export function ExplainPanel({ fetchExplanationSSE, label, autoRun }: ExplainPan
     );
   }
 
+  // The engine names itself: only an answer that came from a model is labelled AI.
+  const ruleBased = meta?.model === 'rules' || meta?.model === 'deterministic';
+
   return (
     <div className="explain-panel-pro">
       <div className="explain-panel-header">
         <div className="explain-panel-title">
           {t('explain_panel.title')}
-          <span className="explain-panel-ai-badge">
-            <HiSparkles size={12} /> {t('explain_panel.ai_badge')}
-          </span>
+          {meta?.model && (
+            <span className="explain-panel-ai-badge">
+              {ruleBased ? (
+                t('explain_panel.rules_badge')
+              ) : (
+                <>
+                  <HiSparkles size={12} /> {t('explain_panel.ai_badge')}
+                </>
+              )}
+            </span>
+          )}
         </div>
         <div className="explain-panel-meta">
           {meta?.cached && <span className="explain-panel-badge">{t('explain_panel.cached_badge')}</span>}
-          {meta?.model && <span style={{ color: 'rgba(255,255,255,0.5)' }}>{meta.model}</span>}
+          {meta?.model && !ruleBased && <span style={{ color: 'rgba(255,255,255,0.5)' }}>{meta.model}</span>}
           {meta?.duration_ms && <span style={{ color: 'rgba(255,255,255,0.3)' }}>{meta.duration_ms}ms</span>}
           <button
             type="button"
