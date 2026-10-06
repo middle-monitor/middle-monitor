@@ -1,10 +1,15 @@
 import { useCallback, useRef } from 'react';
 
 import { useDateRange, type DateRange } from '../contexts/DateRangeContext';
+import { isSlidingPreset } from '../utils/dateRangePresets';
 
-// One definition for both the getter's identity and the query key.
+// One definition for both the getter's identity and the query key. A trailing
+// window keys on its id alone, or every tick would reload; a calendar period
+// adds its start, so the day rolling over reloads it once.
 function rangeKeyOf(dateRange: DateRange): string {
-  return dateRange.relative ?? `${dateRange.start.toISOString()}/${dateRange.end.toISOString()}`;
+  if (!dateRange.relative) return `${dateRange.start.toISOString()}/${dateRange.end.toISOString()}`;
+  if (isSlidingPreset(dateRange.relative)) return dateRange.relative;
+  return `${dateRange.relative}@${dateRange.start.toISOString()}`;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import { rangeForPreset } from '../../utils/dateRangePresets';
 import './DateRangePicker.css';
 
 interface DateRange {
@@ -39,105 +40,12 @@ function formatMonthYear(year: number, month: number, locale: string): string {
   );
 }
 
-const PRESETS: Preset[] = [
-  {
-    id: '15m',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now.getTime() - 15 * 60 * 1000);
-      return { start, end: now, relative: '15m' } as any;
-    },
-  },
-  {
-    id: '1h',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now.getTime() - 60 * 60 * 1000);
-      return { start, end: now, relative: '1h' } as any;
-    },
-  },
-  {
-    id: '6h',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now.getTime() - 6 * 60 * 60 * 1000);
-      return { start, end: now, relative: '6h' } as any;
-    },
-  },
-  {
-    id: '24h',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      return { start, end: now, relative: '24h' } as any;
-    },
-  },
-  {
-    id: 'today',
-    getRange: () => ({ start: startOfDay(new Date()), end: endOfDay(new Date()) }),
-  },
-  {
-    id: 'yesterday',
-    getRange: () => {
-      const d = new Date();
-      d.setDate(d.getDate() - 1);
-      return { start: startOfDay(d), end: endOfDay(d) };
-    },
-  },
-  {
-    id: 'this_week',
-    getRange: () => ({ start: startOfWeek(new Date()), end: endOfDay(new Date()) }),
-  },
-  {
-    id: 'this_month',
-    getRange: () => {
-      const now = new Date();
-      return { start: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)), end: endOfDay(now) };
-    },
-  },
-  {
-    id: 'this_quarter',
-    getRange: () => {
-      const now = new Date();
-      const qMonth = Math.floor(now.getMonth() / 3) * 3;
-      return { start: startOfDay(new Date(now.getFullYear(), qMonth, 1)), end: endOfDay(now) };
-    },
-  },
-  {
-    id: 'this_year',
-    getRange: () => {
-      const now = new Date();
-      return { start: startOfDay(new Date(now.getFullYear(), 0, 1)), end: endOfDay(now) };
-    },
-  },
-  {
-    id: '7d',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now);
-      start.setDate(start.getDate() - 7);
-      return { start: startOfDay(start), end: endOfDay(now), relative: '7d' } as any;
-    },
-  },
-  {
-    id: '30d',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now);
-      start.setDate(start.getDate() - 30);
-      return { start: startOfDay(start), end: endOfDay(now), relative: '30d' } as any;
-    },
-  },
-  {
-    id: '12_months',
-    getRange: () => {
-      const now = new Date();
-      const start = new Date(now);
-      start.setFullYear(start.getFullYear() - 1);
-      return { start: startOfDay(start), end: endOfDay(now) };
-    },
-  },
-];
+// Every preset is relative: the provider recomputes its bounds from the id as
+// time passes, so a picked "today" or "this week" never freezes.
+const PRESETS: Preset[] = ['15m', '1h', '6h', '24h', 'today', 'yesterday', 'this_week', 'this_month', 'this_quarter', 'this_year', '7d', '30d', '12_months'].map((id) => ({
+  id,
+  getRange: () => ({ ...rangeForPreset(id)!, relative: id }),
+}));
 
 function startOfDay(d: Date): Date {
   const r = new Date(d);
@@ -149,14 +57,6 @@ function endOfDay(d: Date): Date {
   const r = new Date(d);
   r.setHours(23, 59, 59, 999);
   return r;
-}
-
-function startOfWeek(d: Date): Date {
-  const r = new Date(d);
-  const day = r.getDay();
-  const diff = day === 0 ? -6 : 1 - day; // Monday = start
-  r.setDate(r.getDate() + diff);
-  return startOfDay(r);
 }
 
 function isSameDay(a: Date, b: Date): boolean {

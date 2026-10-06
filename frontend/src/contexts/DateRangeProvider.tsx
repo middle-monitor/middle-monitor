@@ -6,25 +6,9 @@ import {
   type DateRange,
   type DateRangeContextType,
 } from './DateRangeContext';
+import { rangeForPreset } from '../utils/dateRangePresets';
 
 const STORAGE_KEY = 'mm_date_range';
-
-// Single source of truth for relative range durations (in ms).
-const RELATIVE_MS: Record<string, number> = {
-  '15m': 15 * 60 * 1000,
-  '1h': 60 * 60 * 1000,
-  '3h': 3 * 60 * 60 * 1000,
-  '6h': 6 * 60 * 60 * 1000,
-  '24h': 24 * 60 * 60 * 1000,
-  '7d': 7 * 24 * 60 * 60 * 1000,
-  '30d': 30 * 24 * 60 * 60 * 1000,
-};
-
-// Returns the start Date for a relative range ending at `now`, or null if unknown.
-function relativeStart(relative: string, now: Date): Date | null {
-  const ms = RELATIVE_MS[relative];
-  return ms == null ? null : new Date(now.getTime() - ms);
-}
 
 function getDefaultRange(): DateRange {
   const now = new Date();
@@ -41,10 +25,9 @@ function loadStoredRange(): DateRange {
     if (!parsed.start || !parsed.end) return getDefaultRange();
 
     if (parsed.relative) {
-      // If it's relative, calculate fresh start/end based on current time
-      const now = new Date();
-      const start = relativeStart(parsed.relative, now) ?? new Date(parsed.start);
-      return { start, end: now, relative: parsed.relative };
+      // A preset is stored by id and recomputed for the current time.
+      const fresh = rangeForPreset(parsed.relative);
+      if (fresh) return { ...fresh, relative: parsed.relative };
     }
 
     const start = new Date(parsed.start);
@@ -86,12 +69,11 @@ export function DateRangeProvider({ children }: { children: ReactNode }) {
     if (!dateRange.relative) return;
 
     const intervalId = setInterval(() => {
-      const now = new Date();
-      const start = relativeStart(dateRange.relative!, now);
-      if (!start) return; // Unknown relative id, nothing to refresh
+      const fresh = rangeForPreset(dateRange.relative!);
+      if (!fresh) return; // Unknown relative id, nothing to refresh
 
       // Update state without saving to localStorage repeatedly
-      setDateRangeState({ start, end: now, relative: dateRange.relative });
+      setDateRangeState({ ...fresh, relative: dateRange.relative });
     }, 15000); // Check every 15 seconds
 
     return () => clearInterval(intervalId);
@@ -103,7 +85,12 @@ export function DateRangeProvider({ children }: { children: ReactNode }) {
       if (e.key === STORAGE_KEY && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue) as { start: string; end: string; relative?: string };
-          setDateRangeState({ start: new Date(parsed.start), end: new Date(parsed.end), relative: parsed.relative });
+          const fresh = parsed.relative ? rangeForPreset(parsed.relative) : null;
+          setDateRangeState(
+            fresh
+              ? { ...fresh, relative: parsed.relative }
+              : { start: new Date(parsed.start), end: new Date(parsed.end), relative: parsed.relative },
+          );
         } catch {
           // ignore
         }

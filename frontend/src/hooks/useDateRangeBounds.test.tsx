@@ -150,3 +150,26 @@ describe('useDateRangeBounds', () => {
     });
   });
 });
+
+// A calendar period only moves at midnight. Its key must change then, or a
+// view on "today" keeps yesterday's data after the day rolls over.
+describe('calendar presets', () => {
+  it('get a new key when the day rolls over, and only then', () => {
+    const monday = { start: new Date(2026, 9, 5), end: new Date(2026, 9, 5, 23, 59), relative: 'today' };
+    const h = harness(monday);
+    const mondayKey = h.seen.key;
+
+    h.swap({ ...monday, end: new Date(2026, 9, 5, 23, 59, 30) });
+    expect(h.seen.key).toBe(mondayKey);
+
+    h.swap({ start: new Date(2026, 9, 6), end: new Date(2026, 9, 6, 23, 59), relative: 'today' });
+    expect(h.seen.key).not.toBe(mondayKey);
+  });
+
+  it('a trailing window keeps one key while it slides', () => {
+    const h = harness({ start: new Date(2026, 9, 5, 8), end: new Date(2026, 9, 6, 8), relative: '24h' });
+    const key = h.seen.key;
+    h.swap({ start: new Date(2026, 9, 5, 9), end: new Date(2026, 9, 6, 9), relative: '24h' });
+    expect(h.seen.key).toBe(key);
+  });
+});

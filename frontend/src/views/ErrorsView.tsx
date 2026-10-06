@@ -22,6 +22,7 @@ import { useOrgApi, useOrgQueryScope } from '../hooks/useOrgApi';
 import { useUrlState, pageFromUrl, pageToUrl } from '../hooks/useUrlState';
 import { useQueryRefresh } from '../hooks/useQueryRefresh';
 import { RefreshControl } from '../components/RefreshControl';
+import { rangeForPreset } from '../utils/dateRangePresets';
 import { useOrgPath } from '../hooks/useOrgPath';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { useDateRange } from '../contexts/DateRangeContext';
@@ -315,18 +316,9 @@ function ErrorsView() {
 
     const relativeParam = searchParams.get('relative');
     if (relativeParam) {
-      const now = new Date();
-      const durations: Record<string, number> = {
-        '15m': 15 * 60 * 1000,
-        '1h': 60 * 60 * 1000,
-        '3h': 3 * 60 * 60 * 1000,
-        '24h': 24 * 60 * 60 * 1000,
-        '7d': 7 * 24 * 60 * 60 * 1000,
-        '30d': 30 * 24 * 60 * 60 * 1000,
-      };
-      const ms = durations[relativeParam];
-      if (ms) {
-        setDateRange({ start: new Date(now.getTime() - ms), end: now, relative: relativeParam });
+      const fresh = rangeForPreset(relativeParam);
+      if (fresh) {
+        setDateRange({ ...fresh, relative: relativeParam });
       }
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('relative');
