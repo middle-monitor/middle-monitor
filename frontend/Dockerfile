@@ -1,4 +1,5 @@
-FROM node:22-alpine AS builder
+# The bundle is platform independent: build it natively, ship it on any arch.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./

@@ -1,6 +1,8 @@
 # Build from the repository root (context: .)
+# Builder stages run on the build machine and cross-compile for TARGETARCH, so
+# a multi-arch build never runs Go under emulation.
 # Stage 1: Build agent binaries
-FROM golang:1.25-alpine AS agent-builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS agent-builder
 WORKDIR /agent
 
 # The version stamped into the binaries and published by GET /api/v1/agents/latest.
@@ -21,22 +23,26 @@ RUN mkdir -p dist && \
     printf '%s\n' "${AGENT_VERSION}" > dist/VERSION
 
 # Stage 2: Build backend binaries
-FROM golang:1.25-alpine AS backend-builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS backend-builder
+ARG TARGETOS=linux
+ARG TARGETARCH
 WORKDIR /app
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ .
-RUN CGO_ENABLED=0 go build -o api ./cmd/api
-RUN CGO_ENABLED=0 go build -o receiver ./cmd/receiver
-RUN CGO_ENABLED=0 go build -o worker ./cmd/worker
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o api ./cmd/api
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o receiver ./cmd/receiver
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o worker ./cmd/worker
 
 # Stage 3: Build payments service
-FROM golang:1.25-alpine AS payments-builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS payments-builder
+ARG TARGETOS=linux
+ARG TARGETARCH
 WORKDIR /app
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ .
-RUN CGO_ENABLED=0 go build -o payments ./cmd/payments
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o payments ./cmd/payments
 
 # Stage 4: Final payments image
 FROM alpine:3.19 AS payments

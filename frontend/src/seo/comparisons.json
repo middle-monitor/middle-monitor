@@ -102,7 +102,7 @@
       "faq": [
         {
           "q": "Is Middle Monitor self-hostable?",
-          "a": "On-premise deployment is available on the Custom plan. The Free and Pro plans are hosted."
+          "a": "Yes. Middle Monitor is open source (github.com/middle-monitor/middle-monitor): one Docker Compose file runs it on your own servers, with no plan limits. The hosted Free and Pro plans are there if you would rather not operate it."
         },
         {
           "q": "Does it support SNMP?",

@@ -130,7 +130,7 @@ export default function HomeView() {
 
   // Grouped by category (APM, error tracking, infra checks, logs, uptime) so
   // each answer stays honest and specific rather than a flat brand-name list.
-  const FAQ_ITEMS = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({
+  const FAQ_ITEMS = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({
     q: t(`home.faq.q${n}`),
     a: t(`home.faq.a${n}`),
   }));

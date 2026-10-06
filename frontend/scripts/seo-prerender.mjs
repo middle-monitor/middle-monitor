@@ -91,7 +91,7 @@ function homeBody() {
 // sync with the same source of truth.
 function faqItems() {
   const h = en.home.faq;
-  return [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ q: h[`q${n}`], a: h[`a${n}`] }));
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({ q: h[`q${n}`], a: h[`a${n}`] }));
 }
 
 function pricingBody() {

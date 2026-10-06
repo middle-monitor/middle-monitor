@@ -1,11 +1,33 @@
-# Middle Monitor
+<p align="center">
+  <img src="frontend/public/icon-192.png" width="72" alt="Middle Monitor logo">
+</p>
 
-Monitoring for teams that would rather not run five tools: uptime checks, host
-metrics, application errors, traces, logs and profiles in one place, with alerts
-that explain what probably went wrong.
+<h1 align="center">Middle Monitor</h1>
 
-Hosted version: [middlemonitor.io](https://middlemonitor.io). This repository is
-the full product and can be self-hosted.
+<p align="center">
+  When something breaks, you get the cause. Not five dashboards to cross-check.
+</p>
+
+<p align="center">
+  <a href="https://github.com/middle-monitor/middle-monitor/actions/workflows/ci.yml"><img src="https://github.com/middle-monitor/middle-monitor/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-FSL--1.1--ALv2-blue" alt="License: FSL-1.1-ALv2"></a>
+  <a href="https://github.com/middle-monitor/middle-monitor/tags"><img src="https://img.shields.io/github/v/tag/middle-monitor/middle-monitor?label=release" alt="Latest release"></a>
+  <a href="https://github.com/middle-monitor/middle-monitor/stargazers"><img src="https://img.shields.io/github/stars/middle-monitor/middle-monitor?style=flat" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
+  <a href="https://middlemonitor.io/demo"><b>Live demo</b></a> (no sign-up) ·
+  <a href="https://middlemonitor.io/docs">Docs</a> ·
+  <a href="#self-hosting">Self-hosting</a> ·
+  <a href="https://middlemonitor.io">Website</a>
+</p>
+
+![Middle Monitor overview](docs/images/overview.png)
+
+Uptime checks, host metrics, application errors, traces, logs and profiles in
+one place, with alerts that explain what probably went wrong. This repository is
+the full product: run it yourself, or use the hosted version at
+[middlemonitor.io](https://middlemonitor.io).
 
 ## What it does
 
@@ -20,7 +42,16 @@ the full product and can be self-hosted.
   Rules-based by default; can use any OpenAI-compatible model.
 - **Status page**: a public uptime page for the instance (`SELF_MONITOR_ORG_SLUG`).
 
+<p align="center">
+  <img src="docs/images/explain.png" width="560" alt="A failing call explained: the timeout, the host CPU spike before it, and the dependent service that failed with it">
+</p>
+
+How it compares with Datadog, Sentry, New Relic, Grafana, Nagios, Pingdom and others:
+[middlemonitor.io/alternatives](https://middlemonitor.io/alternatives).
+
 ## Self-hosting
+
+![Services and their latency history](docs/images/services.png)
 
 Requires Docker with Compose and about 3 GB of RAM (OpenSearch is the largest part).
 
@@ -28,8 +59,12 @@ Requires Docker with Compose and about 3 GB of RAM (OpenSearch is the largest pa
 git clone https://github.com/middle-monitor/middle-monitor.git
 cd middle-monitor/deploy/self-hosted
 cp .env.example .env   # fill in JWT_SECRET, DB_PASSWORD and SEED_ADMIN_*
-docker compose up -d --build
+docker compose up -d
 ```
+
+Prebuilt images (amd64 and arm64) are pulled from `ghcr.io/middle-monitor`;
+`MM_VERSION` in `.env` pins a release, and `docker compose up -d --build` builds
+from your checkout instead.
 
 Open <http://localhost:8000> and sign in with the `SEED_ADMIN_*` account. Without
 SMTP configured, signups cannot confirm their email, so the seeded admin is the
