@@ -132,6 +132,16 @@
       "feature_metrics": "Métriques d'infrastructure prêtes à l'emploi",
       "feature_config": "Aucune configuration complexe requise"
     },
+    "opensource": {
+      "title_1": "Open source.",
+      "title_2": "Hébergez-le sur vos serveurs.",
+      "subtitle": "La plateforme, l'agent et les SDK sont sur GitHub. Un seul fichier Docker Compose démarre tout ; la facturation reste désactivée, donc rien n'est limité.",
+      "feature_license": "Code sous licence FSL, Apache 2.0 au bout de deux ans",
+      "feature_compose": "API, workers, interface, PostgreSQL, OpenSearch et Kafka dans une seule stack",
+      "feature_data": "Vos données ne quittent jamais votre infrastructure",
+      "cta_github": "Voir sur GitHub",
+      "cta_selfhost": "Guide d'auto-hébergement"
+    },
     "bento": {
       "agent_title": "Métriques host via agent",
       "agent_desc": "Déployez notre agent binaire sur Linux ou macOS pour capturer automatiquement CPU, RAM, Disque et I/O réseau, sans modification de code.",
@@ -186,7 +196,9 @@
         "pricing": "Tarifs",
         "platform": "Plateforme",
         "features": "Fonctionnalités",
-        "contact": "Nous contacter"
+        "contact": "Nous contacter",
+        "github": "GitHub",
+        "self_hosting": "Auto-hébergement"
       }
     }
   },
@@ -797,6 +809,7 @@
     "btn_get_started": "Commencer",
     "btn_dashboard": "Tableau de bord",
     "nav_contact": "Contact",
+    "nav_github": "GitHub",
     "nav_status": "Page de statut",
     "nav_alternatives": "Alternatives",
     "nav_legal": "Mentions légales",
@@ -899,6 +912,7 @@
     "sidebar_intro": "Introduction",
     "sidebar_register": "Inscription & Navigation",
     "sidebar_2fa": "Authentification à deux facteurs",
+    "sidebar_self_hosting": "Auto-hébergement",
     "sidebar_infrastructure": "Infrastructure & Hosts",
     "sidebar_infrastructure_desc": "Configuration des machines et installation de l'agent Middle Monitor pour la collecte de métriques système.",
     "sidebar_host": "Ajouter un Host",

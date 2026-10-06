@@ -132,6 +132,16 @@
       "feature_metrics": "Out-of-the-box infrastructure metrics",
       "feature_config": "No complex configuration required"
     },
+    "opensource": {
+      "title_1": "Open source.",
+      "title_2": "Run it on your own servers.",
+      "subtitle": "The whole platform, agent and SDKs are on GitHub. One Docker Compose file starts everything; billing stays off, so nothing is capped.",
+      "feature_license": "Source available under FSL, Apache 2.0 after two years",
+      "feature_compose": "API, workers, UI, PostgreSQL, OpenSearch and Kafka in one stack",
+      "feature_data": "Your data never leaves your infrastructure",
+      "cta_github": "View on GitHub",
+      "cta_selfhost": "Self-hosting guide"
+    },
     "bento": {
       "agent_title": "Agent-based Host Metrics",
       "agent_desc": "Deploy our binary agent on Linux or macOS to automatically capture CPU, RAM, Disk, and Network IO without any code changes.",
@@ -186,7 +196,9 @@
         "pricing": "Pricing",
         "platform": "Platform",
         "features": "Features",
-        "contact": "Contact Us"
+        "contact": "Contact Us",
+        "github": "GitHub",
+        "self_hosting": "Self-hosting"
       }
     }
   },
@@ -797,6 +809,7 @@
     "btn_get_started": "Get Started",
     "btn_dashboard": "Dashboard",
     "nav_contact": "Contact",
+    "nav_github": "GitHub",
     "nav_status": "Status Page",
     "nav_alternatives": "Alternatives",
     "nav_legal": "Legal Notice",
@@ -899,6 +912,7 @@
     "sidebar_intro": "Introduction",
     "sidebar_register": "Registration & Navigation",
     "sidebar_2fa": "Two-Factor Authentication",
+    "sidebar_self_hosting": "Self-hosting",
     "sidebar_infrastructure": "Infrastructure & Hosts",
     "sidebar_infrastructure_desc": "Configure machines and install the Middle Monitor agent for system metrics collection.",
     "sidebar_host": "Add a Host",

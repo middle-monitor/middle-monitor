@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { SiGithub } from 'react-icons/si';
 import { HiArrowRight, HiBolt } from 'react-icons/hi2';
 import { useAuth } from '../contexts/AuthContext';
 import { isDemoMode } from '../demo/demoMode';
@@ -39,10 +40,10 @@ export function SiteHeader({ active, leadingActions, trailingActions }: SiteHead
         </Link>
 
         <nav className='site-nav'>
-          <a href='/#platform' className='site-nav-link'>
+          <a href='/#platform' className='site-nav-link site-nav-secondary'>
             {t('home.nav.platform')}
           </a>
-          <a href='/#features' className='site-nav-link'>
+          <a href='/#features' className='site-nav-link site-nav-secondary'>
             {t('home.nav.features')}
           </a>
           <Link
@@ -58,6 +59,15 @@ export function SiteHeader({ active, leadingActions, trailingActions }: SiteHead
           <Link to='/contact' className='site-nav-link'>
             {t('public.nav_contact')}
           </Link>
+          <a
+            href='https://github.com/middle-monitor/middle-monitor'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='site-nav-link site-nav-icon'
+            aria-label={t('public.nav_github')}
+            title={t('public.nav_github')}>
+            <SiGithub />
+          </a>
         </nav>
 
         <div className='site-header-actions'>

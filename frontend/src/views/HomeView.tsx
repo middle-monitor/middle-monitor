@@ -17,6 +17,7 @@ import {
   HiOutlineFire,
   HiOutlineEnvelope,
   HiOutlineLink,
+  HiOutlineLockClosed,
 } from 'react-icons/hi2';
 import {
   SiGo,
@@ -26,6 +27,8 @@ import {
   SiSlack,
   SiJira,
   SiWhatsapp,
+  SiGithub,
+  SiDocker,
 } from 'react-icons/si';
 import type { IconType } from 'react-icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -33,6 +36,16 @@ import { SiteHeader } from '../components/SiteHeader';
 import { isDemoMode } from '../demo/demoMode';
 import { useDocumentMeta } from '../seo/useDocumentMeta';
 import './HomeView.css';
+
+const GITHUB_REPO = 'https://github.com/middle-monitor/middle-monitor';
+
+const SELF_HOST_LINES = [
+  '$ git clone https://github.com/middle-monitor/middle-monitor.git',
+  '$ cd middle-monitor/deploy/self-hosted',
+  '$ cp .env.example .env',
+  '$ docker compose up -d --build',
+  '# then open http://localhost:8000',
+];
 
 export default function HomeView() {
   const { t } = useTranslation();
@@ -606,6 +619,73 @@ export default function HomeView() {
         </div>
       </section>
 
+      {/* Open source and self-hosting */}
+      <section id='open-source' className='mm-integration'>
+        <div className='mm-container mm-integration-grid'>
+          <div className='mm-integration-text'>
+            <h2>
+              {t('home.opensource.title_1')}
+              <br />
+              {t('home.opensource.title_2')}
+            </h2>
+            <p>{t('home.opensource.subtitle')}</p>
+            <ul className='mm-feature-list'>
+              <li>
+                <HiOutlineLockClosed className='mm-feat-icon' />{' '}
+                <span>{t('home.opensource.feature_license')}</span>
+              </li>
+              <li>
+                <HiOutlineServerStack className='mm-feat-icon' />{' '}
+                <span>{t('home.opensource.feature_compose')}</span>
+              </li>
+              <li>
+                <HiOutlineShieldCheck className='mm-feat-icon' />{' '}
+                <span>{t('home.opensource.feature_data')}</span>
+              </li>
+            </ul>
+            <div className='mm-hero-ctas'>
+              <a
+                href={GITHUB_REPO}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='mm-btn mm-btn-primary mm-btn-lg plausible-event-name=GitHub+Open'>
+                <SiGithub className='mm-btn-icon-left' />{' '}
+                {t('home.opensource.cta_github')}
+              </a>
+              <Link
+                to='/docs#self-hosting'
+                className='mm-btn mm-btn-outline mm-btn-lg'>
+                {t('home.opensource.cta_selfhost')}
+              </Link>
+            </div>
+          </div>
+
+          <div className='mm-code-window'>
+            <div className='mm-code-header'>
+              <div className='mm-code-tabs'>
+                <span className='mm-code-tab active'>
+                  <SiDocker /> Docker Compose
+                </span>
+              </div>
+            </div>
+            <div className='mm-code-body'>
+              {SELF_HOST_LINES.map((line) => (
+                <div key={line} className='mm-code-line'>
+                  {line.startsWith('$') ? (
+                    <>
+                      <span className='mm-prompt'>$</span>{' '}
+                      <span className='mm-cmd'>{line.slice(2)}</span>
+                    </>
+                  ) : (
+                    <span className='mm-comment'>{line}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Bento Box */}
       <section id='features' className='mm-bento-section'>
         <div className='mm-container'>
@@ -795,6 +875,12 @@ export default function HomeView() {
             )}
             <Link to='/get-started'>{t('home.footer.links.get_started')}</Link>
             <Link to='/docs'>{t('home.footer.links.docs')}</Link>
+            <Link to='/docs#self-hosting'>
+              {t('home.footer.links.self_hosting')}
+            </Link>
+            <a href={GITHUB_REPO} target='_blank' rel='noopener noreferrer'>
+              {t('home.footer.links.github')}
+            </a>
             <Link to='/pricing'>{t('home.footer.links.pricing')}</Link>
             <a href='#platform'>{t('home.footer.links.platform')}</a>
             <a href='#features'>{t('home.footer.links.features')}</a>

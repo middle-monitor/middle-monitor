@@ -76,6 +76,11 @@ const CATEGORIES = [
         labelKey: 'docs.sidebar_2fa',
         icon: HiOutlineShieldCheck,
       },
+      {
+        id: 'self-hosting',
+        labelKey: 'docs.sidebar_self_hosting',
+        icon: HiOutlineServerStack,
+      },
     ],
   },
   {
@@ -732,6 +737,75 @@ export default function DocumentationView() {
               <p>
                 At login, after your password you are prompted for the 6-digit
                 code (or a recovery code).
+              </p>
+            </div>
+
+            <div id='self-hosting' className='doc-subsection'>
+              <h3>
+                {t('docs.sidebar_self_hosting')}
+                <ShareAnchor />
+              </h3>
+              <p>
+                Middle Monitor is open source: the platform lives at{' '}
+                <a
+                  href={`${GITHUB_ORG}/middle-monitor`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  github.com/middle-monitor/middle-monitor
+                </a>{' '}
+                under the FSL-1.1-ALv2 license (free to use, modify and
+                self-host; each release becomes Apache 2.0 after two years). The
+                agent and the SDKs work the same against your own instance.
+              </p>
+              <p>
+                <strong>Run it</strong> on any machine with Docker Compose and
+                about 3 GB of RAM:
+              </p>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>Terminal</div>
+                <CodeBlock
+                  language='bash'
+                  code={`git clone https://github.com/middle-monitor/middle-monitor.git
+cd middle-monitor/deploy/self-hosted
+cp .env.example .env   # set JWT_SECRET, DB_PASSWORD and SEED_ADMIN_*
+docker compose up -d --build`}
+                />
+              </div>
+              <p>
+                Everything is served on <code>http://localhost:8000</code>{' '}
+                (<code>HTTP_PORT</code> changes it) behind a single Caddy entry
+                point: ingestion paths go to the receiver, the rest of{' '}
+                <code>/api</code> to the API, everything else to the UI. Put
+                your own TLS proxy in front and set <code>PUBLIC_URL</code> to
+                the address users and agents reach.
+              </p>
+              <p>
+                <strong>First sign-in</strong>
+              </p>
+              <p>
+                Sign in with the <code>SEED_ADMIN_EMAIL</code> /{' '}
+                <code>SEED_ADMIN_PASSWORD</code> account, created already
+                verified. Signups need an email confirmation, so configure{' '}
+                <code>SMTP_*</code> before inviting the rest of the team.
+              </p>
+              <div className='doc-callout'>
+                A self-hosted instance sells no plans: billing stays off unless{' '}
+                <code>BILLING_ENABLED=true</code>, every organization is
+                unlimited, and there is no trial. Retention defaults to 30 days;
+                a platform admin (<code>PLATFORM_ADMIN_EMAILS</code>) can set
+                quotas or retention per organization.
+              </div>
+              <p>
+                <strong>Agents and SDKs</strong> point at your instance instead
+                of <code>{API_URL}</code>: the install script served by your
+                instance already writes its own URL into the agent
+                configuration.
+              </p>
+              <p>
+                <strong>Updating</strong>: <code>git pull</code> then{' '}
+                <code>docker compose up -d --build</code>. Database migrations
+                run when the API starts. Every setting is listed in{' '}
+                <code>deploy/self-hosted/.env.example</code>.
               </p>
             </div>
           </section>
@@ -2194,8 +2268,15 @@ init_with_config(
                 in your privacy policy — or <code>off</code> to record none.
               </p>
               <p style={{ marginTop: '1rem' }}>
-                <strong>Source code.</strong> Every SDK and the Terraform
-                provider are open source:
+                <strong>Source code.</strong> The platform itself is open
+                source (
+                <a
+                  href={`${GITHUB_ORG}/middle-monitor`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  middle-monitor/middle-monitor
+                </a>
+                ), and so are every SDK and the Terraform provider:
               </p>
               <table className='doc-param-table'>
                 <thead>

@@ -35,6 +35,7 @@
   font-weight: 700;
   font-size: 1.25rem;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .site-logo-icon {
@@ -50,7 +51,25 @@
     gap: 1.5rem;
   }
 }
+/* Docs adds search and theme controls: keep everything on one line at laptop widths. */
+@media (min-width: 768px) and (max-width: 1180px) {
+  .site-nav {
+    gap: 1rem;
+  }
+  .site-nav-link {
+    font-size: 0.875rem;
+  }
+  /* Homepage anchors, also in the footer. */
+  .site-nav-secondary {
+    display: none;
+  }
+}
 
+.site-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.15rem;
+}
 .site-nav-link {
   color: var(--site-header-muted, #a1a1aa);
   text-decoration: none;

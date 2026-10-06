@@ -1074,3 +1074,8 @@
     min-height: 280px;
   }
 }
+
+/* Buttons under a feature list (open-source section). */
+.mm-integration-text .mm-hero-ctas {
+  margin-top: 2rem;
+}

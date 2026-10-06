@@ -43,6 +43,22 @@
     "summary": "Middle Monitor supports TOTP-based two-factor authentication with Google Authenticator, 1Password, Authy or any compatible app. Each user enrolls from Account by scanning a QR code and confirming a 6-digit code, which issues a set of single-use recovery codes shown only once. An admin can require 2FA for every member from Settings and Security: members who have not enrolled are sent to the enrollment screen on their next sign-in and cannot disable their own 2FA while enforcement is active."
   },
   {
+    "id": "self-hosting",
+    "title": "Self-hosting",
+    "category": "Getting Started",
+    "excerpt": "Run the open-source platform on your own servers with Docker Compose.",
+    "keywords": [
+      "self-hosted",
+      "open source",
+      "docker",
+      "docker compose",
+      "on-premise",
+      "install",
+      "github"
+    ],
+    "summary": "Middle Monitor is open source (github.com/middle-monitor/middle-monitor, FSL-1.1-ALv2). Clone the repository, copy deploy/self-hosted/.env.example to .env, set JWT_SECRET, DB_PASSWORD and the SEED_ADMIN_* account, then run docker compose up -d --build: the API, receiver, worker, UI, PostgreSQL, OpenSearch and Kafka start behind one Caddy entry point on port 8000. Billing stays off unless BILLING_ENABLED=true, so every organization is unlimited; agents and SDKs point at your own instance."
+  },
+  {
     "id": "host-groups",
     "title": "Host Groups",
     "category": "Infrastructure",
