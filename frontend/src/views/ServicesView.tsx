@@ -235,7 +235,7 @@ function ServicesView() {
         <div>
           <h1 className="page-title">{t('services.title')}</h1>
           <p className="page-subtitle">
-            {t('services.subtitle', { total: statValue(stats.total) })}
+            {t('services.subtitle', { count: stats.total, value: statValue(stats.total) })}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>

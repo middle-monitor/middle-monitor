@@ -186,7 +186,10 @@ function TimelineView() {
           <HiClock className='card-title-icon' style={{ color: 'var(--brand-primary)' }} />
           <span>{t('timeline_view.recent_events')}</span>
           <span style={{ marginLeft: 'auto', fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-secondary)' }}>
-            {t('timeline_view.event_count', { total: eventValue(filteredEvents.length) })}
+            {t('timeline_view.event_count', {
+              count: filteredEvents.length,
+              value: eventValue(filteredEvents.length),
+            })}
           </span>
         </h2>
 

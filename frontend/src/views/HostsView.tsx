@@ -188,7 +188,13 @@ function HostsView() {
         <div>
           <h1 className="page-title">{t('hosts.title')}</h1>
           <p className="page-subtitle">
-            {t('hosts.subtitle', { total: statValue(stats.total), services: statValue(stats.total_services) })}
+            {t('hosts.subtitle', {
+              hosts: t('hosts.count', { count: stats.total, value: statValue(stats.total) }),
+              services: t('hosts.services_count', {
+                count: stats.total_services,
+                value: statValue(stats.total_services),
+              }),
+            })}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
@@ -357,7 +363,7 @@ function HostsView() {
                         />
                       </td>
                       <td>
-                        <div className="hosts-name-cell" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <div className="hosts-name-cell" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <span className="hosts-name">{host.display_name || host.name}</span>
                           {maint && <MaintenanceBadge window={maint} />}
                         </div>

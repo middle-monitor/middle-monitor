@@ -22,7 +22,7 @@
 .trace-row { cursor: pointer; transition: background 0.1s; }
 .trace-row:hover { background: var(--bg-secondary); }
 .trace-timestamp { color: var(--text-tertiary); font-family: monospace; font-size: 0.75rem; white-space: nowrap; }
-.trace-service { font-weight: 500; }
+.trace-service { font-weight: 500; white-space: nowrap; }
 .trace-operation { font-family: monospace; }
 .trace-duration { font-family: monospace; font-weight: 500; }
 

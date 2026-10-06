@@ -532,6 +532,7 @@ function ErrorsView() {
           <div
             style={{
               display: 'flex',
+              flex: 1,
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '1rem',
@@ -573,6 +574,7 @@ function ErrorsView() {
           <div
             style={{
               display: 'flex',
+              flex: 1,
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '1rem',
@@ -608,6 +610,7 @@ function ErrorsView() {
           <div
             style={{
               display: 'flex',
+              flex: 1,
               justifyContent: 'space-between',
               alignItems: 'flex-start',
               flexWrap: 'wrap',
@@ -678,63 +681,23 @@ function ErrorsView() {
             <div className='stat-card'>
               <div className='stat-label'>{t('services.stats.total')}</div>
               <div className='stat-value error'>{stats.total}</div>
+              <div className='stat-label' style={{ marginTop: '1rem' }}>
+                {t('errors_view.stats.by_application')}
+              </div>
+              <BreakdownList
+                counts={stats.by_service}
+                title={t('errors_view.open_application')}
+                onPick={(name) => handleFilterChange(`service:${name}`)}
+              />
             </div>
 
             <div className='stat-card'>
               <div className='stat-label'>{t('errors_view.stats.by_error_type')}</div>
-              <div style={{ marginTop: '0.75rem' }}>
-                {Object.entries(stats.by_error || {})
-                  .slice(0, 5)
-                  .map(([errorName, count]) => (
-                    <div
-                      key={errorName}
-                      role='button'
-                      tabIndex={0}
-                      onClick={() => filterByErrorName(errorName)}
-                      onKeyDown={(e) => e.key === 'Enter' && filterByErrorName(errorName)}
-                      title={t('errors_view.filter_by_type')}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        fontSize: '0.8125rem',
-                        padding: '0.375rem 0.375rem',
-                        borderBottom: '1px solid var(--border-primary)',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--bg-hover)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                      }}>
-                      <span
-                        style={{
-                          color: 'var(--text-secondary)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          marginRight: '0.5rem',
-                          flex: 1,
-                        }}>
-                        {errorName}
-                      </span>
-                      <span
-                        style={{
-                          color: 'var(--status-error)',
-                          fontWeight: 600,
-                          background: 'var(--status-error-bg)',
-                          padding: '0.125rem 0.5rem',
-                          borderRadius: '4px',
-                          fontSize: '0.75rem',
-                          flexShrink: 0,
-                        }}>
-                        {count as number}
-                      </span>
-                    </div>
-                  ))}
-              </div>
+              <BreakdownList
+                counts={stats.by_error}
+                title={t('errors_view.filter_by_type')}
+                onPick={filterByErrorName}
+              />
             </div>
           </div>
         </div>
@@ -1382,3 +1345,69 @@ function ErrorsView() {
 }
 
 export default ErrorsView;
+
+interface BreakdownListProps {
+  counts: Record<string, number> | undefined;
+  title: string;
+  onPick: (name: string) => void;
+}
+
+// The five largest entries of a count map, each one a drill-down.
+function BreakdownList({ counts, title, onPick }: BreakdownListProps) {
+  const top = Object.entries(counts || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  return (
+    <div style={{ marginTop: '0.75rem' }}>
+      {top.map(([name, count]) => (
+        <div
+          key={name}
+          role='button'
+          tabIndex={0}
+          onClick={() => onPick(name)}
+          onKeyDown={(e) => e.key === 'Enter' && onPick(name)}
+          title={title}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: '0.8125rem',
+            padding: '0.375rem 0.375rem',
+            borderBottom: '1px solid var(--border-primary)',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--bg-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}>
+          <span
+            style={{
+              color: 'var(--text-secondary)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              marginRight: '0.5rem',
+              flex: 1,
+            }}>
+            {name}
+          </span>
+          <span
+            style={{
+              color: 'var(--status-error)',
+              fontWeight: 600,
+              background: 'var(--status-error-bg)',
+              padding: '0.125rem 0.5rem',
+              borderRadius: '4px',
+              fontSize: '0.75rem',
+              flexShrink: 0,
+            }}>
+            {count}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}

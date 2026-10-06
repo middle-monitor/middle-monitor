@@ -178,7 +178,9 @@
       "q7": "Existe-t-il une alternative à Pingdom, UptimeRobot ou Better Stack pour le monitoring de disponibilité ?",
       "a7": "Middle Monitor inclut des checks HTTP, ping, SQL, certificat et SNMP avec alerting sur incidents dans la même plateforme que vos traces et logs, sans avoir besoin d'un outil de disponibilité séparé comme Pingdom, UptimeRobot ou Better Stack.",
       "q8": "Quelles données sont envoyées à l'IA pour l'analyse de cause racine ?",
-      "a8": "Une charge utile minimale, envoyée à Groq : le nom et le message de l'erreur, le fichier et la ligne, le nom du service, l'horodatage, ainsi que la méthode et l'URL HTTP de la requête en échec — plus le statut, le type et la cible d'un check en échec. Les corps de requêtes, les en-têtes HTTP et les identifiants d'organisation sont retirés avant l'appel, et le contenu des logs n'est jamais transmis : seul leur nombre l'est. Les explications d'infrastructure comme la saturation CPU ou disque sont produites par des règles déterministes et n'atteignent jamais un modèle."
+      "a8": "Une charge utile minimale, envoyée à Groq : le nom et le message de l'erreur, le fichier et la ligne, le nom du service, l'horodatage, ainsi que la méthode et l'URL HTTP de la requête en échec — plus le statut, le type et la cible d'un check en échec. Les corps de requêtes, les en-têtes HTTP et les identifiants d'organisation sont retirés avant l'appel, et le contenu des logs n'est jamais transmis : seul leur nombre l'est. Les explications d'infrastructure comme la saturation CPU ou disque sont produites par des règles déterministes et n'atteignent jamais un modèle.",
+      "q9": "Middle Monitor est-il open source ? Puis-je l'héberger moi-même ?",
+      "a9": "Oui. La plateforme, l'agent et les SDK sont sur GitHub (github.com/middle-monitor/middle-monitor) sous licence FSL-1.1-ALv2 : libre d'utilisation, de modification et d'auto-hébergement pour tout usage sauf un service commercial concurrent, et chaque version passe sous Apache 2.0 au bout de deux ans. Un seul fichier Docker Compose démarre toute la stack, et une instance auto-hébergée n'a aucune limite de plan."
     },
     "cta": {
       "title": "Essayez-le sur votre propre stack.",
@@ -708,7 +710,11 @@
   "hosts": {
     "title": "Hosts",
     "new_host": "Nouveau Host",
-    "subtitle": "{{total}} host(s) · {{services}} service(s)",
+    "subtitle": "{{hosts}} · {{services}}",
+    "count_one": "{{value}} host",
+    "count_other": "{{value}} hosts",
+    "services_count_one": "{{value}} service",
+    "services_count_other": "{{value}} services",
     "stats": {
       "total": "Total",
       "healthy": "Opérationnels",
@@ -1258,7 +1264,8 @@
     "subtitle": "Historique des événements et activités",
     "load_error": "Erreur lors du chargement de la timeline",
     "recent_events": "Événements Récents",
-    "event_count": "{{total}} événement(s)",
+    "event_count_one": "{{value}} événement",
+    "event_count_other": "{{value}} événements",
     "all_services": "Tous les services",
     "filters": {
       "all": "Tous les événements",
@@ -1335,7 +1342,8 @@
     "context": {
       "data_from": "Données de :",
       "host_prefix": "Host : {{details}}",
-      "hosts_count": "{{count}} host(s) : {{hosts}}"
+      "hosts_count_one": "{{count}} host : {{hosts}}",
+      "hosts_count_other": "{{count}} hosts : {{hosts}}"
     },
     "stats": {
       "avg_cpu": "CPU moyen",
@@ -1406,7 +1414,8 @@
     "token_fallback_alert": "Token : {{token}}",
     "overview_24h": "Vue d'ensemble (24h)",
     "stats": {
-      "by_error_type": "Par Type d'Erreur"
+      "by_error_type": "Par Type d'Erreur",
+      "by_application": "Par Application"
     },
     "apps_table_title": "Applications",
     "table": {
@@ -1419,6 +1428,7 @@
     "status_quiet": "Aucune erreur sur la période sélectionnée",
     "view_service_errors": "Voir les erreurs de cette application",
     "filter_by_type": "Voir ces erreurs",
+    "open_application": "Ouvrir cette application",
     "copy_token_title": "Copier le token pour MIDDLE_MONITOR_TOKEN (SDK)",
     "copy_token": "Copier le token",
     "add_correlation": "Ajouter une corrélation",
@@ -1554,7 +1564,8 @@
   "services": {
     "title": "Services",
     "new_service": "Nouveau service",
-    "subtitle": "{{total}} service(s) dans votre organisation",
+    "subtitle_one": "{{value}} service dans votre organisation",
+    "subtitle_other": "{{value}} services dans votre organisation",
     "stats": {
       "total": "Total",
       "healthy": "Opérationnels",
@@ -1983,6 +1994,7 @@
     "empty_description": "Analyse de la cause racine par IA",
     "title": "Cause racine",
     "ai_badge": "Analyse IA",
+    "rules_badge": "Règles",
     "regenerate": "Rafraîchir",
     "regenerate_title": "Relancer l'analyse",
     "generation_failed": "Échec de l'analyse",

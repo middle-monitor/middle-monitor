@@ -154,7 +154,7 @@ function TracesView() {
             <thead>
               <tr>
                 <th style={{ width: '150px' }}>{t('traces_view.table.timestamp')}</th>
-                <th style={{ width: '120px' }}>{t('traces_view.table.service')}</th>
+                <th style={{ width: '180px' }}>{t('traces_view.table.service')}</th>
                 <th>{t('traces_view.table.operation')}</th>
                 <th style={{ width: '80px' }}>{t('traces_view.table.kind')}</th>
                 <th style={{ width: '80px' }}>{t('traces_view.table.status')}</th>
