@@ -12,6 +12,9 @@ import {
   HiOutlineExclamationCircle,
   HiOutlineShieldCheck,
   HiOutlineWrenchScrewdriver,
+  HiOutlineRocketLaunch,
+  HiOutlineGlobeAlt,
+  HiOutlineCodeBracket,
 } from 'react-icons/hi2';
 import {
   type OrganizationStats,
@@ -24,6 +27,7 @@ import { useOrgApi, useOrgQueryScope } from '../hooks/useOrgApi';
 import { useQueryRefresh } from '../hooks/useQueryRefresh';
 import { RefreshControl } from '../components/RefreshControl';
 import { useOrgPath } from '../hooks/useOrgPath';
+import { useServiceModal } from '../contexts/ServiceModalContext';
 import { Skeleton } from '../components/Skeleton';
 import './OverviewView.css';
 
@@ -33,6 +37,7 @@ function OverviewView() {
   const { orgPath } = useOrgPath();
   const navigate = useNavigate();
   const scope = useOrgQueryScope();
+  const { openModal } = useServiceModal();
 
   const { refetchInterval, buildControl } = useQueryRefresh('overview', 30000);
 
@@ -250,6 +255,30 @@ function OverviewView() {
           </div>
         </Link>
       </div>
+
+      {/* A new org has nothing to show yet: point at the three ways in. */}
+      {serviceStats.total === 0 && hostStats.total === 0 && (
+        <div className='card' style={{ marginBottom: '1.5rem' }}>
+          <div className='empty-state'>
+            <HiOutlineRocketLaunch className='empty-state-icon' />
+            <div className='empty-state-title'>{t('overview.get_started.title')}</div>
+            <div className='empty-state-description'>
+              {t('overview.get_started.description')}
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button type='button' className='empty-state-action' onClick={() => openModal(null, [])}>
+                <HiOutlineGlobeAlt /> {t('overview.get_started.check')}
+              </button>
+              <Link to={orgPath('/api-keys')} className='empty-state-action'>
+                <HiOutlineServerStack /> {t('overview.get_started.agent')}
+              </Link>
+              <Link to={orgPath('/errors')} className='empty-state-action'>
+                <HiOutlineCodeBracket /> {t('overview.get_started.sdk')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Main 2×2 grid ── */}
       <div className='overview-grid'>

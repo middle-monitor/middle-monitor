@@ -472,6 +472,13 @@
     "title": "Vue d'ensemble",
     "subtitle": "Vue d'ensemble de votre infrastructure",
     "load_error": "Erreur lors du chargement de la vue d'ensemble",
+    "get_started": {
+      "title": "Rien n'est encore surveillé",
+      "description": "Commencez par un check de disponibilité : donnez-lui une URL, il tourne chaque minute. Ajoutez l'agent pour les métriques du host, ou un SDK pour les erreurs, traces et logs.",
+      "check": "Ajouter un check",
+      "agent": "Installer l'agent",
+      "sdk": "Instrumenter une application"
+    },
     "stat": {
       "services": "Services",
       "hosts": "Hosts",
@@ -572,7 +579,7 @@
     "error_update_role": "Échec de la mise à jour du rôle",
     "error_checkout": "Échec de l'initialisation du paiement",
     "section_smtp": "Email / SMTP",
-    "smtp_desc": "Les canaux d'alerte email envoient via votre propre serveur SMTP. Sans SMTP configuré, les alertes email ne sont pas délivrées.",
+    "smtp_desc": "Les canaux d'alerte email envoient via votre propre serveur SMTP. Sans SMTP, les alertes sont envoyées par Middle Monitor, uniquement aux membres de cette organisation.",
     "smtp_host": "Hôte SMTP",
     "smtp_port": "Port",
     "smtp_user": "Identifiant",
@@ -1748,13 +1755,16 @@
       "attempts_out_of_range": "Le nombre de tentatives doit être entre 1 et 10",
       "sql_port_invalid": "Le port SQL doit être entre 1 et 65535",
       "save_update": "Erreur lors de la mise à jour du service",
-      "save_create": "Erreur lors de la création du service"
+      "save_create": "Erreur lors de la création du service",
+      "new_host_invalid": "Le nom du host ne peut contenir que des lettres, chiffres, points, tirets et underscores"
     },
     "labels": {
       "host": "Host *",
       "choose_host": "Choisir un host…",
       "host_belongs_hint": "Un service doit appartenir à un host.",
       "no_hosts": "Aucun host disponible. Ajoutez d'abord un host depuis la vue Hosts.",
+      "new_host": "Host",
+      "new_host_hint": "Aucun host pour l'instant : celui-ci est créé avec le check. Installez l'agent dessus plus tard pour corréler ses métriques.",
       "display_name": "Nom d'affichage (optionnel)",
       "service_name": "Nom du Service *",
       "check_type": "Type de Check *",
@@ -1810,6 +1820,7 @@
     },
     "placeholders": {
       "display_name": "ex: API Health Check",
+      "new_host": "ex : web-01",
       "service_name": "ex: api-health-check",
       "url": "ex: https://api.example.com",
       "path": "ex: /health ou /api/status",

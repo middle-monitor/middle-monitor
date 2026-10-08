@@ -472,6 +472,13 @@
     "title": "Overview",
     "subtitle": "An overview of your infrastructure",
     "load_error": "Error loading the overview",
+    "get_started": {
+      "title": "Nothing is monitored yet",
+      "description": "Start with an uptime check: give it a URL and it runs every minute. Add the agent for host metrics, or an SDK for errors, traces and logs.",
+      "check": "Add an uptime check",
+      "agent": "Install the agent",
+      "sdk": "Instrument an application"
+    },
     "stat": {
       "services": "Services",
       "hosts": "Hosts",
@@ -572,7 +579,7 @@
     "error_update_role": "Failed to update role",
     "error_checkout": "Failed to initialize checkout",
     "section_smtp": "Email / SMTP",
-    "smtp_desc": "Email alert channels send through your own SMTP server. Without a configured SMTP, email alerts will not be delivered.",
+    "smtp_desc": "Email alert channels send through your own SMTP server. Without one, alerts are sent by Middle Monitor, to members of this organization only.",
     "smtp_host": "SMTP host",
     "smtp_port": "Port",
     "smtp_user": "Username",
@@ -1748,13 +1755,16 @@
       "attempts_out_of_range": "Max attempts must be between 1 and 10",
       "sql_port_invalid": "SQL port must be between 1 and 65535",
       "save_update": "Error updating service",
-      "save_create": "Error creating service"
+      "save_create": "Error creating service",
+      "new_host_invalid": "Host name may only contain letters, digits, dots, dashes and underscores"
     },
     "labels": {
       "host": "Host *",
       "choose_host": "Choose a host…",
       "host_belongs_hint": "A service must belong to a host.",
       "no_hosts": "No hosts available. Add a host first from the Hosts view.",
+      "new_host": "Host",
+      "new_host_hint": "No host yet: this one is created with the check. Install the agent on it later to correlate its metrics.",
       "display_name": "Display name (optional)",
       "service_name": "Service Name *",
       "check_type": "Check Type *",
@@ -1810,6 +1820,7 @@
     },
     "placeholders": {
       "display_name": "e.g. API Health Check",
+      "new_host": "e.g. web-01",
       "service_name": "e.g. api-health-check",
       "url": "e.g. https://api.example.com",
       "path": "e.g. /health or /api/status",

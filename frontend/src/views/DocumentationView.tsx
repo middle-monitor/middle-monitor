@@ -2540,7 +2540,7 @@ func HandleCheckout(ctx context.Context, order Order) error {
                 {lang === 'node' && (
                   <CodeBlock
                     language='tsx'
-                    code={`import { capturePanicGlobal, reportError } from '@middle-monitor/sdk';
+                    code={`import { capturePanicGlobal, reportError, shutdown } from '@middle-monitor/sdk';
 import { expressMiddleware } from '@middle-monitor/sdk/expressMiddleware';
 
 // 1. Global capture of uncaught exceptions — add once at startup
@@ -2557,7 +2557,10 @@ async function handleCheckout(order: Order): Promise<void> {
 }
 
 // 3. Automatic HTTP 5xx capture + request traces (Express middleware)
-app.use(expressMiddleware());`}
+app.use(expressMiddleware());
+
+// 4. Scripts, cron jobs, lambdas: flush before exiting
+await shutdown();`}
                   />
                 )}
                 {lang === 'python' && (

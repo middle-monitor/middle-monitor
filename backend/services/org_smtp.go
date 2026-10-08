@@ -27,6 +27,10 @@ func (s *SMTPSettings) Usable() bool {
 // It returns (nil, false) when the org has no usable SMTP configuration.
 var OrgSMTPProvider func(orgID int64) (*SMTPSettings, bool)
 
+// OrgMemberEmails returns the lowercased verified emails of an organization's
+// members. Wired with OrgSMTPProvider.
+var OrgMemberEmails func(orgID int64) map[string]bool
+
 // InitOrgSMTPProvider wires OrgSMTPProvider to a database. Each process that can
 // dispatch email alerts (api, receiver, worker) calls this at startup.
 func InitOrgSMTPProvider(db *sql.DB) {
@@ -43,6 +47,24 @@ func InitOrgSMTPProvider(db *sql.DB) {
 			return nil, false
 		}
 		return &SMTPSettings{Host: host, Port: port, User: user, Pass: pass, From: from}, true
+	}
+	OrgMemberEmails = func(orgID int64) map[string]bool {
+		rows, err := db.Query(`
+			SELECT LOWER(u.email) FROM memberships m
+			JOIN users u ON u.id = m.user_id
+			WHERE m.organization_id = $1 AND u.email_verified`, orgID)
+		if err != nil {
+			return nil
+		}
+		defer rows.Close()
+		emails := map[string]bool{}
+		for rows.Next() {
+			var email string
+			if rows.Scan(&email) == nil {
+				emails[email] = true
+			}
+		}
+		return emails
 	}
 }
 

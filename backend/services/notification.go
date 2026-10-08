@@ -450,18 +450,40 @@ func sendEmail(channel models.NotificationChannel, title, message string) error 
 		targets[i] = strings.TrimSpace(targets[i])
 	}
 
-	// Email alerts go through the organization's own SMTP server. There is no
-	// fallback to the platform SMTP: if the org has not configured one, the
-	// notification is not sent (and the misconfiguration is logged).
+	// Email alerts go through the organization's own SMTP server when it has one.
 	if OrgSMTPProvider == nil {
 		return ErrOrgSMTPMissing
 	}
-	cfg, ok := OrgSMTPProvider(channel.OrganizationID)
-	if !ok || !cfg.Usable() {
-		slog.Warn("org has no smtp configured, email alert not sent", "org_id", channel.OrganizationID, "title", title)
+	if cfg, ok := OrgSMTPProvider(channel.OrganizationID); ok && cfg.Usable() {
+		return sendSMTPWith(cfg.Host, cfg.Port, cfg.User, cfg.Pass, cfg.From, targets, title, alertEmailHTML(title, message))
+	}
+
+	// Otherwise the platform server sends them, to the org's verified members
+	// only: anyone can sign up, so it must never mail an address they typed.
+	var members map[string]bool
+	if OrgMemberEmails != nil {
+		members = OrgMemberEmails(channel.OrganizationID)
+	}
+	allowed := memberTargets(targets, members)
+	if len(allowed) == 0 {
+		slog.Warn("email alert not sent, no smtp and no member recipient", "org_id", channel.OrganizationID, "title", title)
 		return ErrOrgSMTPMissing
 	}
-	return sendSMTPWith(cfg.Host, cfg.Port, cfg.User, cfg.Pass, cfg.From, targets, title, alertEmailHTML(title, message))
+	if len(allowed) < len(targets) {
+		slog.Warn("email alert skipped non-member recipients", "org_id", channel.OrganizationID, "skipped", len(targets)-len(allowed))
+	}
+	return sendSMTP(allowed, title, alertEmailHTML(title, message))
+}
+
+// memberTargets keeps the targets that belong to the organization's members.
+func memberTargets(targets []string, members map[string]bool) []string {
+	var allowed []string
+	for _, t := range targets {
+		if members[strings.ToLower(t)] {
+			allowed = append(allowed, t)
+		}
+	}
+	return allowed
 }
 
 // SendOrgTestEmail sends a test email to `to` using the organization's own SMTP

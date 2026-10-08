@@ -325,3 +325,22 @@ func TestSendWhatsApp_MissingPhoneAndToken(t *testing.T) {
 	// Missing config → error (either network or missing config)
 	_ = err // we just need coverage; error is expected
 }
+
+// Without an org SMTP the platform server sends the alert. Anyone can sign up
+// and type any address in a channel, so a non-member must never receive mail
+// from the platform, or the alert channel becomes a spam relay.
+func TestPlatformEmailFallbackOnlyReachesMembers(t *testing.T) {
+	members := map[string]bool{"ops@acme.io": true}
+
+	got := memberTargets([]string{"Ops@Acme.io", "victim@example.com"}, members)
+
+	if len(got) != 1 || got[0] != "Ops@Acme.io" {
+		t.Fatalf("got %v, want only the member address (matched case-insensitively)", got)
+	}
+}
+
+func TestPlatformEmailFallbackSendsNothingWithoutMembers(t *testing.T) {
+	if got := memberTargets([]string{"victim@example.com"}, nil); len(got) != 0 {
+		t.Fatalf("got %v, want no recipient when the member lookup is unavailable", got)
+	}
+}

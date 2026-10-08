@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { HiPlus, HiPencil, HiX } from 'react-icons/hi';
@@ -13,7 +13,7 @@ import {
 } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 import { useServiceModal } from '../contexts/ServiceModalContext';
-import { type Service } from '../api';
+import { type Host, type Service } from '../api';
 import { useOrgApi, useOrgQueryScope } from '../hooks/useOrgApi';
 import { invalidateServiceWrite } from '../queryClient';
 import { slugifyName } from '../utils/slugify';
@@ -75,6 +75,15 @@ interface SQLCredentials {
   password?: string;
 }
 
+// Name for the host a check creates when the org has none yet: the target's hostname.
+function hostNameFromTarget(target: string): string {
+  try {
+    return new URL(target.includes('://') ? target : `http://${target}`).hostname;
+  } catch {
+    return '';
+  }
+}
+
 export default function ServiceModal() {
   const { t } = useTranslation();
   const orgApi = useOrgApi();
@@ -85,6 +94,11 @@ export default function ServiceModal() {
     !!editingService &&
     'id' in editingService &&
     editingService.id !== undefined;
+  // Without any host, the check creates one instead of blocking the first check.
+  const needsNewHost = !isEditing && hosts.length === 0;
+  const [newHostName, setNewHostName] = useState('');
+  // Reused on retry, so a failed service create does not create the host twice.
+  const createdHost = useRef<Host | null>(null);
 
   const parseSQLCredentials = (credentials?: string | null): SQLCredentials => {
     if (!credentials) {
@@ -262,6 +276,8 @@ export default function ServiceModal() {
     } else if (isOpen && !editingService) {
       // Reset form when opening for new service (preselect if a single host)
       const onlyHost = hosts.length === 1 ? hosts[0] : null;
+      setNewHostName('');
+      createdHost.current = null;
       setFormData({
         host_id: onlyHost ? onlyHost.id : null,
         name: '',
@@ -306,7 +322,7 @@ export default function ServiceModal() {
     setSubmitting(true);
 
     try {
-      if (!formData.host_id) {
+      if (!formData.host_id && !needsNewHost) {
         setError(t('service_modal.errors.host_required'));
         setSubmitting(false);
         return;
@@ -395,7 +411,21 @@ export default function ServiceModal() {
         }
       }
 
-      const selectedHost = hosts.find((h) => h.id === formData.host_id);
+      let selectedHost = hosts.find((h) => h.id === formData.host_id);
+      if (!selectedHost && needsNewHost) {
+        const name =
+          newHostName.trim() ||
+          hostNameFromTarget(formData.type === 'sql' ? formData.sql_host : formData.host);
+        if (!/^[a-zA-Z0-9._-]+$/.test(name)) {
+          setError(t('service_modal.errors.new_host_invalid'));
+          setSubmitting(false);
+          return;
+        }
+        if (createdHost.current?.name !== name) {
+          createdHost.current = (await orgApi.hosts.create({ name, host: name, service: name })).data;
+        }
+        selectedHost = createdHost.current;
+      }
       if (!selectedHost) {
         setError(t('service_modal.errors.host_not_found'));
         setSubmitting(false);
@@ -406,7 +436,7 @@ export default function ServiceModal() {
         name: formData.name.trim(),
         display_name: formData.display_name.trim() || undefined,
         type: formData.type,
-        host_id: formData.host_id!,
+        host_id: selectedHost.id,
         service: selectedHost.service,
         service_interval: formData.service_interval || 60,
         max_attempts: formData.max_attempts || 3,
@@ -847,6 +877,32 @@ export default function ServiceModal() {
                     marginBottom: 0,
                   }}>
                   {t('service_modal.labels.host_belongs_hint')}
+                </p>
+              </div>
+            ) : needsNewHost ? (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label className='label' htmlFor='service-modal-new-host'>
+                  {t('service_modal.labels.new_host')}
+                </label>
+                <input
+                  id='service-modal-new-host'
+                  type='text'
+                  value={newHostName}
+                  onChange={(e) => setNewHostName(e.target.value)}
+                  className='input'
+                  placeholder={
+                    hostNameFromTarget(formData.type === 'sql' ? formData.sql_host : formData.host) ||
+                    t('service_modal.placeholders.new_host')
+                  }
+                />
+                <p
+                  style={{
+                    color: 'var(--text-tertiary)',
+                    fontSize: '0.75rem',
+                    marginTop: '0.5rem',
+                    marginBottom: 0,
+                  }}>
+                  {t('service_modal.labels.new_host_hint')}
                 </p>
               </div>
             ) : (
@@ -1549,12 +1605,12 @@ export default function ServiceModal() {
             </button>
             <button
               type='submit'
-              disabled={submitting || !formData.host_id}
+              disabled={submitting || (!formData.host_id && !needsNewHost)}
               className='btn btn-primary'
               style={{
-                opacity: submitting || !formData.host_id ? 0.5 : 1,
+                opacity: submitting || (!formData.host_id && !needsNewHost) ? 0.5 : 1,
                 cursor:
-                  submitting || !formData.host_id ? 'not-allowed' : 'pointer',
+                  submitting || (!formData.host_id && !needsNewHost) ? 'not-allowed' : 'pointer',
               }}>
               {submitting
                 ? isEditing

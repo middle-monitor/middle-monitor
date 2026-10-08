@@ -126,6 +126,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   };
 
+  // Sets the user together with its organization: a user set alone sends
+  // PublicRoute to /organizations/default.
   const fetchCurrentUser = useCallback(async () => {
     try {
       const response = await authApi.getMe();
@@ -177,7 +179,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'mfa_required', mfaToken: response.data.mfa_token };
     }
     if (response.data.tokens) saveTokens(response.data.tokens);
-    if (response.data.user) setUser(response.data.user);
     const me = await fetchCurrentUser();
     return me ? { status: 'success', organization: me.organization } : null;
   };
@@ -185,7 +186,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const completeMfaLogin = async (mfaToken: string, code: string) => {
     const response = await authApi.loginMfa(mfaToken, code);
     saveTokens(response.data.tokens);
-    setUser(response.data.user);
     const me = await fetchCurrentUser();
     return me ? { organization: me.organization } : null;
   };
@@ -199,7 +199,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization_slug: organizationSlug,
     });
     saveTokens(response.data.tokens);
-    setUser(response.data.user);
     const me = await fetchCurrentUser();
     return me ? { organization: me.organization } : null;
   };
@@ -207,7 +206,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const acceptInvite = async (token: string, password: string) => {
     const response = await authApi.acceptInvite(token, password);
     saveTokens(response.data.tokens);
-    setUser(response.data.user);
     const me = await fetchCurrentUser();
     return me ? { organization: me.organization } : null;
   };
