@@ -95,9 +95,9 @@ Each lives in its own repository:
 | SDK | Install |
 | --- | --- |
 | [Go](https://github.com/middle-monitor/sdk-go) | `go get github.com/middle-monitor/sdk-go` |
-| [Node.js / TypeScript](https://github.com/middle-monitor/sdk-typescript) | `npm install git+https://github.com/middle-monitor/sdk-typescript.git` |
+| [Node.js / TypeScript](https://github.com/middle-monitor/sdk-typescript) | `npm install @middle-monitor/sdk` |
 | [Browser](https://github.com/middle-monitor/sdk-web) | `npm install @middle-monitor/web` |
-| [Python](https://github.com/middle-monitor/sdk-python) | `pip install git+https://github.com/middle-monitor/sdk-python.git` |
+| [Python](https://github.com/middle-monitor/sdk-python) | `pip install middle-monitor-sdk` |
 | [Rust](https://github.com/middle-monitor/sdk-rust) | see the repository README |
 | [Terraform provider](https://github.com/middle-monitor/terraform-provider-middmonitor) | `middle-monitor/middmonitor` |
 

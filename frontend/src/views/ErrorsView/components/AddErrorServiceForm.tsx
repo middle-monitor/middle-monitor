@@ -80,7 +80,7 @@ func main() {
     case 'python':
       return {
         install:
-          'pip install git+https://github.com/middle-monitor/sdk-python.git',
+          'pip install middle-monitor-sdk',
         init: `from middlemonitor import init_with_config
 
 init_with_config(
@@ -104,7 +104,7 @@ init_with_config(
     case 'typescript':
       return {
         install:
-          'npm install git+https://github.com/middle-monitor/sdk-typescript.git',
+          'npm install @middle-monitor/sdk',
         init: `import { initWithConfig } from '@middle-monitor/sdk';
 
 initWithConfig(

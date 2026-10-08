@@ -71,6 +71,11 @@ if [ "$OS" != "linux" ] && [ "$OS" != "darwin" ]; then
     exit 1
 fi
 
+# Root shells on minimal images often have no sudo.
+if [ "$(id -u)" -eq 0 ] && ! command -v sudo &> /dev/null; then
+    sudo() { "$@"; }
+fi
+
 AGENT_NAME="middle-monitor-agent-${OS}-${ARCH}"
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="/etc/middle-monitor"
@@ -111,7 +116,7 @@ echo "   API: ${API_URL}"
 DEFAULT_HOST=$(hostname)
 if [ -n "${MIDDLE_MONITOR_HOST_NAME:-}" ]; then
     HOST_NAME="$MIDDLE_MONITOR_HOST_NAME"
-elif [ -e /dev/tty ]; then
+elif (: </dev/tty) 2>/dev/null; then
     echo ""
     echo "Host name to link services to an existing host in Middle Monitor"
     read -p "   Host name (Enter = ${DEFAULT_HOST}): " HOST_NAME_INPUT </dev/tty
@@ -161,7 +166,8 @@ fi
 
 # Check that it is an executable binary (ELF or Mach-O magic number)
 echo "Verifying the binary..."
-if ! file "${TEMP_FILE}" | grep -qE "(ELF|Mach-O)"; then
+MAGIC=$(od -An -tx1 -N4 "${TEMP_FILE}" | tr -d ' \n')
+if [ "${MAGIC}" != "7f454c46" ] && [ "${MAGIC}" != "cffaedfe" ]; then
     echo "The downloaded file is not a valid binary"
     echo "   File contents (first 100 characters):"
     head -c 100 "${TEMP_FILE}" | cat -A
