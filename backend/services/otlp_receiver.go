@@ -5,8 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 	"time"
+
+	"middle-monitor/backend/models"
 
 	collectorlogs "go.opentelemetry.io/proto/otlp/collector/logs/v1"
 	collectormetrics "go.opentelemetry.io/proto/otlp/collector/metrics/v1"
@@ -61,6 +64,10 @@ func (s *OTLPReceiverService) ReceiveTraces(ctx context.Context, data []byte, or
 					indexed++
 				}
 
+				if appErr, ok := errorFromReportSpan(span, serviceName, orgID); ok && s.db != nil {
+					s.recordErrorReport(ctx, appErr)
+				}
+
 				// Check for slow traces asynchronously (e.g. > 1000ms)
 				durationMs := float64(span.EndTimeUnixNano-span.StartTimeUnixNano) / 1e6
 				if durationMs > 1000 && s.db != nil {
@@ -95,6 +102,60 @@ func (s *OTLPReceiverService) ReceiveTraces(ctx context.Context, data []byte, or
 	}
 
 	return nil
+}
+
+// errorFromReportSpan reads the error an SDK's reportError sent as an
+// "error.report" span. Middlewares post their errors to /api/v1/errors instead,
+// so the two paths never describe the same failure.
+func errorFromReportSpan(span *tracepb.Span, serviceName string, orgID int64) (models.ApplicationError, bool) {
+	if span.Name != "error.report" || orgID <= 0 {
+		return models.ApplicationError{}, false
+	}
+	attrs := attributesToLabels(span.Attributes)
+	message := attrs["error.message"]
+	if message == "" && span.Status != nil {
+		message = span.Status.Message
+	}
+	if message == "" {
+		return models.ApplicationError{}, false
+	}
+	appErr := models.ApplicationError{
+		OrganizationID: orgID,
+		Name:           attrs["error.type"],
+		Message:        message,
+		File:           attrs["error.file"],
+		Timestamp:      timestampToTime(span.StartTimeUnixNano).UTC(),
+		Service:        serviceName,
+	}
+	if appErr.Name == "" {
+		appErr.Name = "Error"
+	}
+	if appErr.File == "" {
+		appErr.File = "unknown"
+	}
+	appErr.Line, _ = strconv.Atoi(attrs["error.line"])
+	if method := attrs["http.method"]; method != "" {
+		appErr.HTTPMethod = &method
+	}
+	if url := attrs["http.url"]; url != "" {
+		appErr.HTTPURL = &url
+	}
+	if traceID := bytesToHex(span.TraceId); traceID != "" {
+		appErr.TraceID = &traceID
+	}
+	return appErr, true
+}
+
+// recordErrorReport writes the same row and document as POST /api/v1/errors.
+func (s *OTLPReceiverService) recordErrorReport(ctx context.Context, appErr models.ApplicationError) {
+	result, err := NewErrorService(s.db).CreateError(appErr)
+	if err != nil {
+		slog.Error("failed to save error report", "service", appErr.Service, "error", err)
+		return
+	}
+	if err := s.opensearch.IndexError(ctx, ErrorDoc(result)); err != nil {
+		slog.Error("failed to index error report", "error", err)
+	}
 }
 
 // ReceiveLogs handles OTLP log export requests

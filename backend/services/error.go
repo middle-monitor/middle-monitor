@@ -19,6 +19,38 @@ func NewErrorService(db *sql.DB) *ErrorService {
 	return &ErrorService{db: db}
 }
 
+// ErrorDoc is the OpenSearch document indexed for a saved application error.
+func ErrorDoc(e *models.ApplicationError) map[string]interface{} {
+	doc := map[string]interface{}{
+		"@timestamp":      e.Timestamp.UTC().Format(time.RFC3339),
+		"organization_id": e.OrganizationID,
+		"name":            e.Name,
+		"message":         e.Message,
+		"file":            e.File,
+		"line":            e.Line,
+		"service":         e.Service,
+	}
+	if e.HTTPMethod != nil {
+		doc["http_method"] = *e.HTTPMethod
+	}
+	if e.HTTPURL != nil {
+		doc["http_url"] = *e.HTTPURL
+	}
+	if e.HTTPHeaders != nil {
+		doc["http_headers"] = *e.HTTPHeaders
+	}
+	if e.HTTPBody != nil {
+		doc["http_body"] = *e.HTTPBody
+	}
+	if e.TraceID != nil && *e.TraceID != "" {
+		doc["trace_id"] = *e.TraceID
+	}
+	if e.Fingerprint != "" {
+		doc["fingerprint"] = e.Fingerprint
+	}
+	return doc
+}
+
 func (s *ErrorService) CreateError(appErr models.ApplicationError) (*models.ApplicationError, error) {
 	if appErr.Timestamp.IsZero() {
 		appErr.Timestamp = time.Now().UTC()

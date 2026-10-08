@@ -78,34 +78,7 @@ func StartKafkaConsumers(db *sql.DB, opensearch *services.OpenSearchService) {
 				return
 			}
 			if opensearch != nil {
-				doc := map[string]interface{}{
-					"@timestamp":      result.Timestamp.UTC().Format(time.RFC3339),
-					"organization_id": result.OrganizationID,
-					"name":            result.Name,
-					"message":         result.Message,
-					"file":            result.File,
-					"line":            result.Line,
-					"service":         result.Service,
-				}
-				if result.HTTPMethod != nil {
-					doc["http_method"] = *result.HTTPMethod
-				}
-				if result.HTTPURL != nil {
-					doc["http_url"] = *result.HTTPURL
-				}
-				if result.HTTPHeaders != nil {
-					doc["http_headers"] = *result.HTTPHeaders
-				}
-				if result.HTTPBody != nil {
-					doc["http_body"] = *result.HTTPBody
-				}
-				if result.TraceID != nil && *result.TraceID != "" {
-					doc["trace_id"] = *result.TraceID
-				}
-				if result.Fingerprint != "" {
-					doc["fingerprint"] = result.Fingerprint
-				}
-				if err := opensearch.IndexError(context.Background(), doc); err != nil {
+				if err := opensearch.IndexError(context.Background(), services.ErrorDoc(result)); err != nil {
 					slog.Error("failed to index error to opensearch", "error", err)
 				}
 			}
