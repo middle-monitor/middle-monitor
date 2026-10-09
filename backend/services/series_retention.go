@@ -103,3 +103,47 @@ func (s *OpenSearchService) startSeriesRetention(query map[string]interface{}) {
 	_ = json.NewDecoder(resp.Body).Decode(&started)
 	slog.Info("series retention started", "task", started.Task, "requests_per_second", seriesRetentionRPS)
 }
+
+// orgDataIndices holds every index that stores documents per organization.
+var orgDataIndices = []string{
+	"middle-monitor-traces",
+	"middle-monitor-logs",
+	"middle-monitor-worker-results",
+	"middle-monitor-errors",
+	SeriesIndexPattern,
+}
+
+// DeleteOrganizationData starts a throttled background purge of an organization's
+// documents. Retention only covers existing organizations, so without it a
+// deleted organization's data would stay forever.
+func (s *OpenSearchService) DeleteOrganizationData(orgID int64) error {
+	if !s.initialized {
+		return nil
+	}
+	body, err := json.Marshal(map[string]interface{}{
+		"query": map[string]interface{}{"term": map[string]interface{}{"organization_id": orgID}},
+	})
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrOrgDataPurge, err)
+	}
+	url := fmt.Sprintf("%s/%s/_delete_by_query?wait_for_completion=false&conflicts=proceed&ignore_unavailable=true&allow_no_indices=true&requests_per_second=%d",
+		s.baseURL, strings.Join(orgDataIndices, ","), seriesRetentionRPS)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrOrgDataPurge, err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if s.username != "" && s.password != "" {
+		req.SetBasicAuth(s.username, s.password)
+	}
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrOrgDataPurge, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("%w: %w", ErrOrgDataPurge, newOpenSearchStatusError("org purge", resp))
+	}
+	slog.Info("organization data purge started", "org_id", orgID)
+	return nil
+}

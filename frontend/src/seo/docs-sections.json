@@ -43,6 +43,20 @@
     "summary": "Middle Monitor supports TOTP-based two-factor authentication with Google Authenticator, 1Password, Authy or any compatible app. Each user enrolls from Account by scanning a QR code and confirming a 6-digit code, which issues a set of single-use recovery codes shown only once. An admin can require 2FA for every member from Settings and Security: members who have not enrolled are sent to the enrollment screen on their next sign-in and cannot disable their own 2FA while enforcement is active."
   },
   {
+    "id": "deletion",
+    "title": "Deleting your account or organization",
+    "category": "Getting Started",
+    "excerpt": "Delete an organization and all its data, or your own account, from the dashboard or the API.",
+    "keywords": [
+      "delete account",
+      "delete organization",
+      "gdpr",
+      "erasure",
+      "close account"
+    ],
+    "summary": "An admin deletes an organization from Settings, Danger zone, typing its slug to confirm: every check, host, alert, token and stored telemetry is deleted and the subscription is cancelled. Members of other organizations keep their account. A user deletes their own account from Account, confirmed with their password; organizations where they are the only member are deleted with it, and the deletion is refused while they are the last admin of an organization with other members. Both deletions are immediate and cannot be undone."
+  },
+  {
     "id": "self-hosting",
     "title": "Self-hosting",
     "category": "Getting Started",

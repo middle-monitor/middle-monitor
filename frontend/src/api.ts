@@ -277,6 +277,7 @@ export const authApi = {
   register: (data: RegisterRequest) =>
     api.post<RegisterResponse>('/auth/register', data),
   getMe: () => api.get<MeResponse>('/auth/me'),
+  deleteAccount: (password: string) => api.delete('/auth/me', { data: { password } }),
   refreshToken: (refreshToken: string) =>
     api.post<{ user: User; tokens: AuthTokens }>('/auth/refresh', {
       refresh_token: refreshToken,
@@ -471,6 +472,8 @@ export function createOrgApi(orgSlug: string) {
     // Organization management
     get: () => api.get<Organization>(base),
     update: (data: Partial<Organization>) => api.put<Organization>(base, data),
+    // Admin only; confirm must repeat the org slug.
+    delete: (confirm: string) => api.delete(base, { data: { confirm } }),
     getUsers: () => api.get<User[]>(`${base}/users`),
     inviteUser: (data: InviteUserRequest) =>
       api.post<{ user: User; message: string }>(`${base}/users`, data),

@@ -952,8 +952,8 @@
         "security": []
       },
       "post": {
-        "operationId": "handleCreatePersonalToken",
-        "summary": "Create personal token",
+        "operationId": "middleware.RequireMFAEnrollment",
+        "summary": "Middleware.require mfaenrollment",
         "tags": [
           "api"
         ],
@@ -1107,6 +1107,26 @@
       }
     },
     "/api/v1/auth/me": {
+      "delete": {
+        "operationId": "handleDeleteAccount",
+        "summary": "Delete account",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Delete your account. Body {\"password\": \"...\"}. Organizations you are the only member of are deleted with it; 409 if you are the last admin of one that has other members.",
+        "security": []
+      },
       "get": {
         "operationId": "handleGetMe",
         "summary": "Get me",
@@ -1455,6 +1475,39 @@
       }
     },
     "/api/v1/organizations/{org_slug}": {
+      "delete": {
+        "operationId": "handleDeleteOrganization",
+        "summary": "Delete organization",
+        "tags": [
+          "root"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Delete the organization and all its data (admin only). Body {\"confirm\": \"<org_slug>\"}. Cancels its subscription; members of other organizations keep their account.",
+        "parameters": [
+          {
+            "name": "org_slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Organization slug"
+            }
+          }
+        ]
+      },
       "get": {
         "operationId": "handleGetOrganization",
         "summary": "Get organization",

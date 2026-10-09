@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   HiShieldCheck,
   HiCheck,
@@ -17,6 +18,7 @@ import { authApi, APIKey } from '../api';
 import { TotpEnrollment } from '../components/TotpEnrollment';
 import { isDemoMode } from '../demo/demoMode';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 import './SettingsView.css';
 import './APIKeysView.css';
 
@@ -27,7 +29,9 @@ import './APIKeysView.css';
  */
 export default function AccountView() {
   const { t, i18n } = useTranslation();
-  const { user, organization, refreshUser } = useAuth();
+  const { user, organization, refreshUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [error, setError] = useState('');
 
   // --- Two-factor ---
@@ -264,6 +268,36 @@ export default function AccountView() {
           )}
         </div>
       </section>
+
+      <section className='settings-section'>
+        <div className='section-header'>
+          <h2><HiOutlineExclamationTriangle /> {t('account.delete.title')}</h2>
+        </div>
+        <div className='org-card' style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <p className='text-sm' style={{ color: 'var(--text-secondary)', margin: 0, maxWidth: '40rem' }}>
+            {t('account.delete.desc')}
+          </p>
+          <button className='btn btn-danger' onClick={() => setShowDeleteAccount(true)}>
+            <HiOutlineTrash /> {t('account.delete.button')}
+          </button>
+        </div>
+      </section>
+
+      {showDeleteAccount && (
+        <DeleteConfirmDialog
+          title={t('account.delete.button')}
+          message={t('account.delete.confirm')}
+          inputLabel={t('account.delete.password')}
+          inputType='password'
+          confirmLabel={t('account.delete.button')}
+          onConfirm={async (password) => {
+            await authApi.deleteAccount(password);
+            logout();
+            navigate('/', { replace: true });
+          }}
+          onCancel={() => setShowDeleteAccount(false)}
+        />
+      )}
 
       {pendingDelete !== null && (
         <ConfirmDialog

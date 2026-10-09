@@ -542,6 +542,13 @@
     }
   },
   "settings": {
+    "danger": {
+      "title": "Zone de danger",
+      "delete_org": "Supprimer l'organisation",
+      "delete_org_desc": "Supprime tous les checks, hosts, alertes et données stockées, et résilie l'abonnement. Action irréversible.",
+      "delete_org_confirm": "{{name}} et toutes ses données seront supprimées pour tous les membres. Les membres qui n'appartiennent à aucune autre organisation perdent leur compte.",
+      "type_slug": "Tapez {{slug}} pour confirmer"
+    },
     "title": "Paramètres",
     "subtitle": "Gérez votre organisation et les membres de l'équipe",
     "section_org": "Organisation",
@@ -925,6 +932,7 @@
     "sidebar_intro": "Introduction",
     "sidebar_register": "Inscription & Navigation",
     "sidebar_2fa": "Authentification à deux facteurs",
+    "sidebar_deletion": "Supprimer son compte",
     "sidebar_self_hosting": "Auto-hébergement",
     "sidebar_infrastructure": "Infrastructure & Hosts",
     "sidebar_infrastructure_desc": "Configuration des machines et installation de l'agent Middle Monitor pour la collecte de métriques système.",
@@ -2043,6 +2051,13 @@
     }
   },
   "account": {
+    "delete": {
+      "title": "Supprimer le compte",
+      "desc": "Supprime votre compte. Les organisations dont vous êtes le seul membre sont supprimées avec lui ; dans celles partagées, nommez d'abord un autre admin.",
+      "button": "Supprimer mon compte",
+      "confirm": "Action irréversible. Les organisations dont vous êtes le seul membre, et toutes leurs données, sont aussi supprimées.",
+      "password": "Votre mot de passe"
+    },
     "title": "Mon compte",
     "subtitle": "Gérez votre sécurité et vos tokens personnels.",
     "mfa": {
@@ -2110,7 +2125,7 @@
       "cookies_title": "Cookies et stockage local",
       "cookies_body": "Nous ne déposons aucun cookie publicitaire ni de suivi tiers. L'application stocke les tokens d'authentification et votre préférence de langue dans le stockage local de votre navigateur, uniquement pour vous garder connecté et mémoriser vos réglages.",
       "rights_title": "Vos droits",
-      "rights_body": "Conformément au RGPD, vous pouvez demander l'accès, la rectification, l'effacement ou la portabilité de vos données personnelles, ainsi que vous opposer à leur traitement ou en demander la limitation. Adressez toute demande via le formulaire de contact ; nous répondons dans les délais légaux. Vous pouvez également saisir votre autorité de contrôle (la CNIL en France).",
+      "rights_body": "Conformément au RGPD, vous pouvez demander l'accès, la rectification, l'effacement ou la portabilité de vos données personnelles, ainsi que vous opposer à leur traitement ou en demander la limitation. Vous pouvez supprimer votre compte, et un admin son organisation, à tout moment depuis le tableau de bord (Compte, Paramètres) : la suppression est immédiate. Adressez toute autre demande via le formulaire de contact ; nous répondons dans les délais légaux. Vous pouvez également saisir votre autorité de contrôle (la CNIL en France).",
       "changes_title": "Évolution de cette politique",
       "changes_body": "Nous mettrons cette page à jour si nos pratiques évoluent et ajusterons la date en haut de page. Les changements significatifs sont annoncés par email aux propriétaires de compte."
     },

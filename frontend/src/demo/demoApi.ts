@@ -2101,6 +2101,7 @@ export function createDemoApi(): OrgApi {
   return {
     get: () => ok(demoOrganization),
     update: () => readOnly(),
+    delete: () => readOnly(),
     getUsers: () => ok(DEMO_USERS),
     inviteUser: () => readOnly(),
     updateUserRole: () => readOnly(),

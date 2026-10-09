@@ -542,6 +542,13 @@
     }
   },
   "settings": {
+    "danger": {
+      "title": "Danger zone",
+      "delete_org": "Delete organization",
+      "delete_org_desc": "Deletes every check, host, alert and all stored data, and cancels the subscription. This cannot be undone.",
+      "delete_org_confirm": "{{name}} and all its data will be deleted for every member. Members who belong to no other organization lose their account.",
+      "type_slug": "Type {{slug}} to confirm"
+    },
     "title": "Settings",
     "subtitle": "Manage your organization and team members",
     "section_org": "Organization",
@@ -925,6 +932,7 @@
     "sidebar_intro": "Introduction",
     "sidebar_register": "Registration & Navigation",
     "sidebar_2fa": "Two-Factor Authentication",
+    "sidebar_deletion": "Deleting your account",
     "sidebar_self_hosting": "Self-hosting",
     "sidebar_infrastructure": "Infrastructure & Hosts",
     "sidebar_infrastructure_desc": "Configure machines and install the Middle Monitor agent for system metrics collection.",
@@ -2043,6 +2051,13 @@
     }
   },
   "account": {
+    "delete": {
+      "title": "Delete account",
+      "desc": "Deletes your account. Organizations where you are the only member are deleted with it; in shared ones, make someone else admin first.",
+      "button": "Delete my account",
+      "confirm": "This cannot be undone. Organizations where you are the only member, and all their data, are deleted too.",
+      "password": "Your password"
+    },
     "title": "My account",
     "subtitle": "Manage your security and personal tokens.",
     "mfa": {
@@ -2110,7 +2125,7 @@
       "cookies_title": "Cookies and local storage",
       "cookies_body": "We set no advertising or third-party tracking cookies. The application stores authentication tokens and your language preference in your browser's local storage, strictly to keep you signed in and remember your settings.",
       "rights_title": "Your rights",
-      "rights_body": "Under the GDPR you can request access to, rectification, erasure or portability of your personal data, and object to or restrict its processing. Send any request through the contact form; we answer within the legal timeframe. You can also lodge a complaint with your local supervisory authority.",
+      "rights_body": "Under the GDPR you can request access to, rectification, erasure or portability of your personal data, and object to or restrict its processing. You can delete your account, and an admin their organization, at any time from the dashboard (Account, Settings): the deletion is immediate. Send any other request through the contact form; we answer within the legal timeframe. You can also lodge a complaint with your local supervisory authority.",
       "changes_title": "Changes to this policy",
       "changes_body": "We will update this page when our practices change and adjust the date at the top. Significant changes are announced to account owners by email."
     },

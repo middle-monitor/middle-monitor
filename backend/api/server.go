@@ -83,6 +83,8 @@ func SetupAPIRouter(db *sql.DB, authService *services.AuthService) *mux.Router {
 	// so the frontend can read email_verified and resend the verification email.
 	protected.HandleFunc("/auth/me", handleGetMe(authService)).Methods("GET")
 	protected.HandleFunc("/auth/resend-verification", handleResendVerification(authService)).Methods("POST")
+	// Account deletion re-checks the password: a stolen session alone must not erase an account.
+	protected.HandleFunc("/auth/me", handleDeleteAccount(db, authService, opensearch)).Methods("DELETE")
 	// Switch to another org the user belongs to (mints a session for it). Sits
 	// before the org gate so a multi-org user can always change their active org.
 	protected.HandleFunc("/auth/switch-org", handleSwitchOrg(authService)).Methods("POST")
@@ -156,6 +158,7 @@ func SetupAPIRouter(db *sql.DB, authService *services.AuthService) *mux.Router {
 	orgAdmin.HandleFunc("/billing-portal", handleCreateBillingPortal(db)).Methods("POST")
 	// Send a test email through the org's own SMTP config.
 	orgAdmin.HandleFunc("/smtp/test", handleTestSMTP(db)).Methods("POST")
+	orgAdmin.HandleFunc("", handleDeleteOrganization(db, authService, opensearch)).Methods("DELETE")
 
 	// Errors
 	org.HandleFunc("/errors", handleGetErrors(db)).Methods("GET")

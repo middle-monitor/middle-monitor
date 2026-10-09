@@ -119,6 +119,9 @@ var (
 	ErrSelfAccountDelete = errors.New("cannot delete your own account")
 	ErrInvalidRole       = errors.New("invalid role")
 	ErrLastAdmin         = errors.New("cannot remove the last admin of the organization")
+	ErrOrgDelete         = errors.New("failed to delete organization")
+	ErrAccountDelete     = errors.New("failed to delete account")
+	ErrOrgDataPurge      = errors.New("failed to purge organization data")
 )
 
 // ---- Typed errors carrying dynamic data ----

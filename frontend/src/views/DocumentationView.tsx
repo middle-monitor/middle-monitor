@@ -33,6 +33,7 @@ import {
   HiXMark,
   HiBars3,
   HiCheck,
+  HiOutlineTrash,
 } from 'react-icons/hi2';
 import './DocumentationView.css';
 
@@ -75,6 +76,11 @@ const CATEGORIES = [
         id: 'two-factor',
         labelKey: 'docs.sidebar_2fa',
         icon: HiOutlineShieldCheck,
+      },
+      {
+        id: 'deletion',
+        labelKey: 'docs.sidebar_deletion',
+        icon: HiOutlineTrash,
       },
       {
         id: 'self-hosting',
@@ -738,6 +744,44 @@ export default function DocumentationView() {
                 At login, after your password you are prompted for the 6-digit
                 code (or a recovery code).
               </p>
+            </div>
+
+            <div id='deletion' className='doc-subsection'>
+              <h3>
+                {t('docs.sidebar_deletion')}
+                <ShareAnchor />
+              </h3>
+              <p>
+                Both deletions are immediate and cannot be undone. There is no
+                grace period and no export step, so export what you need first.
+              </p>
+              <p>
+                <strong>Deleting an organization</strong>
+              </p>
+              <p>
+                An admin deletes the active organization from{' '}
+                <strong>Settings → Danger zone</strong>, typing its slug to
+                confirm. Every check, host, alert rule, channel, token and
+                stored trace, log, metric and error goes with it, and its
+                subscription is cancelled. Members who belong to another
+                organization keep their account and move to it; members who
+                belong to no other organization lose their account.
+              </p>
+              <p>
+                <strong>Deleting your account</strong>
+              </p>
+              <p>
+                From <strong>Account → Delete account</strong>, confirmed with
+                your password. Organizations where you are the only member are
+                deleted with your account. If you are the last admin of an
+                organization that has other members, the deletion is refused:
+                make someone else admin, or delete the organization, first.
+              </p>
+              <div className='doc-callout'>
+                Agents and SDKs that still send data to a deleted organization
+                are rejected: their install and service tokens are deleted with
+                it.
+              </div>
             </div>
 
             <div id='self-hosting' className='doc-subsection'>
@@ -3605,6 +3649,95 @@ def verify(headers, raw_body, secret, tolerance=300):
     "expires_in":    86400
   }
 }`}
+                  />
+                </div>
+              </div>
+
+              <div className='doc-endpoint'>
+                <div className='doc-endpoint-header'>
+                  <span className='doc-method-badge doc-method-delete'>DELETE</span>
+                  <span className='doc-endpoint-path'>/api/v1/auth/me</span>
+                </div>
+                <p className='doc-endpoint-desc'>
+                  Deletes the caller's account. Organizations the caller is the
+                  only member of are deleted with it. Returns <code>204</code>,{' '}
+                  <code>403</code> on a wrong password, and <code>409</code>{' '}
+                  when the caller is the last admin of an organization that has
+                  other members.
+                </p>
+                <p className='doc-endpoint-section-label'>Request body</p>
+                <table className='doc-param-table'>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>password</td>
+                      <td>string</td>
+                      <td>
+                        The caller's current password.{' '}
+                        <span className='doc-param-required'>required</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className='doc-code-block'>
+                  <div className='doc-code-header'>curl</div>
+                  <CodeBlock
+                    language='bash'
+                    code={`curl -X DELETE ${API_URL}/api/v1/auth/me \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"password":"..."}'`}
+                  />
+                </div>
+              </div>
+
+              <div className='doc-endpoint'>
+                <div className='doc-endpoint-header'>
+                  <span className='doc-method-badge doc-method-delete'>DELETE</span>
+                  <span className='doc-endpoint-path'>
+                    /api/v1/organizations/{'{org_slug}'}
+                  </span>
+                </div>
+                <p className='doc-endpoint-desc'>
+                  Deletes the organization and all its data, and cancels its
+                  subscription. Admin only. Members of other organizations keep
+                  their account. Returns <code>204</code>, or <code>400</code>{' '}
+                  when <code>confirm</code> does not match the slug.
+                </p>
+                <p className='doc-endpoint-section-label'>Request body</p>
+                <table className='doc-param-table'>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>confirm</td>
+                      <td>string</td>
+                      <td>
+                        The organization slug, repeated.{' '}
+                        <span className='doc-param-required'>required</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className='doc-code-block'>
+                  <div className='doc-code-header'>curl</div>
+                  <CodeBlock
+                    language='bash'
+                    code={`curl -X DELETE ${API_URL}/api/v1/organizations/acme \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"confirm":"acme"}'`}
                   />
                 </div>
               </div>

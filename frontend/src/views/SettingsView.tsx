@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Navigate } from 'react-router-dom';
+import { useSearchParams, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useOrgPath } from '../hooks/useOrgPath';
 import {
@@ -19,13 +19,16 @@ import { CustomPlanCalculator, type CustomPlanValues } from '../components/Custo
 import { User, OrganizationStats, Organization } from '../api';
 import { useOrgApi } from '../hooks/useOrgApi';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 import APIKeysView from './APIKeysView';
 import './SettingsView.css';
 
 export default function SettingsView() {
   const { t, i18n } = useTranslation();
   const orgApi = useOrgApi();
-  const { user, organization, refreshUser, isAdmin } = useAuth();
+  const { user, organization, organizations, refreshUser, isAdmin, switchOrg, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showDeleteOrg, setShowDeleteOrg] = useState(false);
   const { isPaidSubscriber: isPaidPlan, isTrial, trialDaysLeft, billingEnabled } = usePlan();
   const { orgPath } = useOrgPath();
   const [users, setUsers] = useState<User[]>([]);
@@ -553,6 +556,53 @@ export default function SettingsView() {
           </div>
         )}
       </section>
+      )}
+
+      <section className='settings-section'>
+        <div className='section-header'>
+          <h2>
+            <HiOutlineExclamationTriangle /> {t('settings.danger.title')}
+          </h2>
+        </div>
+        <div className='org-card' style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div>
+            <strong>{t('settings.danger.delete_org')}</strong>
+            <p className='text-sm' style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
+              {t('settings.danger.delete_org_desc')}
+            </p>
+          </div>
+          <button className='btn btn-danger' onClick={() => setShowDeleteOrg(true)}>
+            <HiTrash /> {t('settings.danger.delete_org')}
+          </button>
+        </div>
+      </section>
+
+      {showDeleteOrg && organization && (
+        <DeleteConfirmDialog
+          title={t('settings.danger.delete_org')}
+          message={t('settings.danger.delete_org_confirm', { name: organization.name })}
+          inputLabel={t('settings.danger.type_slug', { slug: organization.slug })}
+          inputType='text'
+          expected={organization.slug}
+          confirmLabel={t('settings.danger.delete_org')}
+          onConfirm={async (slug) => {
+            await orgApi.delete(slug);
+            // Members of another org land there; the rest have no org left to show.
+            const next = organizations.find((o) => o.id !== organization.id);
+            if (next) {
+              try {
+                await switchOrg(next.id);
+                navigate(`/organizations/${next.slug}`, { replace: true });
+                return;
+              } catch {
+                // falls through to a clean sign-out
+              }
+            }
+            logout();
+            navigate('/', { replace: true });
+          }}
+          onCancel={() => setShowDeleteOrg(false)}
+        />
       )}
 
       {showInviteModal && (

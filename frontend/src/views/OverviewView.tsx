@@ -269,7 +269,7 @@ function OverviewView() {
               <button type='button' className='empty-state-action' onClick={() => openModal(null, [])}>
                 <HiOutlineGlobeAlt /> {t('overview.get_started.check')}
               </button>
-              <Link to={orgPath('/api-keys')} className='empty-state-action'>
+              <Link to={orgPath('/settings')} className='empty-state-action'>
                 <HiOutlineServerStack /> {t('overview.get_started.agent')}
               </Link>
               <Link to={orgPath('/errors')} className='empty-state-action'>

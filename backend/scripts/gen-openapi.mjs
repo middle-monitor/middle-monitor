@@ -43,6 +43,10 @@ const described = {
   'POST /api/v1/organizations/{org_slug}/metrics/series/expression':
     'Run up to five metric queries ($A to $E, aggregation may be rate) and combine them with + - * /, abs() and sum(). Range and host scope are query parameters.',
   'GET /api/v1/schemas/agent-config.json': 'JSON Schema of the agent config.yaml.',
+  'DELETE /api/v1/organizations/{org_slug}':
+    'Delete the organization and all its data (admin only). Body {"confirm": "<org_slug>"}. Cancels its subscription; members of other organizations keep their account.',
+  'DELETE /api/v1/auth/me':
+    'Delete your account. Body {"password": "..."}. Organizations you are the only member of are deleted with it; 409 if you are the last admin of one that has other members.',
 };
 
 const tagFor = (path) => {
