@@ -13,11 +13,26 @@ function plausible(src: string, domain: string): Plugin {
   }
 }
 
+// A self-hosted instance must not be indexed, whatever its robots.txt says.
+function noindex(selfHosted: boolean): Plugin {
+  return {
+    name: 'noindex',
+    transformIndexHtml() {
+      if (!selfHosted) return []
+      return [{ tag: 'meta', attrs: { name: 'robots', content: 'noindex, nofollow' }, injectTo: 'head' }]
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
   return {
-    plugins: [react(), plausible(env.VITE_PLAUSIBLE_SRC, env.VITE_PLAUSIBLE_DOMAIN)],
+    plugins: [
+      react(),
+      plausible(env.VITE_PLAUSIBLE_SRC, env.VITE_PLAUSIBLE_DOMAIN),
+      noindex(env.VITE_SELF_HOSTED === 'true'),
+    ],
     // Unit tests cover the pure logic the e2e suite can only reach through a
     // rendered page: status derivation, error parsing, slugs. e2e/ is Playwright's
     // and must stay out, or vitest tries to run it.

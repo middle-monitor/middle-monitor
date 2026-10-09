@@ -827,10 +827,14 @@ docker compose up -d --build`}
                 <strong>First sign-in</strong>
               </p>
               <p>
-                Sign in with the <code>SEED_ADMIN_EMAIL</code> /{' '}
+                The instance opens on the login page. Sign in with the{' '}
+                <code>SEED_ADMIN_EMAIL</code> /{' '}
                 <code>SEED_ADMIN_PASSWORD</code> account, created already
-                verified. Signups need an email confirmation, so configure{' '}
-                <code>SMTP_*</code> before inviting the rest of the team.
+                verified. Both are required: compose refuses to start without
+                them. This account is also the platform admin unless{' '}
+                <code>PLATFORM_ADMIN_EMAILS</code> names someone else. Signups
+                need an email confirmation, so configure <code>SMTP_*</code>{' '}
+                before inviting the rest of the team.
               </p>
               <div className='doc-callout'>
                 A self-hosted instance sells no plans: billing stays off unless{' '}

@@ -66,9 +66,11 @@ Prebuilt images (amd64 and arm64) are pulled from `ghcr.io/middle-monitor`;
 `MM_VERSION` in `.env` pins a release, and `docker compose up -d --build` builds
 from your checkout instead.
 
-Open <http://localhost:8000> and sign in with the `SEED_ADMIN_*` account. Without
-SMTP configured, signups cannot confirm their email, so the seeded admin is the
-way in; invite the rest of the team once SMTP is set.
+Open <http://localhost:8000>: the instance opens on the login page. Sign in with
+the `SEED_ADMIN_*` account, which is required (compose refuses to start without
+it) and is also the platform admin unless `PLATFORM_ADMIN_EMAILS` names someone
+else. Without SMTP configured, signups cannot confirm their email; invite the
+rest of the team once SMTP is set. The instance tells crawlers to stay away.
 
 Billing is off unless `BILLING_ENABLED=true`: every organization is unlimited,
 and per-organization caps or retention can be set from the platform admin page

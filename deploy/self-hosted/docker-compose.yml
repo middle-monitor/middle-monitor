@@ -40,8 +40,10 @@ services:
     environment:
       <<: *app-env
       PORT: "8080"
-      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
-      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:?set SEED_ADMIN_EMAIL in .env}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD in .env}
+      # The instance operator gets the cross-organization admin page.
+      PLATFORM_ADMIN_EMAILS: ${PLATFORM_ADMIN_EMAILS:-${SEED_ADMIN_EMAIL}}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
@@ -88,7 +90,7 @@ services:
   frontend:
     image: ghcr.io/middle-monitor/middle-monitor-frontend:${MM_VERSION:-latest}
     pull_policy: missing
-    build: { context: ../../frontend }
+    build: { context: ../../frontend, args: { VITE_SELF_HOSTED: "true" } }
     restart: unless-stopped
 
   postgres:

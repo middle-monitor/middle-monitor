@@ -17,6 +17,10 @@ ENV VITE_MIDDLE_MONITOR_TOKEN=$VITE_MIDDLE_MONITOR_TOKEN
 ARG VITE_PLAUSIBLE_SRC=
 ARG VITE_PLAUSIBLE_DOMAIN=
 ENV VITE_PLAUSIBLE_SRC=$VITE_PLAUSIBLE_SRC VITE_PLAUSIBLE_DOMAIN=$VITE_PLAUSIBLE_DOMAIN
+# true for the published self-hosted image: the app opens on the login page, the
+# middlemonitor.io marketing pages are left out and crawlers are turned away.
+ARG VITE_SELF_HOSTED=
+ENV VITE_SELF_HOSTED=$VITE_SELF_HOSTED
 RUN npm run build
 
 FROM nginx:alpine

@@ -242,6 +242,9 @@ function sectionMarkdown(section) {
   ].join('\n');
 }
 
+// The llms.txt files describe the hosted site; a self-hosted instance ships none.
+if (process.env.VITE_SELF_HOSTED === 'true') process.exit(0);
+
 mkdirSync(join(DIST, 'docs'), { recursive: true });
 for (const section of sections) {
   writeFileSync(join(DIST, 'docs', `${section.id}.md`), sectionMarkdown(section), 'utf8');

@@ -61,6 +61,10 @@ import ServiceModal from './components/ServiceModal';
 
 import './App.css';
 
+// The published self-hosted image opens on the app: the landing, pricing, legal
+// and comparison pages describe middlemonitor.io, not the operator's instance.
+const SELF_HOSTED = import.meta.env.VITE_SELF_HOSTED === 'true';
+
 function App() {
   return (
     <Router>
@@ -96,27 +100,31 @@ function App() {
           <Route path='/reset-password' element={<ResetPasswordView />} />
 
           {/* Landing / home page (s-style) */}
-          <Route path='/' element={<HomeView />} />
+          <Route path='/' element={SELF_HOSTED ? <Navigate to='/login' replace /> : <HomeView />} />
           {/* Live demo: activates the frontend-only demo session then reloads into the demo org */}
           <Route path='/demo' element={<DemoEntry />} />
           {/* Documentation */}
           <Route path='/docs' element={<DocumentationView />} />
-          {/* Pricing */}
-          <Route path='/pricing' element={<PricingView />} />
-          {/* Public status page: Middle Monitor's own availability */}
-          <Route path='/status' element={<StatusPageView />} />
-          {/* Contact Us */}
-          <Route path='/contact' element={<ContactView />} />
-
           {/* Opt-out target of outreach emails: public, unauthenticated, never indexed */}
           <Route path='/unsub' element={<UnsubscribeView />} />
-          {/* Competitor comparison pages */}
-          <Route path='/alternatives' element={<ComparisonRoute />} />
-          <Route path='/alternatives/:slug' element={<ComparisonRoute />} />
-          {/* Legal pages */}
-          <Route path='/legal' element={<LegalView page='notice' />} />
-          <Route path='/privacy' element={<LegalView page='privacy' />} />
-          <Route path='/terms' element={<LegalView page='terms' />} />
+          {!SELF_HOSTED && (
+            <>
+            {/* Pricing */}
+            <Route path='/pricing' element={<PricingView />} />
+            {/* Public status page: Middle Monitor's own availability */}
+            <Route path='/status' element={<StatusPageView />} />
+            {/* Contact Us */}
+            <Route path='/contact' element={<ContactView />} />
+
+            {/* Competitor comparison pages */}
+            <Route path='/alternatives' element={<ComparisonRoute />} />
+            <Route path='/alternatives/:slug' element={<ComparisonRoute />} />
+            {/* Legal pages */}
+            <Route path='/legal' element={<LegalView page='notice' />} />
+            <Route path='/privacy' element={<LegalView page='privacy' />} />
+            <Route path='/terms' element={<LegalView page='terms' />} />
+            </>
+          )}
 
           {/* Cross-org admin page (instance owner only; PlatformAdminView itself
               gates on isPlatformAdmin, the backend is the real boundary). */}

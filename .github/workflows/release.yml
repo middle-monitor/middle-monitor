@@ -59,6 +59,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: AGENT_VERSION=${{ github.ref_name }}
+          build-args: |
+            AGENT_VERSION=${{ github.ref_name }}
+            VITE_SELF_HOSTED=true
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}

@@ -458,6 +458,13 @@ function sitemap() {
 
 // ----- Run -----
 
+// A self-hosted instance is private: no marketing pages, no sitemap, nothing to crawl.
+if (process.env.VITE_SELF_HOSTED === 'true') {
+  writeFileSync(join(DIST, 'robots.txt'), 'User-agent: *\nDisallow: /\n', 'utf8');
+  console.log('[seo-prerender] self-hosted build: robots.txt disallows everything, no prerender');
+  process.exit(0);
+}
+
 if (!template.includes('<div id="root"></div>')) {
   throw new Error('seo-prerender: dist/index.html has no empty #root to inject into. Did vite build run?');
 }
