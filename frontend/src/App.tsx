@@ -5,7 +5,7 @@ import {
   Navigate,
   useParams,
 } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { DateRangeProvider } from './contexts/DateRangeProvider';
 import { useAuth } from './contexts/AuthContext';
 import { enterDemoMode, DEMO_ORG_SLUG } from './demo/demoMode';
@@ -20,41 +20,42 @@ import { PlanOverLimitBanner } from './components/PlanOverLimitBanner';
 import { TrialBanner } from './components/TrialBanner';
 import { IngestLimitBanner } from './components/IngestLimitBanner';
 
-// Views
-import OverviewView from './views/OverviewView';
-import ErrorsView from './views/ErrorsView';
-import ServicesView from './views/ServicesView';
-import ServiceDetailView from './views/ServiceDetailView';
-import HostsView from './views/HostsView';
-import HostGroupsView from './views/HostGroupsView';
-import HostDetailView from './views/HostDetailView';
-import TimelineView from './views/TimelineView';
-import LoginView from './views/LoginView';
-import CreateOrganizationView from './views/CreateOrganizationView';
-import VerifyEmailView from './views/VerifyEmailView';
-import AcceptInviteView from './views/AcceptInviteView';
-import ResetPasswordView from './views/ResetPasswordView';
-import ContactView from './views/ContactView';
-import UnsubscribeView from './views/UnsubscribeView';
-import SettingsView from './views/SettingsView';
-import AccountView from './views/AccountView';
-import DashboardsView from './views/DashboardsView';
-import TracesView from './views/TracesView';
-import MetricsExplorerView from './views/MetricsExplorerView';
-import NetworkView from './views/NetworkView';
-import LogsView from './views/LogsView';
-import NotificationChannelsView from './views/NotificationChannelsView';
-import AlertRulesView from './views/AlertRulesView';
-import IncidentsView from './views/IncidentsView';
-import ProfilingView from './views/ProfilingView';
-import MaintenanceView from './views/MaintenanceView';
+// Views load on demand: a visitor of the landing page or the demo only
+// downloads the views they open. HomeView stays in the entry chunk.
+const OverviewView = lazy(() => import('./views/OverviewView'));
+const ErrorsView = lazy(() => import('./views/ErrorsView'));
+const ServicesView = lazy(() => import('./views/ServicesView'));
+const ServiceDetailView = lazy(() => import('./views/ServiceDetailView'));
+const HostsView = lazy(() => import('./views/HostsView'));
+const HostGroupsView = lazy(() => import('./views/HostGroupsView'));
+const HostDetailView = lazy(() => import('./views/HostDetailView'));
+const TimelineView = lazy(() => import('./views/TimelineView'));
+const LoginView = lazy(() => import('./views/LoginView'));
+const CreateOrganizationView = lazy(() => import('./views/CreateOrganizationView'));
+const VerifyEmailView = lazy(() => import('./views/VerifyEmailView'));
+const AcceptInviteView = lazy(() => import('./views/AcceptInviteView'));
+const ResetPasswordView = lazy(() => import('./views/ResetPasswordView'));
+const ContactView = lazy(() => import('./views/ContactView'));
+const UnsubscribeView = lazy(() => import('./views/UnsubscribeView'));
+const SettingsView = lazy(() => import('./views/SettingsView'));
+const AccountView = lazy(() => import('./views/AccountView'));
+const DashboardsView = lazy(() => import('./views/DashboardsView'));
+const TracesView = lazy(() => import('./views/TracesView'));
+const MetricsExplorerView = lazy(() => import('./views/MetricsExplorerView'));
+const NetworkView = lazy(() => import('./views/NetworkView'));
+const LogsView = lazy(() => import('./views/LogsView'));
+const NotificationChannelsView = lazy(() => import('./views/NotificationChannelsView'));
+const AlertRulesView = lazy(() => import('./views/AlertRulesView'));
+const IncidentsView = lazy(() => import('./views/IncidentsView'));
+const ProfilingView = lazy(() => import('./views/ProfilingView'));
+const MaintenanceView = lazy(() => import('./views/MaintenanceView'));
 import HomeView from './views/HomeView';
-import DocumentationView from './views/DocumentationView';
-import PricingView from './views/PricingView';
-import StatusPageView from './views/StatusPageView';
-import LegalView from './views/LegalView';
-import ComparisonView from './views/ComparisonView';
-import PlatformAdminView from './views/PlatformAdminView';
+const DocumentationView = lazy(() => import('./views/DocumentationView'));
+const PricingView = lazy(() => import('./views/PricingView'));
+const StatusPageView = lazy(() => import('./views/StatusPageView'));
+const LegalView = lazy(() => import('./views/LegalView'));
+const ComparisonView = lazy(() => import('./views/ComparisonView'));
+const PlatformAdminView = lazy(() => import('./views/PlatformAdminView'));
 import comparisons from './seo/comparisons.json';
 import ServiceModal from './components/ServiceModal';
 
@@ -64,6 +65,7 @@ function App() {
   return (
     <Router>
       <ErrorBoundary>
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Public routes */}
           <Route
@@ -145,6 +147,8 @@ function App() {
                               <PlanOverLimitBanner />
                               <IngestLimitBanner />
                               <ErrorBoundary>
+                                {/* Inner boundary: the sidebar stays put while a view loads. */}
+                                <Suspense fallback={null}>
                                 <Routes>
                                   {/* Dashboards */}
                                   <Route index element={<OverviewView />} />
@@ -237,6 +241,7 @@ function App() {
                                     }
                                   />
                                 </Routes>
+                                </Suspense>
                               </ErrorBoundary>
                             </div>
                           </main>
@@ -253,8 +258,17 @@ function App() {
           {/* Catch-all: redirect to landing */}
           <Route path='*' element={<Navigate to='/' replace />} />
         </Routes>
+        </Suspense>
       </ErrorBoundary>
     </Router>
+  );
+}
+
+function RouteFallback() {
+  return (
+    <div className='loading-screen'>
+      <div className='loading-spinner' />
+    </div>
   );
 }
 
