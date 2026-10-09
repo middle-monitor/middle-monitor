@@ -45,6 +45,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3000,
+      // Views are lazy routes: without this the dev server compiles each one on
+      // its first visit, which is slow enough on a cold CI runner to fail e2e waits.
+      warmup: { clientFiles: ['./src/views/**/*.tsx'] },
       proxy: {
         '/api': {
           target: 'http://localhost:8080',
