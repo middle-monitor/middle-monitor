@@ -177,3 +177,56 @@ expose:
   listen: "127.0.0.1:9099"  # bound to localhost unless you widen it
   path: "/metrics"
   staleness: 300  # seconds; a series not refreshed for this long is dropped
+
+# Tail log files, Docker containers, Kubernetes pods and the systemd journal and
+# ship them to the Logs view over OTLP, with the install token above. Off by
+# default. Reading /var/lib/docker and /var/log/pods needs root.
+logs:
+  enabled: false
+  # Read positions survive a restart here: nothing is re-sent or skipped.
+  state_file: /var/lib/middle-monitor/log-positions.json
+  max_lines_per_second: 0  # 0 = no limit; over it the agent reads slower, never drops
+  # Applied to every source, before the source's own rules.
+  processing_rules:
+    - type: mask_sequences
+      name: passwords
+      pattern: '(?i)(password|passwd|secret|token)=\S+'
+      replace_placeholder: '$1=[redacted]'
+  sources:
+    # Any application writing files. GitLab's JSON logs carry their own level
+    # ("severity") and time ("time"), which the agent reads.
+    - type: file
+      path:
+        - /var/log/gitlab/gitlab-rails/production_json.log
+        - /var/log/gitlab/gitlab-rails/api_json.log
+        - /var/log/gitlab/sidekiq/current
+      service: gitlab
+    - type: file
+      path: /var/log/myapp/*.log
+      service: myapp
+      start_at: end  # files present at startup; later files are read whole
+      # A record starts with a date; following lines (stack traces) join it.
+      multiline: '^\d{4}-\d{2}-\d{2}'
+      processing_rules:
+        - type: exclude_at_match
+          name: health_checks
+          pattern: 'GET /health'
+
+    # Every container on the host (json-file log driver, the Docker default).
+    # The service is the io.middlemonitor.service label, else the compose or
+    # swarm service, else the container name. A container opts out with the
+    # label io.middlemonitor.logs=false, and sets its own multiline pattern
+    # with io.middlemonitor.multiline.
+    - type: docker
+      exclude: '^middle-monitor-agent$'  # regex on the container name
+
+    # Services run by systemd, through journalctl. The service is the unit
+    # without .service (else the syslog identifier); the level is the syslog
+    # priority unless the line declares one. include and exclude match the unit.
+    - type: journald
+      exclude: '^(session-.*\.scope|systemd-.*)$'
+
+    # Every pod on the node, when the agent runs as a DaemonSet. include and
+    # exclude match "namespace/pod/container".
+    # - type: kubernetes
+    #   exclude: '^kube-system/'

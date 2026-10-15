@@ -941,6 +941,7 @@
     "sidebar_agent": "Install Agent",
     "sidebar_metrics": "System Metrics",
     "sidebar_scraping": "Prometheus Scraping",
+    "sidebar_log_collection": "Log Collection",
     "sidebar_custom_metrics": "Custom Metrics",
     "sidebar_limits": "Limits & Quotas",
     "sidebar_applications": "Applications (APM)",
@@ -1108,7 +1109,7 @@
     "results_count": "{{count}} logs found",
     "loading": "Loading logs...",
     "empty_title": "No logs found",
-    "empty_desc": "Logs will appear here once data is shipped through OTLP.",
+    "empty_desc": "Logs appear here once an SDK or the agent ships them. The agent collects log files, Docker containers, Kubernetes pods and the systemd journal.",
     "table": {
       "timestamp": "Timestamp",
       "severity": "Severity",

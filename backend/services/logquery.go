@@ -9,6 +9,12 @@ var logQueryFieldAliases = map[string]string{
 	"status":   "severity_text",
 	"severity": "severity_text",
 	"host":     "hostname",
+	// Set by the agent on container and journal logs. Resource attributes are mapped
+	// dynamically: the keyword subfield gives exact match and facet values.
+	"container": "resource.container_name.keyword",
+	"namespace": "resource.k8s_namespace_name.keyword",
+	"pod":       "resource.k8s_pod_name.keyword",
+	"unit":      "resource.systemd_unit.keyword",
 }
 
 // Free text also probes trace_id and span_id: pasting an id read off a trace or

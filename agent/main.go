@@ -48,6 +48,9 @@ type AgentConfig struct {
 	// Extra scrape targets served by the platform for this host, so a target can
 	// be added without touching the machine. Off by default.
 	RemoteConfig RemoteConfigConfig `yaml:"remote_config"`
+	// Log files, Docker containers and Kubernetes pods tailed and shipped over
+	// OTLP. Off by default.
+	Logs LogsConfig `yaml:"logs"`
 }
 
 type AgentRegistration struct {
@@ -97,6 +100,9 @@ func loadConfig(path string) (*AgentConfig, error) {
 	// Fragments, parameter expansion and validation happen here so a bad scrape
 	// config fails the load rather than one target loop at a time.
 	if err := PrepareScrape(&config.Scrape); err != nil {
+		return nil, err
+	}
+	if err := PrepareLogs(&config.Logs); err != nil {
 		return nil, err
 	}
 
@@ -374,6 +380,7 @@ func main() {
 	StartRemoteConfig(scrapeCtx, scraper, config)
 	StartExposition(scrapeCtx, config.Expose)
 	StartCacheEviction(scrapeCtx, config.Expose)
+	logs := StartLogCollection(config)
 
 	// Registration creates the host and its checks. Ingestion works without it,
 	// so a failure here is not fatal.
@@ -414,6 +421,9 @@ func main() {
 			if reloaded.Interval != config.Interval {
 				ticker.Reset(time.Duration(reloaded.Interval) * time.Second)
 			}
+			// Restarting the collector keeps the positions: it resumes where it was.
+			logs.Stop()
+			logs = StartLogCollection(reloaded)
 			if reloaded.Expose != config.Expose {
 				slog.Warn("expose settings changed, restart the agent to apply them")
 			}
@@ -422,6 +432,7 @@ func main() {
 
 		case <-sigChan:
 			slog.Info("shutting down")
+			logs.Stop()
 			// Gracefully shutdown OpenTelemetry
 			if meterProvider != nil {
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

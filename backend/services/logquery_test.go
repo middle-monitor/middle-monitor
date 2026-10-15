@@ -20,6 +20,10 @@ func TestNormalizeLogQueryRewritesDatadogAliases(t *testing.T) {
 		{"alias inside operators and parens", "-service:web (status:ERROR OR status:WARN)", "-service_name:web (severity_text:ERROR OR severity_text:WARN)"},
 		{"lucene operators untouched", "a && service:b || NOT c", "a && service_name:b || NOT c"},
 		{"word containing an alias is not a facet", "myservice:x disservice", "myservice:x disservice"},
+		// The agent tags container logs; the search box must reach those tags by
+		// the names people use, or a container's logs cannot be isolated.
+		{"container facets", "container:shop-api-1 namespace:shop pod:api-*", "resource.container_name.keyword:shop-api-1 resource.k8s_namespace_name.keyword:shop resource.k8s_pod_name.keyword:api-*"},
+		{"systemd unit facet", "unit:nginx.service", "resource.systemd_unit.keyword:nginx.service"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

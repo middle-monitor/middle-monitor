@@ -184,6 +184,9 @@ function LogsView() {
                           {log.attributes && Object.keys(log.attributes).length > 0 && (
                             <div><strong>Attributes:</strong> <pre>{JSON.stringify(log.attributes, null, 2)}</pre></div>
                           )}
+                          {log.resource && Object.keys(log.resource).length > 0 && (
+                            <div><strong>Resource:</strong> <pre>{JSON.stringify(log.resource, null, 2)}</pre></div>
+                          )}
                         </div>
                       </td>
                     </tr>

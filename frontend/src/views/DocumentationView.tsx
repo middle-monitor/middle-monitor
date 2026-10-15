@@ -113,6 +113,11 @@ const CATEGORIES = [
         icon: HiOutlineArrowDownTray,
       },
       {
+        id: 'log-collection',
+        labelKey: 'docs.sidebar_log_collection',
+        icon: HiOutlineDocumentText,
+      },
+      {
         id: 'custom-metrics',
         labelKey: 'docs.sidebar_custom_metrics',
         icon: HiOutlineChartBar,
@@ -1500,6 +1505,186 @@ http_sd:
                 The endpoint keeps serving even when Middle Monitor is
                 unreachable, so a network incident on our side does not take
                 your Prometheus down with it.
+              </p>
+            </div>
+
+            <div id='log-collection' className='doc-subsection'>
+              <h3>
+                {t('docs.sidebar_log_collection')}
+                <ShareAnchor />
+              </h3>
+              <p>
+                The agent tails log files, the stdout and stderr of every
+                Docker container and of every Kubernetes pod, and the systemd
+                journal, and ships them to the Logs view over OTLP with its
+                install token. No SDK change and
+                no sidecar: an application that writes logs, GitLab or nginx
+                included, is covered as it is.
+              </p>
+              <div className='doc-callout'>
+                Log collection is <strong>off by default</strong>. Reading{' '}
+                <code>/var/lib/docker</code> and <code>/var/log/pods</code>{' '}
+                needs root. Adding <code>MIDDLE_MONITOR_LOGS=true</code> to the
+                install command turns it on for the journal and the Docker
+                containers the host has.
+              </div>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>
+                  /etc/middle-monitor/config.yaml
+                </div>
+                <CodeBlock
+                  language='yaml'
+                  code={`logs:
+  enabled: true
+  processing_rules:            # applied to every source
+    - type: mask_sequences
+      pattern: '(?i)(password|token)=\\S+'
+      replace_placeholder: '$1=[redacted]'
+  sources:
+    - type: file
+      path: /var/log/gitlab/gitlab-rails/production_json.log
+      service: gitlab
+    - type: file
+      path: /var/log/myapp/*.log
+      service: myapp
+      multiline: '^\\d{4}-\\d{2}-\\d{2}'   # stack traces stay in one record
+    - type: docker             # every container on the host
+      exclude: '^middle-monitor-agent$'
+    - type: journald           # services run by systemd`}
+                />
+              </div>
+              <p>Restart the agent or send it SIGHUP to apply.</p>
+              <table className='doc-api-table'>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>type</td>
+                    <td>-</td>
+                    <td>file, docker, kubernetes or journald</td>
+                  </tr>
+                  <tr>
+                    <td>path</td>
+                    <td>runtime location</td>
+                    <td>
+                      Globs for file sources. For docker and kubernetes,
+                      overrides /var/lib/docker/containers and /var/log/pods;
+                      for journald, a journal directory
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>service</td>
+                    <td>derived</td>
+                    <td>
+                      Service of the records. Files default to the agent's
+                      service, containers to their own name (see below)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>include / exclude</td>
+                    <td>-</td>
+                    <td>
+                      Regular expression on the container name, on
+                      namespace/pod/container for kubernetes, or on the systemd
+                      unit for journald
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>start_at</td>
+                    <td>end</td>
+                    <td>
+                      Where to read files already present at startup. Files that
+                      appear later are always read whole
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>multiline</td>
+                    <td>-</td>
+                    <td>
+                      A record starts on a line matching this expression; the
+                      following lines are appended to it
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>processing_rules</td>
+                    <td>-</td>
+                    <td>
+                      exclude_at_match, include_at_match or mask_sequences, run
+                      on the host before anything is sent
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>max_lines_per_second</td>
+                    <td>0</td>
+                    <td>
+                      Per agent, 0 for no limit. Over it the agent reads slower,
+                      it does not drop
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p>
+                <strong>Docker.</strong> The agent reads the json-file logs
+                (Docker's default driver) and the container's own config next to
+                them, so it needs neither the Docker socket nor the API. A
+                container's service is its <code>io.middlemonitor.service</code>{' '}
+                label, else its compose or swarm service, else its name. The
+                label <code>io.middlemonitor.logs=false</code> opts a container
+                out, and <code>io.middlemonitor.multiline</code> sets its own
+                multiline expression.
+              </p>
+              <p>
+                <strong>Kubernetes.</strong> Run the agent as a DaemonSet that
+                mounts <code>/var/log/pods</code>; the namespace, pod and
+                container are read from the file path. The manifest is in{' '}
+                <code>deploy/kubernetes/agent-daemonset.yaml</code> of the
+                repository.
+              </p>
+              <p>
+                <strong>journald.</strong> The agent follows the journal through{' '}
+                <code>journalctl</code>, so a service run by systemd that logs
+                to stdout is covered without a log file. Its service is the unit
+                name without <code>.service</code>, its level the syslog
+                priority unless the line declares one, and the agent resumes
+                after the last entry the platform accepted.
+              </p>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>config.yaml (Secret)</div>
+                <CodeBlock
+                  language='yaml'
+                  code={`api:
+  url: https://api.middlemonitor.io
+  api_key: <install token>
+logs:
+  enabled: true
+  sources:
+    - type: kubernetes
+      exclude: '^(kube-system|middle-monitor)/'`}
+                />
+              </div>
+              <p>
+                Every record carries the host name, so the logs of a host line
+                up with its CPU and memory. Search them with{' '}
+                <code>container:</code>, <code>namespace:</code>,{' '}
+                <code>pod:</code> and <code>unit:</code> next to <code>service:</code> and{' '}
+                <code>host:</code>. The level is read from the line: a JSON{' '}
+                <code>level</code> or <code>severity</code> field (GitLab,
+                pino, bunyan), <code>level=</code> in logfmt, or a leading
+                keyword such as <code>ERROR</code> or <code>[warn]</code>; a
+                line that declares none is INFO.
+              </p>
+              <p>
+                Read positions are saved in{' '}
+                <code>/var/lib/middle-monitor/log-positions.json</code> once the
+                platform has accepted the lines: a restart neither resends nor
+                skips anything, and rotation by rename or by copytruncate loses
+                no line. When the platform is unreachable the agent retries and
+                stops reading; the files are the buffer.
               </p>
             </div>
 

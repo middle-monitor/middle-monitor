@@ -166,7 +166,9 @@ func (s *OTLPReceiverService) ReceiveLogs(ctx context.Context, data []byte, orgI
 		return fmt.Errorf("%w: %w", ErrLogRequestUnmarshal, err)
 	}
 
-	// Convert and index each log
+	// Convert every log, then index the request's records in one bulk: the agent
+	// ships tailed files in batches of up to a thousand lines.
+	var docs []map[string]interface{}
 	for _, resourceLogs := range request.ResourceLogs {
 		resource := resourceLogs.Resource
 		serviceName := extractServiceName(resource)
@@ -178,14 +180,15 @@ func (s *OTLPReceiverService) ReceiveLogs(ctx context.Context, data []byte, orgI
 				if orgID > 0 {
 					doc["organization_id"] = orgID
 				}
-				if err := s.opensearch.IndexLog(ctx, doc); err != nil {
-					slog.Error("failed to index log", "error", err)
-					// Continue with other logs even if one fails
-				}
+				docs = append(docs, doc)
 			}
 		}
 	}
 
+	// A refused document is logged by the bulk and does not fail the others.
+	if err := s.opensearch.BulkIndex(ctx, "middle-monitor-logs", docs); err != nil {
+		slog.Error("failed to index logs", "records", len(docs), "error", err)
+	}
 	return nil
 }
 

@@ -48,6 +48,16 @@ var (
 	errRegistrationDecode      = errors.New("failed to decode registration response")
 	errRegistrationMarshal     = errors.New("failed to marshal registration")
 	errRequestCreate           = errors.New("failed to create request")
+	errLogSourceType           = errors.New("log source type must be file, docker, kubernetes or journald")
+	errLogPathMissing          = errors.New("a file log source needs a path")
+	errLogJournalPath          = errors.New("a journald log source takes at most one journal directory")
+	errLogStartAt              = errors.New("start_at must be end or beginning")
+	errLogRuleType             = errors.New("processing rule type must be exclude_at_match, include_at_match or mask_sequences")
+	errLogRulePattern          = errors.New("processing rule needs a pattern")
+	errLogRateNegative         = errors.New("max_lines_per_second cannot be negative")
+	errLogExport               = errors.New("failed to export logs")
+	errLogEncode               = errors.New("failed to encode log batch")
+	errJournalctl              = errors.New("journalctl stopped")
 )
 
 // scrapeStatusError reports a target that answered with a non-200 status.
@@ -154,3 +164,37 @@ type registrationStatusError struct {
 func (e *registrationStatusError) Error() string {
 	return fmt.Sprintf("registration failed with status %d", e.StatusCode)
 }
+
+// logSourceError names the log source a configuration error belongs to.
+type logSourceError struct {
+	Index int
+	Err   error
+}
+
+func (e *logSourceError) Error() string {
+	return fmt.Sprintf("logs.sources[%d]: %v", e.Index, e.Err)
+}
+
+func (e *logSourceError) Unwrap() error { return e.Err }
+
+// logExportStatusError reports the backend refusing a log batch.
+type logExportStatusError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e *logExportStatusError) Error() string {
+	return fmt.Sprintf("log export answered with status %d: %s", e.StatusCode, e.Body)
+}
+
+// journalctlError reports journalctl exiting on an error, with what it printed.
+type journalctlError struct {
+	Stderr string
+	Err    error
+}
+
+func (e *journalctlError) Error() string {
+	return fmt.Sprintf("journalctl: %v: %s", e.Err, e.Stderr)
+}
+
+func (e *journalctlError) Unwrap() error { return errJournalctl }

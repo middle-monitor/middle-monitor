@@ -1528,6 +1528,8 @@ export interface LogEntry {
   span_id?: string;
   '@timestamp': string;
   attributes?: Record<string, unknown>;
+  // Who emitted the log: service, host, and container or pod for agent logs.
+  resource?: Record<string, unknown>;
 }
 
 // Trace search
