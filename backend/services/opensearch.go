@@ -1280,14 +1280,14 @@ func (s *OpenSearchService) DeleteByRetention(retentions []OrgRetention) (int64,
 
 // BulkIndex performs bulk indexing for better performance
 func (s *OpenSearchService) BulkIndex(ctx context.Context, indexName string, docs []map[string]interface{}) error {
+	// An empty export is valid and must not need OpenSearch at all.
+	if len(docs) == 0 {
+		return nil
+	}
 	if !s.initialized {
 		if err := s.Initialize(); err != nil {
 			return fmt.Errorf("%w: %w", ErrOpensearchInitialize, err)
 		}
-	}
-
-	if len(docs) == 0 {
-		return nil
 	}
 
 	var buf bytes.Buffer
@@ -1311,8 +1311,9 @@ func (s *OpenSearchService) BulkIndex(ctx context.Context, indexName string, doc
 		buf.WriteString("\n")
 	}
 
-	url := fmt.Sprintf("%s/_bulk", s.baseURL)
-	req, err := http.NewRequest("POST", url, &buf)
+	// filter_path keeps the answer to the failures instead of one line per document.
+	url := fmt.Sprintf("%s/_bulk?filter_path=errors,items.*.error", s.baseURL)
+	req, err := http.NewRequestWithContext(ctx, "POST", url, &buf)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrBulkRequestCreate, err)
 	}
@@ -1331,5 +1332,47 @@ func (s *OpenSearchService) BulkIndex(ctx context.Context, indexName string, doc
 		return newOpenSearchStatusError("bulk index", resp)
 	}
 
-	return nil
+	// A bulk answers 200 even when it refuses documents.
+	var result struct {
+		Errors bool `json:"errors"`
+		Items  []map[string]struct {
+			Error *struct {
+				Type   string `json:"type"`
+				Reason string `json:"reason"`
+			} `json:"error"`
+		} `json:"items"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil || !result.Errors {
+		return nil
+	}
+	failed, reason := 0, ""
+	for _, item := range result.Items {
+		for _, r := range item {
+			if r.Error == nil {
+				continue
+			}
+			failed++
+			if reason == "" {
+				// The preview quotes the rejected value, which can be customer data.
+				cut, _, _ := strings.Cut(r.Error.Reason, ". Preview of field's value")
+				reason = r.Error.Type + ": " + cut
+			}
+		}
+	}
+	return &BulkIndexError{Index: indexName, Failed: failed, Total: len(docs), Reason: reason}
 }
+
+// BulkIndexError reports documents a bulk request refused while the request
+// itself succeeded.
+type BulkIndexError struct {
+	Index  string
+	Failed int
+	Total  int
+	Reason string
+}
+
+func (e *BulkIndexError) Error() string {
+	return fmt.Sprintf("bulk %s: %d of %d documents refused: %s", e.Index, e.Failed, e.Total, e.Reason)
+}
+
+func (e *BulkIndexError) Unwrap() error { return ErrIndexBulk }

@@ -150,6 +150,27 @@
     "summary": "Beyond its own system metrics the agent pulls any endpoint serving the Prometheus text exposition format and ships the series with their labels. Series are filtered on the host with keep_metrics, drop_metrics, keep_if_labels and drop_labels, in that order, so what is dropped never crosses the network. Targets can present a bearer token (inline, from a file re-read at every scrape, or from the environment), basic auth, free headers and a tls_config including insecure_skip_verify and mTLS. Query parameters are set per target, and a list of values expands into one target per combination with the values attached as labels, which is what makes prober exporters like blackbox, script and dns usable. Fragment files under an include glob are merged and deduplicated by name so each deployment role can drop its own scrape config; --config-check validates before a restart and SIGHUP reloads without losing the running cycles. Discovery reads one or several Nomad blocks, each with its own service regex, metrics path, port override and tag-to-label mapping, DNS SRV records, or any endpoint answering the Prometheus http_sd format. The platform can also serve a scrape fragment for a host, which the agent fetches with its install token; it is off by default, validated by the API before it is stored, and a locally configured target wins over a served one of the same name. The agent can also serve everything it holds back in the Prometheus format so an existing Prometheus keeps scraping during the migration."
   },
   {
+    "id": "log-collection",
+    "title": "Log Collection",
+    "category": "Infrastructure",
+    "excerpt": "The agent tails log files, Docker containers, Kubernetes pods and the systemd journal and ships them to the Logs view.",
+    "keywords": [
+      "logs",
+      "log collection",
+      "docker logs",
+      "kubernetes logs",
+      "journald",
+      "systemd logs",
+      "daemonset",
+      "tail",
+      "gitlab logs",
+      "multiline",
+      "fluent bit",
+      "promtail"
+    ],
+    "summary": "The agent tails log files, the stdout and stderr of every Docker container and of every Kubernetes pod, and the systemd journal, and ships them to the Logs view over OTLP with its install token, off by default; MIDDLE_MONITOR_LOGS=true on the install command turns it on for the journal and Docker. File sources take globs and a service name; GitLab's JSON logs and any other application writing files are covered as they are. Docker containers are read from the json-file logs and the container config next to them, without the Docker socket; their service is the io.middlemonitor.service label, else the compose or swarm service, else the container name, and io.middlemonitor.logs=false opts a container out. On Kubernetes the agent runs as a DaemonSet mounting /var/log/pods and reads the namespace, pod and container from the path. The journal is followed through journalctl: a unit's service is its name without .service and its level the syslog priority unless the line declares one. Sources filter containers with include and exclude expressions, join stack traces with a multiline expression, and run exclude_at_match, include_at_match and mask_sequences rules on the host before anything is sent. The level is read from a JSON level or severity field, logfmt level=, or a leading keyword, INFO otherwise. Read positions are saved once the platform accepts the lines, so a restart neither resends nor skips, rotation by rename or copytruncate loses nothing, and an unreachable platform makes the agent wait rather than drop. Logs are searchable by container:, namespace:, pod: and unit: and carry the host name that lines them up with host metrics."
+  },
+  {
     "id": "custom-metrics",
     "title": "Custom Metrics",
     "category": "Infrastructure",

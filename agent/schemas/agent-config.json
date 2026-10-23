@@ -100,6 +100,40 @@
           "description": "Seconds between refreshes."
         }
       }
+    },
+    "logs": {
+      "type": "object",
+      "description": "Tail log files, Docker containers, Kubernetes pods and the systemd journal and ship them over OTLP.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "state_file": {
+          "type": "string",
+          "default": "/var/lib/middle-monitor/log-positions.json",
+          "description": "Read positions, kept across restarts."
+        },
+        "max_lines_per_second": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "0 means no limit. Over the limit the agent reads slower, it does not drop."
+        },
+        "processing_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/logRule"
+          },
+          "description": "Applied to every source before its own rules."
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/logSource"
+          }
+        }
+      }
     }
   },
   "$defs": {
@@ -472,6 +506,93 @@
                 "$ref": "#/$defs/labels"
               }
             }
+          }
+        }
+      }
+    },
+    "logRule": {
+      "type": "object",
+      "required": [
+        "type",
+        "pattern"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "exclude_at_match",
+            "include_at_match",
+            "mask_sequences"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Go regular expression (RE2)."
+        },
+        "replace_placeholder": {
+          "type": "string",
+          "description": "Replacement for mask_sequences."
+        }
+      }
+    },
+    "logSource": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "file",
+            "docker",
+            "kubernetes",
+            "journald"
+          ]
+        },
+        "path": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Globs for file sources. For docker and kubernetes, overrides /var/lib/docker/containers/*/*-json.log or /var/log/pods/*/*/*.log. For journald, one journal directory instead of the system journal."
+        },
+        "service": {
+          "type": "string",
+          "description": "Service name of the records. Container sources default to the io.middlemonitor.service label, the compose or swarm service, then the container name; journald to the unit without .service."
+        },
+        "include": {
+          "type": "string",
+          "description": "Regular expression on the container name (docker), namespace/pod/container (kubernetes) or the systemd unit (journald)."
+        },
+        "exclude": {
+          "type": "string",
+          "description": "Regular expression on the container name (docker), namespace/pod/container (kubernetes) or the systemd unit (journald)."
+        },
+        "start_at": {
+          "enum": [
+            "end",
+            "beginning"
+          ],
+          "default": "end",
+          "description": "Where to read files already present at startup. Files that appear later are read whole."
+        },
+        "multiline": {
+          "type": "string",
+          "description": "A record starts on a line matching this expression; the following lines are appended to it."
+        },
+        "processing_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/logRule"
           }
         }
       }

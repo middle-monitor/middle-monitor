@@ -247,6 +247,31 @@ else
     echo "Configuration updated (host: ${HOST_NAME}, api_key set)"
 fi
 
+# MIDDLE_MONITOR_LOGS=true turns on log collection for what this host has: the
+# systemd journal and the Docker containers. An existing logs block is kept.
+if [ "${MIDDLE_MONITOR_LOGS:-}" = "true" ] && [ "$OS" = "linux" ] && ! grep -q "^logs:" "${CONFIG_DIR}/config.yaml"; then
+    LOG_SOURCES=""
+    if command -v journalctl &> /dev/null; then
+        LOG_SOURCES="${LOG_SOURCES}
+    - type: journald"
+    fi
+    if [ -d /var/lib/docker/containers ]; then
+        LOG_SOURCES="${LOG_SOURCES}
+    - type: docker"
+    fi
+    if [ -n "${LOG_SOURCES}" ]; then
+        sudo tee -a "${CONFIG_DIR}/config.yaml" > /dev/null <<EOF
+
+logs:
+  enabled: true
+  sources:${LOG_SOURCES}
+EOF
+        echo "Log collection enabled (journald and Docker when present)"
+    else
+        echo "Log collection not enabled: no journald or Docker found"
+    fi
+fi
+
 # Install as a service
 if [ "$OS" = "linux" ]; then
     echo "Installing the systemd service..."

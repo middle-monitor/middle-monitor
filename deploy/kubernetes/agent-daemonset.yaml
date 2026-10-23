@@ -1,0 +1,64 @@
+# Middle Monitor agent on every node: host metrics and the logs of every pod.
+#
+#   kubectl create namespace middle-monitor
+#   kubectl -n middle-monitor create secret generic middle-monitor-agent \
+#     --from-file=config.yaml=./config.yaml
+#   kubectl apply -f agent-daemonset.yaml
+#
+# config.yaml holds the install token, hence a Secret. A minimal one:
+#
+#   api:
+#     url: https://api.middlemonitor.io
+#     api_key: <install token>
+#   logs:
+#     enabled: true
+#     sources:
+#       - type: kubernetes
+#         exclude: '^(kube-system|middle-monitor)/'
+#
+# host.name is left out: with hostNetwork the agent's hostname is the node's,
+# which is what host metrics and pod logs are correlated on.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: middle-monitor-agent
+  namespace: middle-monitor
+  labels:
+    app.kubernetes.io/name: middle-monitor-agent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: middle-monitor-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: middle-monitor-agent
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      # Control-plane and tainted nodes run pods too.
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: agent
+          image: ghcr.io/middle-monitor/middle-monitor-agent:latest
+          args: ["--config", "/etc/middle-monitor/config.yaml"]
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+          volumeMounts:
+            - { name: config, mountPath: /etc/middle-monitor, readOnly: true }
+            - { name: state, mountPath: /var/lib/middle-monitor }
+            - { name: pod-logs, mountPath: /var/log/pods, readOnly: true }
+            # /var/log/pods holds symlinks into here on nodes still on Docker.
+            - { name: docker-logs, mountPath: /var/lib/docker/containers, readOnly: true }
+      volumes:
+        - name: config
+          secret: { secretName: middle-monitor-agent }
+        # Read positions outlive the pod, so an agent upgrade resends nothing.
+        - name: state
+          hostPath: { path: /var/lib/middle-monitor, type: DirectoryOrCreate }
+        - name: pod-logs
+          hostPath: { path: /var/log/pods }
+        - name: docker-logs
+          hostPath: { path: /var/lib/docker/containers, type: DirectoryOrCreate }

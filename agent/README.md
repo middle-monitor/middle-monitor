@@ -2,8 +2,9 @@
 
 Collects host metrics (CPU, memory, disk, network) and sends them to Middle
 Monitor. It can also scrape endpoints in the Prometheus exposition format,
-discover its targets through Nomad, DNS SRV or http_sd, and expose what it holds
-to an existing Prometheus.
+discover its targets through Nomad, DNS SRV or http_sd, expose what it holds
+to an existing Prometheus, and collect the logs of files, Docker containers,
+Kubernetes pods and the systemd journal.
 
 ## Install
 
@@ -301,6 +302,52 @@ Prometheus can keep scraping it during a migration. Disabled by default and
 bound to localhost. Each sample carries the time the agent read it, and a stale
 series disappears instead of repeating its last value. The endpoint keeps
 serving when Middle Monitor is unreachable.
+
+## Log collection
+
+```yaml
+logs:
+  enabled: true
+  sources:
+    - type: file
+      path: /var/log/gitlab/gitlab-rails/production_json.log
+      service: gitlab
+    - type: docker # every container, json-file driver
+      exclude: '^middle-monitor-agent$'
+    - type: journald # services run by systemd
+    # - type: kubernetes   # every pod on the node, as a DaemonSet
+```
+
+Records go to the Logs view over OTLP with the install token, with the host
+name, and the container, image, namespace and pod as resource attributes. Off by
+default; reading `/var/lib/docker` and `/var/log/pods` needs root.
+
+- A container's service is its `io.middlemonitor.service` label, else its
+  compose or swarm service, else its name. `io.middlemonitor.logs=false` opts a
+  container out, `io.middlemonitor.multiline` sets its multiline expression.
+- `include` and `exclude` match the container name, `namespace/pod/container`
+  on Kubernetes, or the systemd unit for journald. `multiline` keeps a stack
+  trace in one record.
+- journald runs `journalctl`: a unit's service is its name without `.service`,
+  its level the syslog priority unless the line declares one, and the cursor of
+  the last accepted entry is saved like a file position.
+- `processing_rules` (`exclude_at_match`, `include_at_match`, `mask_sequences`)
+  run on the host, globally and per source, before anything is sent.
+- The level comes from a JSON `level`/`severity` field, logfmt `level=`, or a
+  leading keyword (`ERROR`, `[warn]`); otherwise INFO.
+- Positions are saved in `state_file` once the platform accepts the lines. A
+  restart neither resends nor skips; rotation by rename or copytruncate loses
+  nothing. Files present at startup are read from their end (`start_at`), files
+  that appear later from their beginning.
+- An unreachable platform makes the agent retry and stop reading: the files are
+  the buffer. `max_lines_per_second` slows reading the same way.
+
+`MIDDLE_MONITOR_LOGS=true` on the install command adds a logs block with the
+journal and the Docker containers the host has.
+
+On Kubernetes, run the image `ghcr.io/middle-monitor/middle-monitor-agent` with
+[deploy/kubernetes/agent-daemonset.yaml](../deploy/kubernetes/agent-daemonset.yaml).
+Every option is in [config.yaml.example](config.yaml.example).
 
 ## How it works
 
