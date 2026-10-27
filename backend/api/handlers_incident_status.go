@@ -155,6 +155,11 @@ func publishIncidentTransition(db *sql.DB, snap incidentSnapshot, previous, even
 		services.IncidentURL(db, snap.incident.OrganizationID, snap.incident.ID))
 	event.Title = incidentEventTitle(eventType, snap.incident.Title)
 	event.Message = incidentEventMessage(eventType, snap.incident, body)
+	if snap.incident.ServiceID != nil {
+		event.Message += services.ServiceAlertContext(db, *snap.incident.ServiceID)
+	} else if snap.incident.HostID != nil {
+		event.Message += services.HostAlertContext(db, *snap.incident.HostID)
+	}
 	if body.Actor != "" {
 		event.Labels = map[string]string{"actor": body.Actor}
 	}
