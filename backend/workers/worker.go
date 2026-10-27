@@ -374,6 +374,7 @@ func autoResolveServiceCheckIncident(db *sql.DB, alertSvc *services.AlertService
 	alias := fmt.Sprintf("mm-svc-%d", service.ID)
 	subject := fmt.Sprintf("[RESOLVED] %s", title)
 	body := fmt.Sprintf("Incident #%d '%s' auto-resolved: the check is healthy again.", incidentID, title)
+	body += services.ServiceAlertContext(db, service.ID)
 	svcIDForRoute := service.ID
 	services.RouteResolveTargeted(db, service.OrganizationID, alias, subject, body, &svcIDForRoute, service.HostID)
 }

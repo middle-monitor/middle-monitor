@@ -171,6 +171,7 @@ func autoResolveThresholdIncident(db *sql.DB, alertSvc *services.AlertService, c
 	alias := fmt.Sprintf("mm-svc-%d", c.id)
 	subject := fmt.Sprintf("[RESOLVED] %s", title)
 	body := fmt.Sprintf("Incident #%d '%s' auto-resolved: the value is back within thresholds.", incidentID, title)
+	body += services.ServiceAlertContext(db, c.id)
 	svcIDForRoute := c.id
 	services.RouteResolveTargeted(db, c.orgID, alias, subject, body, &svcIDForRoute, c.hostID)
 }

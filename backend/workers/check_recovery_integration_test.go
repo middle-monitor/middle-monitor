@@ -3,6 +3,9 @@ package workers
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -97,6 +100,39 @@ func TestServiceCheckRecoveryWithNothingOpenIsANoOp(t *testing.T) {
 
 	if got := liveIncidentCount(t, db, checkID); got != 0 {
 		t.Fatalf("got %d incidents, want 0", got)
+	}
+}
+
+// The recovery message is often read alone, hours after the failure. Without
+// the host, a check name shared by several machines says nothing about which
+// one came back.
+func TestServiceCheckRecoveryNotificationNamesTheHost(t *testing.T) {
+	db := integrationDB(t)
+	orgID := seedOrg(t, db, "acme")
+	hostID := seedHost(t, db, orgID, "web-01")
+	checkID := seedCheckOnHost(t, db, orgID, hostID, "web-check", "http")
+	openCheckIncident(t, db, orgID, checkID, "open")
+
+	received := make(chan string, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		received <- string(body)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	seedWebhookChannel(t, db, orgID, "ops", server.URL, 0)
+
+	autoResolveServiceCheckIncident(db, services.NewAlertService(db), models.Service{
+		ID: checkID, OrganizationID: orgID, Name: "web-check", HostID: &hostID,
+	})
+
+	select {
+	case body := <-received:
+		if !strings.Contains(body, "Host: web-01") {
+			t.Fatalf("recovery notification does not name the host: %s", body)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("no recovery notification received")
 	}
 }
 

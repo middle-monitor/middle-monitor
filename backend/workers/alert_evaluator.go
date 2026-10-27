@@ -204,7 +204,7 @@ func autoResolveIfCleared(db *sql.DB, alertSvc *services.AlertService, rule mode
 		channels, _ = alertSvc.GetChannels(rule.OrganizationID)
 	}
 	subject := fmt.Sprintf("[RESOLVED] %s", incidentTitle)
-	body := fmt.Sprintf("Incident #%d '%s' auto-resolved: the condition is no longer breached.", incidentID, incidentTitle)
+	body := fmt.Sprintf("Incident #%d '%s' auto-resolved: the condition is no longer breached.", incidentID, incidentTitle) + ruleAlertContext(db, rule)
 	alias := fmt.Sprintf("mm-rule-%d", rule.ID)
 	resolvedAt := time.Now().UTC()
 	resolved := models.Incident{
@@ -446,6 +446,20 @@ func evalOperator(op string, value, threshold float64) bool {
 	}
 }
 
+// ruleAlertContext is the "where" block of a rule scoped to a service or a host.
+func ruleAlertContext(db *sql.DB, rule models.AlertRule) string {
+	if rule.TargetID == nil {
+		return ""
+	}
+	switch rule.TargetType {
+	case "service":
+		return services.ServiceAlertContext(db, *rule.TargetID)
+	case "host":
+		return services.HostAlertContext(db, *rule.TargetID)
+	}
+	return ""
+}
+
 // ruleEvent builds the typed event of one rule firing or resolving. The webhook
 // receiver needs the rule, the value that breached it and the impacted target;
 // none of that can be recovered from the rendered message.
@@ -522,7 +536,7 @@ func escalateIfWarning(db *sql.DB, alertSvc *services.AlertService, rule models.
 	}
 	event := ruleEvent(services.EventIncidentEscalated, db, rule, escalated, "open", &value)
 	event.Title = fmt.Sprintf("[critical] %s", rule.Name)
-	event.Message = fmt.Sprintf("Incident #%d '%s' escalated from warning to critical (value: %.2f).", incidentID, title, value)
+	event.Message = fmt.Sprintf("Incident #%d '%s' escalated from warning to critical (value: %.2f).", incidentID, title, value) + ruleAlertContext(db, rule)
 	event.DedupKey = fmt.Sprintf("mm-rule-%d", rule.ID)
 	for _, ch := range channels {
 		if !ch.Enabled {
