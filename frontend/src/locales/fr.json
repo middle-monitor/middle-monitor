@@ -830,6 +830,7 @@
     "btn_dashboard": "Tableau de bord",
     "nav_contact": "Contact",
     "nav_github": "GitHub",
+    "nav_github_star": "Star",
     "nav_status": "Page de statut",
     "nav_alternatives": "Alternatives",
     "nav_legal": "Mentions légales",
@@ -2085,6 +2086,7 @@
   "demo": {
     "banner": "Mode démo : les données sont simulées et la démo est en lecture seule, la création et l'édition sont désactivées.",
     "exit": "Quitter la démo",
+    "github": "Une étoile sur GitHub",
     "read_only": "Cette démo est en lecture seule."
   },
   "legal": {

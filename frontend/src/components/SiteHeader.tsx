@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SiGithub } from 'react-icons/si';
-import { HiArrowRight, HiBolt } from 'react-icons/hi2';
+import { HiArrowRight, HiBolt, HiOutlineStar } from 'react-icons/hi2';
 import { useAuth } from '../contexts/AuthContext';
 import { isDemoMode } from '../demo/demoMode';
 import { LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';
@@ -63,10 +63,14 @@ export function SiteHeader({ active, leadingActions, trailingActions }: SiteHead
             href='https://github.com/middle-monitor/middle-monitor'
             target='_blank'
             rel='noopener noreferrer'
-            className='site-nav-link site-nav-icon'
+            className='site-nav-link site-nav-star plausible-event-name=GitHub+Star'
             aria-label={t('public.nav_github')}
             title={t('public.nav_github')}>
             <SiGithub />
+            <span className='site-nav-star-label'>
+              <HiOutlineStar />
+              {t('public.nav_github_star')}
+            </span>
           </a>
         </nav>
 

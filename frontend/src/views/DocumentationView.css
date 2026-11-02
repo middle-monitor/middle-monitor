@@ -1311,3 +1311,14 @@
   padding: 1rem 1.25rem 2rem;
 }
 
+
+/* Search and theme controls leave no room for the full GitHub pill on laptops. */
+@media (max-width: 1360px) {
+  .doc-view .site-nav .site-nav-star {
+    padding: 0;
+    border: none;
+  }
+  .doc-view .site-nav .site-nav-star-label {
+    display: none;
+  }
+}
