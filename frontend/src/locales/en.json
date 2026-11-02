@@ -830,6 +830,7 @@
     "btn_dashboard": "Dashboard",
     "nav_contact": "Contact",
     "nav_github": "GitHub",
+    "nav_github_star": "Star",
     "nav_status": "Status Page",
     "nav_alternatives": "Alternatives",
     "nav_legal": "Legal Notice",
@@ -2085,6 +2086,7 @@
   "demo": {
     "banner": "Demo mode: the data is simulated and the demo is read-only, so creating or editing is disabled.",
     "exit": "Exit demo",
+    "github": "Star on GitHub",
     "read_only": "This demo is read-only."
   },
   "legal": {

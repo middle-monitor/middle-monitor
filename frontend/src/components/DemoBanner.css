@@ -22,6 +22,24 @@
   color: var(--text-primary);
 }
 
+.demo-banner .demo-banner-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.825rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* Banner text needs the room on phones; the header keeps the GitHub link. */
+@media (max-width: 640px) {
+  .demo-banner .demo-banner-github {
+    display: none;
+  }
+}
+
 .demo-banner .demo-banner-exit {
   flex-shrink: 0;
   padding: 0.4rem 0.85rem;

@@ -1,0 +1,42 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Where
+      options:
+        - Self-hosted (Docker Compose)
+        - Hosted (middlemonitor.io)
+        - Agent
+        - SDK
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: MM_VERSION, agent version or SDK version.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant log lines. Remove tokens and passwords.
+      render: text

@@ -63,12 +63,27 @@
   .site-nav-secondary {
     display: none;
   }
+  .site-nav .site-nav-star {
+    padding: 0;
+    border: none;
+  }
+  .site-nav .site-nav-star-label {
+    display: none;
+  }
 }
 
-.site-nav-icon {
+.site-nav-star {
   display: inline-flex;
   align-items: center;
-  font-size: 1.15rem;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--site-header-border, rgba(255, 255, 255, 0.16));
+  border-radius: 999px;
+}
+.site-nav-star-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 .site-nav-link {
   color: var(--site-header-muted, #a1a1aa);
