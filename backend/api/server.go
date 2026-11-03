@@ -63,6 +63,7 @@ func SetupAPIRouter(db *sql.DB, authService *services.AuthService) *mux.Router {
 	// hit hard during an outage, so it gets its own generous limit per IP.
 	statusLimiter := middleware.NewRateLimiter(5, 20)
 	api.Handle("/status", statusLimiter.Middleware(handlePublicStatus(db))).Methods("GET")
+	api.Handle("/status/{org_slug}", statusLimiter.Middleware(handlePublicOrgStatus(db))).Methods("GET")
 
 	// Ping URLs of heartbeat checks. The token in the path is the credential, as a
 	// cron line cannot easily send headers. One server often runs many jobs on
@@ -149,6 +150,7 @@ func SetupAPIRouter(db *sql.DB, authService *services.AuthService) *mux.Router {
 	org.HandleFunc("", handleGetOrganization(db)).Methods("GET")
 	org.HandleFunc("", handleUpdateOrganization(authService)).Methods("PUT")
 	org.HandleFunc("/stats", handleGetOrganizationStats(db)).Methods("GET")
+	org.HandleFunc("/status-page", handleGetStatusPageChecks(db)).Methods("GET")
 
 	// Admin-only org routes
 	orgAdmin := org.PathPrefix("").Subrouter()
@@ -165,6 +167,7 @@ func SetupAPIRouter(db *sql.DB, authService *services.AuthService) *mux.Router {
 	orgAdmin.HandleFunc("/billing-portal", handleCreateBillingPortal(db)).Methods("POST")
 	// Send a test email through the org's own SMTP config.
 	orgAdmin.HandleFunc("/smtp/test", handleTestSMTP(db)).Methods("POST")
+	orgAdmin.HandleFunc("/status-page", handleSetStatusPageChecks(db)).Methods("PUT")
 	orgAdmin.HandleFunc("", handleDeleteOrganization(db, authService, opensearch)).Methods("DELETE")
 
 	// Errors

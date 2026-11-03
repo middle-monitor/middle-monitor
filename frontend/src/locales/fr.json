@@ -399,7 +399,8 @@
       "api_keys": "Clés API",
       "account": "Mon compte",
       "organization": "Organisation",
-      "metrics": "Métriques"
+      "metrics": "Métriques",
+      "status_page": "Page de statut"
     }
   },
   "maintenance_badge": {
@@ -819,7 +820,11 @@
     "uptime_label": "{{uptime}} % de disponibilité sur {{days}} jours",
     "days_ago_one": "il y a {{count}} jour",
     "days_ago_other": "il y a {{count}} jours",
-    "today": "Aujourd'hui"
+    "today": "Aujourd'hui",
+    "org_title": "Statut de {{name}}",
+    "powered_by": "Propulsé par",
+    "not_found_title": "Aucune page de statut publique",
+    "not_found_desc": "Cette organisation n'a publié aucun check."
   },
   "public": {
     "nav_home": "Accueil",
@@ -988,7 +993,8 @@
     "channels_discord": "Discord : Un embed coloré selon la sévérité, via un webhook de salon.",
     "channels_teams": "Microsoft Teams : Une Adaptive Card publiée via un webhook de workflow Teams.",
     "channels_telegram": "Telegram : Un message de votre bot vers un groupe, un canal ou une personne.",
-    "channels_pagerduty": "PagerDuty : Déclenche, acquitte et résout les incidents PagerDuty via l'Events API v2."
+    "channels_pagerduty": "PagerDuty : Déclenche, acquitte et résout les incidents PagerDuty via l'Events API v2.",
+    "sidebar_status_page": "Page de statut"
   },
   "maintenance": {
     "title": "Fenêtres de maintenance",
@@ -2265,5 +2271,20 @@
     "link_invalid": "Ce lien de désabonnement est incomplet. Répondez simplement à l'email et nous nous en chargeons.",
     "error_generic": "Le désabonnement a échoué. Répondez à l'email et nous le ferons manuellement.",
     "back_home": "Retour à l'accueil"
+  },
+  "status_page_settings": {
+    "title": "Page de statut",
+    "desc": "Une page publique que tes clients peuvent ouvrir pendant un incident : les checks que tu choisis, leur disponibilité par jour, les incidents et les maintenances. Les hosts, URLs et messages d'erreur ne sont jamais affichés.",
+    "public_url": "URL publique",
+    "copy": "Copier l'URL",
+    "open": "Ouvrir",
+    "not_published": "Pas encore publiée : coche au moins un check ci-dessous puis enregistre.",
+    "checks_title": "Checks publiés",
+    "checks_hint": "Chaque check apparaît sous son nom d'affichage. Les métriques d'agent et les services SDK ne peuvent pas être publiés.",
+    "no_checks": "Aucun check à publier pour l'instant. Crée d'abord un check d'uptime.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "error_save": "Impossible d'enregistrer la page de statut",
+    "admin_only": "Seuls les admins peuvent changer ce qui est publié."
   }
 }

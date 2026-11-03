@@ -43,6 +43,12 @@ const described = {
   'POST /api/v1/organizations/{org_slug}/metrics/series/expression':
     'Run up to five metric queries ($A to $E, aggregation may be rate) and combine them with + - * /, abs() and sum(). Range and host scope are query parameters.',
   'GET /api/v1/schemas/agent-config.json': 'JSON Schema of the agent config.yaml.',
+  'GET /api/v1/status/{org_slug}':
+    "An organization's public status page: only the checks it published, by display name, with daily uptime, incidents and maintenance. 404 when nothing is published.",
+  'GET /api/v1/organizations/{org_slug}/status-page':
+    'The checks the organization can publish on its status page, and which ones are.',
+  'PUT /api/v1/organizations/{org_slug}/status-page':
+    'Publish exactly the checks in {"service_ids": [...]} and unpublish the others (admin only).',
   'GET /api/v1/heartbeats/{token}':
     'Ping a heartbeat check from the job it watches. GET, HEAD and POST all count; the token is the credential.',
   'POST /api/v1/heartbeats/{token}':
@@ -192,7 +198,8 @@ function PUBLIC(path) {
     path === '/api/v1/openapi.json' ||
     path.startsWith('/api/v1/schemas/') ||
     path.startsWith('/api/v1/agents/') ||
-    path.startsWith('/api/v1/heartbeats/')
+    path.startsWith('/api/v1/heartbeats/') ||
+    path.startsWith('/api/v1/status/')
   );
 }
 

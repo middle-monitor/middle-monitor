@@ -97,6 +97,8 @@ func PublicRoute(path string) bool {
 		return true
 	case strings.HasPrefix(path, "/api/v1/heartbeats/"):
 		return true
+	case strings.HasPrefix(path, "/api/v1/status/"):
+		return true
 	default:
 		return false
 	}

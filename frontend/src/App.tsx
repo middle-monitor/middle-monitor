@@ -53,6 +53,7 @@ import HomeView from './views/HomeView';
 const DocumentationView = lazy(() => import('./views/DocumentationView'));
 const PricingView = lazy(() => import('./views/PricingView'));
 const StatusPageView = lazy(() => import('./views/StatusPageView'));
+const StatusPageSettingsView = lazy(() => import('./views/StatusPageSettingsView'));
 const LegalView = lazy(() => import('./views/LegalView'));
 const ComparisonView = lazy(() => import('./views/ComparisonView'));
 const PlatformAdminView = lazy(() => import('./views/PlatformAdminView'));
@@ -113,6 +114,7 @@ function App() {
             <Route path='/pricing' element={<PricingView />} />
             {/* Public status page: Middle Monitor's own availability */}
             <Route path='/status' element={<StatusPageView />} />
+            <Route path='/status/:slug' element={<StatusPageView />} />
             {/* Contact Us */}
             <Route path='/contact' element={<ContactView />} />
 
@@ -177,6 +179,10 @@ function App() {
                                   <Route
                                     path='services/:id'
                                     element={<ServiceDetailView />}
+                                  />
+                                  <Route
+                                    path='status-page'
+                                    element={<StatusPageSettingsView />}
                                   />
                                   <Route
                                     path='traces'

@@ -388,6 +388,7 @@ export interface StatusMaintenance {
 }
 
 export interface StatusPage {
+  name: string;
   status: StatusLevel;
   window_days: number;
   updated_at: string;
@@ -396,8 +397,18 @@ export interface StatusPage {
   maintenance: StatusMaintenance[];
 }
 
+export interface StatusPageCheck {
+  id: number;
+  name: string;
+  display_name?: string;
+  type: string;
+  public: boolean;
+}
+
 export const statusApi = {
   get: () => api.get<StatusPage>('/status'),
+  getOrg: (slug: string) =>
+    api.get<StatusPage>(`/status/${encodeURIComponent(slug)}`),
 };
 
 // Payments API
@@ -483,6 +494,15 @@ export function createOrgApi(orgSlug: string) {
       }),
     deleteUser: (userId: number) => api.delete(`${base}/users/${userId}`),
     getStats: () => api.get<OrganizationStats>(`${base}/stats`),
+
+    // Public status page: which checks the org publishes.
+    statusPage: {
+      list: () => api.get<StatusPageCheck[]>(`${base}/status-page`),
+      update: (serviceIds: number[]) =>
+        api.put<StatusPageCheck[]>(`${base}/status-page`, {
+          service_ids: serviceIds,
+        }),
+    },
 
     // Dashboard
     dashboard: {

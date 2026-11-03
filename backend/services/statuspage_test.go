@@ -13,8 +13,8 @@ import (
 // must never do is describe anything an operator did not publish.
 
 func orgRows() *sqlmock.Rows {
-	return sqlmock.NewRows([]string{"id", "plan", "trial_ends_at", "custom_retention_days"}).
-		AddRow(int64(3), "pro", nil, nil)
+	return sqlmock.NewRows([]string{"id", "name", "plan", "trial_ends_at", "custom_retention_days"}).
+		AddRow(int64(3), "Acme", "pro", nil, nil)
 }
 
 func TestStatusPage_QueriesOnlyPublishedChecks(t *testing.T) {

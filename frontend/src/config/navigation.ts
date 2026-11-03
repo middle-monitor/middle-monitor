@@ -18,6 +18,7 @@ import {
   HiOutlineUserCircle,
   HiOutlineRectangleGroup,
   HiOutlinePresentationChartLine,
+  HiOutlineMegaphone,
 } from 'react-icons/hi2';
 
 export interface NavItem {
@@ -74,6 +75,12 @@ export const navigationConfig: NavSection[] = [
         labelKey: 'sidebar.items.services',
         icon: HiOutlineCube,
         path: '/services',
+      },
+      {
+        id: 'status-page',
+        labelKey: 'sidebar.items.status_page',
+        icon: HiOutlineMegaphone,
+        path: '/status-page',
       },
     ],
   },

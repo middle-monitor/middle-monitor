@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import type { AxiosResponse } from 'axios';
 import {
   HiOutlineCheckCircle,
   HiOutlineExclamationTriangle,
@@ -97,10 +99,68 @@ function relatedIncidents(
 }
 
 export default function StatusPageView() {
-  const { t, i18n } = useTranslation();
+  const { slug } = useParams<{ slug?: string }>();
+  return slug ? <OrgStatusPage slug={slug} /> : <InstanceStatusPage />;
+}
+
+function InstanceStatusPage() {
   useDocumentMeta('status');
+  return (
+    <StatusPageContent
+      load={statusApi.get}
+      header={() => <SiteHeader active='status' />}
+    />
+  );
+}
+
+// An org's page is read by its own customers: their name on top, none of the
+// Middle Monitor site navigation, and a discreet credit at the bottom.
+function OrgStatusPage({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const load = useCallback(() => statusApi.getOrg(slug), [slug]);
+  const onLoad = useCallback(
+    (page: StatusPage) => {
+      document.title = t('status.org_title', { name: page.name });
+    },
+    [t],
+  );
+  return (
+    <StatusPageContent
+      load={load}
+      onLoad={onLoad}
+      header={(page) => (
+        <header className='status-org-header'>
+          <span className='status-org-name'>{page?.name ?? slug}</span>
+        </header>
+      )}
+      footer={
+        <footer className='status-powered'>
+          {t('status.powered_by')}{' '}
+          <a href='https://middlemonitor.io' target='_blank' rel='noopener noreferrer'>
+            Middle Monitor
+          </a>
+        </footer>
+      }
+    />
+  );
+}
+
+function StatusPageContent({
+  load: fetchPage,
+  onLoad,
+  header,
+  footer,
+}: {
+  load: () => Promise<AxiosResponse<StatusPage>>;
+  onLoad?: (page: StatusPage) => void;
+  header: (page: StatusPage | null) => ReactNode;
+  footer?: ReactNode;
+}) {
+  const { t, i18n } = useTranslation();
   const [page, setPage] = useState<StatusPage | null>(null);
   const [failed, setFailed] = useState(false);
+  // 404 means nothing is published, which is not an outage of the status API.
+  const [notFound, setNotFound] = useState(false);
   const [hovered, setHovered] = useState<{
     component: string;
     date: string;
@@ -110,16 +170,18 @@ export default function StatusPageView() {
   useEffect(() => {
     let cancelled = false;
     const load = () =>
-      statusApi
-        .get()
+      fetchPage()
         .then((res) => {
           if (!cancelled) {
             setPage(res.data);
             setFailed(false);
+            onLoad?.(res.data);
           }
         })
-        .catch(() => {
-          if (!cancelled) setFailed(true);
+        .catch((err) => {
+          if (cancelled) return;
+          if (err?.response?.status === 404) setNotFound(true);
+          else setFailed(true);
         });
     load();
     // The checks themselves run every 60s; refreshing on the same beat keeps an
@@ -129,7 +191,7 @@ export default function StatusPageView() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, []);
+  }, [fetchPage, onLoad]);
 
   const locale = i18n.language === 'fr' ? 'fr-FR' : 'en-US';
   const time = (iso: string) =>
@@ -164,7 +226,7 @@ export default function StatusPageView() {
 
   return (
     <div className='status-page'>
-      <SiteHeader active='status' />
+      {header(page)}
 
       <main className='status-main'>
         {failed && (
@@ -177,7 +239,17 @@ export default function StatusPageView() {
           </div>
         )}
 
-        {!failed && !page && <div className='status-loading'>{t('status.loading')}</div>}
+        {notFound && !page && (
+          <div className='status-banner status-unknown'>
+            <HiOutlineQuestionMarkCircle className='status-banner-icon' />
+            <div>
+              <h1>{t('status.not_found_title')}</h1>
+              <p>{t('status.not_found_desc')}</p>
+            </div>
+          </div>
+        )}
+
+        {!failed && !notFound && !page && <div className='status-loading'>{t('status.loading')}</div>}
 
         {page && (
           <>
@@ -349,6 +421,7 @@ export default function StatusPageView() {
           </>
         )}
       </main>
+      {footer}
     </div>
   );
 }

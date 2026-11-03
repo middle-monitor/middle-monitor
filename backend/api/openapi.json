@@ -6061,6 +6061,93 @@
         ]
       }
     },
+    "/api/v1/organizations/{org_slug}/status-page": {
+      "get": {
+        "operationId": "handleGetStatusPageChecks",
+        "summary": "Get status page checks",
+        "tags": [
+          "status-page"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "The checks the organization can publish on its status page, and which ones are.",
+        "parameters": [
+          {
+            "name": "org_slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Organization slug"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "handleSetStatusPageChecks",
+        "summary": "Set status page checks",
+        "tags": [
+          "status-page"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Publish exactly the checks in {\"service_ids\": [...]} and unpublish the others (admin only).",
+        "parameters": [
+          {
+            "name": "org_slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Organization slug"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opt-in: a retry carrying the same key replays the first answer (Idempotent-Replay: true) instead of creating a second row. 409 with code idempotency_in_progress while the first call is still running."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{org_slug}/subscription": {
       "get": {
         "operationId": "handleGetSubscription",
@@ -6530,6 +6617,39 @@
             "$ref": "#/components/responses/ServerError"
           }
         },
+        "security": []
+      }
+    },
+    "/api/v1/status/{org_slug}": {
+      "get": {
+        "operationId": "statusLimiter.Middleware",
+        "summary": "Status limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "An organization's public status page: only the checks it published, by display name, with daily uptime, incidents and maintenance. 404 when nothing is published.",
+        "parameters": [
+          {
+            "name": "org_slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Organization slug"
+            }
+          }
+        ],
         "security": []
       }
     },
