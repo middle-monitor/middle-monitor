@@ -14,6 +14,8 @@ const (
 	maxHostLen         = 500
 	minServiceInterval = 60
 	maxServiceInterval = 3600
+	// A heartbeat's interval is the job's period, and monthly jobs are common.
+	maxHeartbeatPeriod = 31 * 24 * 3600
 	minMaxAttempts     = 1
 	maxMaxAttempts     = 10
 )
@@ -23,6 +25,7 @@ var validServiceTypes = map[string]bool{
 	"ping":        true,
 	"tcp":         true,
 	"dns":         true,
+	"heartbeat":   true,
 	"snmp":        true,
 	"certificate": true,
 	"sql":         true,
@@ -63,9 +66,13 @@ func validateServiceType(t string) error {
 	return ErrServiceTypeInvalid
 }
 
-func validateServiceInterval(v int) error {
-	if v < minServiceInterval || v > maxServiceInterval {
-		return &RangeError{What: "service interval", Min: minServiceInterval, Max: maxServiceInterval, Unit: "seconds"}
+func validateServiceInterval(serviceType string, v int) error {
+	max := maxServiceInterval
+	if serviceType == services.HeartbeatType {
+		max = maxHeartbeatPeriod
+	}
+	if v < minServiceInterval || v > max {
+		return &RangeError{What: "service interval", Min: minServiceInterval, Max: max, Unit: "seconds"}
 	}
 	return nil
 }
@@ -105,6 +112,9 @@ func validateCheckConfig(service models.Service) error {
 		return validateTCPTarget(service.Host)
 	case "dns":
 		_, err := services.ParseDNSCheckConfig(service.Credentials)
+		return err
+	case services.HeartbeatType:
+		_, err := services.ParseHeartbeatConfig(service.Credentials)
 		return err
 	}
 	return nil

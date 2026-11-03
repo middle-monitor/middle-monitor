@@ -308,7 +308,7 @@
     "id": "checks",
     "title": "Check Details",
     "category": "Monitoring",
-    "excerpt": "HTTP, ping, TCP port, DNS, SQL, SSL certificate and SNMP checks with configurable latency thresholds.",
+    "excerpt": "HTTP, ping, TCP port, DNS, heartbeat (cron), SQL, SSL certificate and SNMP checks with configurable latency thresholds.",
     "keywords": [
       "http",
       "ping",
@@ -320,9 +320,11 @@
       "snmp",
       "tcp",
       "port",
-      "dns"
+      "dns",
+      "heartbeat",
+      "cron"
     ],
-    "summary": "Checks are executed periodically by the Middle Monitor backend workers, so no agent is required on the target. HTTP and HTTPS checks verify the status code, measure response time against warning and critical thresholds and can assert a keyword or JSON path, with Bearer and Basic authentication supported. Ping uses ICMP for reachability and round-trip latency. TCP opens a connection to a host:port and measures the connect time. DNS resolves an A, AAAA, CNAME, MX, NS or TXT record and can require an expected value. SQL performs a connection check plus built-in diagnostics for locks, replication lag and connection saturation, with no user-provided query. SSL certificate checks validity and expiry against a days-before-expiry threshold, and SNMP reads a numeric OID over UDP 161."
+    "summary": "Checks are executed periodically by the Middle Monitor backend workers, so no agent is required on the target. HTTP and HTTPS checks verify the status code, measure response time against warning and critical thresholds and can assert a keyword or JSON path, with Bearer and Basic authentication supported. Ping uses ICMP for reachability and round-trip latency. TCP opens a connection to a host:port and measures the connect time. DNS resolves an A, AAAA, CNAME, MX, NS or TXT record and can require an expected value. Heartbeat checks work the other way round: a cron job or worker calls a ping URL on each run, an incident opens when no ping arrives within the period plus a grace, and a fail URL reports a failure with its output. SQL performs a connection check plus built-in diagnostics for locks, replication lag and connection saturation, with no user-provided query. SSL certificate checks validity and expiry against a days-before-expiry threshold, and SNMP reads a numeric OID over UDP 161."
   },
   {
     "id": "channels",

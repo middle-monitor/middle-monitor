@@ -1645,7 +1645,10 @@
       "agent_ram": "Agent RAM",
       "agent_disk": "Agent Disk",
       "agent_network": "Agent Network",
-      "error_sdk": "Error SDK ({{platform}})"
+      "error_sdk": "Error SDK ({{platform}})",
+      "tcp": "TCP Port",
+      "dns": "DNS",
+      "heartbeat": "Heartbeat"
     },
     "stats": {
       "utilization": "Utilization",
@@ -1721,6 +1724,12 @@
       "redirects_one": "1 redirect",
       "final_url": "final URL",
       "redirects_other": "{{count}} redirects"
+    },
+    "heartbeat": {
+      "title": "Ping URL",
+      "copy": "Copy URL",
+      "waiting": "No ping received yet. The check stays silent until the first one.",
+      "usage": "Call it at the end of each run, with GET or POST. Add /fail to report a failure; a POST body (first 1000 characters) is kept as the reason."
     }
   },
   "service_modal": {
@@ -1755,7 +1764,11 @@
         "label": "SNMP Check",
         "description": "SNMP check (coming soon)"
       },
-      "doc_link": "Learn more"
+      "doc_link": "Learn more",
+      "heartbeat": {
+        "label": "Heartbeat / Cron",
+        "description": "Alerts when a cron job or worker stops calling its ping URL"
+      }
     },
     "errors": {
       "host_required": "A host must be selected",
@@ -1776,7 +1789,9 @@
       "save_create": "Error creating service",
       "new_host_invalid": "Host name may only contain letters, digits, dots, dashes and underscores",
       "tcp_target_invalid": "Enter a host and a port, e.g. db.internal:5432",
-      "dns_name_required": "A domain name is required for a DNS check"
+      "dns_name_required": "A domain name is required for a DNS check",
+      "heartbeat_period_out_of_range": "The period must be between 60 seconds and 31 days",
+      "heartbeat_grace_out_of_range": "The grace must be between 0 and 86400 seconds"
     },
     "labels": {
       "host": "Host *",
@@ -1844,7 +1859,12 @@
       "dns_expected_optional": "Expected value (optional)",
       "dns_info": "Without an expected value, the check passes as long as the name resolves. With one, one of the answers must match it, which catches a hijacked or wrongly edited record.",
       "threshold_hint_tcp": "Raises an alert when the connect time goes above this value. Leave empty to only check that the port is open.",
-      "threshold_hint_dns": "Raises an alert when the lookup takes longer than this value. Leave empty to only check that the name resolves."
+      "threshold_hint_dns": "Raises an alert when the lookup takes longer than this value. Leave empty to only check that the name resolves.",
+      "heartbeat_period": "Expected every (seconds) *",
+      "heartbeat_period_hint": "= {{period}}. Match the job's schedule: 86400 for a daily job.",
+      "heartbeat_grace": "Grace (seconds)",
+      "heartbeat_grace_hint": "= {{grace}} of delay tolerated before alerting.",
+      "heartbeat_info": "The job calls the check's ping URL each time it runs; the URL is on the check page once created. No ping within the period plus the grace opens an incident, and the job can report its own failure through the fail URL. A check that never pinged stays silent."
     },
     "placeholders": {
       "display_name": "e.g. API Health Check",
@@ -1880,7 +1900,17 @@
     "submit_updating": "Updating...",
     "submit_creating": "Creating...",
     "submit_update": "Update",
-    "submit_create": "Create Service"
+    "submit_create": "Create Service",
+    "units": {
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "hours_one": "{{count}} hour",
+      "hours_other": "{{count}} hours",
+      "minutes_one": "{{count}} minute",
+      "minutes_other": "{{count}} minutes",
+      "seconds_one": "{{count}} second",
+      "seconds_other": "{{count}} seconds"
+    }
   },
   "metrics_view": {
     "monitoring_header": {

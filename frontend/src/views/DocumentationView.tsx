@@ -38,7 +38,15 @@ import {
 import './DocumentationView.css';
 
 type Lang = 'go' | 'node' | 'python' | 'rust';
-type CheckType = 'http' | 'ping' | 'tcp' | 'dns' | 'sql' | 'certificate' | 'snmp';
+type CheckType =
+  | 'http'
+  | 'ping'
+  | 'tcp'
+  | 'dns'
+  | 'heartbeat'
+  | 'sql'
+  | 'certificate'
+  | 'snmp';
 
 const GITHUB_ORG = 'https://github.com/middle-monitor';
 
@@ -411,6 +419,7 @@ export default function DocumentationView() {
     ping: 'Ping',
     tcp: 'TCP',
     dns: 'DNS',
+    heartbeat: 'Heartbeat',
     sql: 'SQL',
     certificate: 'SSL Certificate',
     snmp: 'SNMP',
@@ -418,7 +427,7 @@ export default function DocumentationView() {
 
   const CheckTypeTabs = () => (
     <div className='doc-lang-tabs'>
-      {(['http', 'ping', 'tcp', 'dns', 'sql', 'certificate', 'snmp'] as CheckType[]).map(
+      {(['http', 'ping', 'tcp', 'dns', 'heartbeat', 'sql', 'certificate', 'snmp'] as CheckType[]).map(
         (c) => (
           <button
             key={c}
@@ -2084,6 +2093,12 @@ logs:
                     <td>Domain, record type, expected value</td>
                   </tr>
                   <tr>
+                    <td>Heartbeat</td>
+                    <td>HTTP (inbound)</td>
+                    <td>A cron job or worker pings on time</td>
+                    <td>Expected period, grace</td>
+                  </tr>
+                  <tr>
                     <td>SQL</td>
                     <td>TCP</td>
                     <td>
@@ -2155,6 +2170,22 @@ logs:
                   answers must match it (case and trailing dot ignored), which
                   catches a hijacked or wrongly edited record. The lookup time
                   is compared to your Warning / Critical thresholds (in ms).
+                </p>
+              </div>
+
+              <div id='check-heartbeat' className='doc-check-detail'>
+                <h4>Heartbeat (cron) check</h4>
+                <p>
+                  The other way round: your job calls Middle Monitor. Each
+                  heartbeat has a ping URL, shown on its page, that the job
+                  calls at the end of every run (GET, HEAD or POST). When no
+                  ping arrives within the expected period plus the grace, an
+                  incident opens; the next ping resolves it. Calling the URL
+                  with <code>/fail</code> appended reports a failure right away,
+                  and a POST body (its first 1000 characters) becomes the
+                  reason in the alert. A heartbeat that never received a ping
+                  stays silent, so you can create it before deploying the job.
+                  The period goes up to 31 days.
                 </p>
               </div>
 
@@ -5123,6 +5154,74 @@ curl -O "${API_URL}/api/v1/agents/download/1.4.2/linux/amd64"`}
     "service_interval": 300,
     "credentials":      "{\\"record_type\\":\\"A\\",\\"expected\\":\\"203.0.113.10\\"}"
   }'`}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {checkType === 'heartbeat' && (
+                    <>
+                      <table
+                        className='doc-param-table'
+                        style={{ marginBottom: '1rem' }}>
+                        <thead>
+                          <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>service_interval</td>
+                            <td>integer</td>
+                            <td>
+                              Expected period between two pings, in seconds,
+                              from <code>60</code> to <code>2678400</code> (31
+                              days).
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>credentials</td>
+                            <td>string (JSON)</td>
+                            <td>
+                              <code>grace_seconds</code>, the delay tolerated
+                              after the period before alerting (0 to 86400,
+                              defaults to <code>300</code>).{' '}
+                              <span className='doc-param-optional'>
+                                optional
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div className='doc-code-block'>
+                        <div className='doc-code-header'>curl</div>
+                        <CodeBlock
+                          language='bash'
+                          code={`curl -X POST ${API_URL}/api/v1/organizations/acme/services \\
+  -H "Authorization: Bearer mm_YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name":             "nightly-backup",
+    "type":             "heartbeat",
+    "service":          "jobs",
+    "host_id":          43,
+    "service_interval": 86400,
+    "credentials":      "{\\"grace_seconds\\":1800}"
+  }'`}
+                        />
+                      </div>
+                      <p className='doc-endpoint-desc'>
+                        The response carries a <code>token</code>. The job
+                        pings <code>/api/v1/heartbeats/&#123;token&#125;</code>,
+                        without any other credential:
+                      </p>
+                      <div className='doc-code-block'>
+                        <div className='doc-code-header'>crontab</div>
+                        <CodeBlock
+                          language='bash'
+                          code={`0 3 * * * /usr/local/bin/backup.sh && curl -fsS -m 10 --retry 3 ${API_URL}/api/v1/heartbeats/TOKEN || curl -fsS -m 10 --retry 3 ${API_URL}/api/v1/heartbeats/TOKEN/fail`}
                         />
                       </div>
                     </>

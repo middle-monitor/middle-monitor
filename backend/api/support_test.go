@@ -165,7 +165,7 @@ func TestValidateName(t *testing.T) {
 // Internal systems create services with generated type prefixes; rejecting
 // those would break error-service and agent provisioning.
 func TestValidateServiceTypeAllowsGeneratedPrefixes(t *testing.T) {
-	for _, ok := range []string{"http", "ping", "tcp", "dns", "snmp", "certificate", "sql", "error_service_go", "agent_cpu"} {
+	for _, ok := range []string{"http", "ping", "tcp", "dns", "heartbeat", "snmp", "certificate", "sql", "error_service_go", "agent_cpu"} {
 		if err := validateServiceType(ok); err != nil {
 			t.Fatalf("%q was rejected: %v", ok, err)
 		}
@@ -210,14 +210,43 @@ func TestValidateCheckConfigRejectsUnknownDNSRecordTypes(t *testing.T) {
 func TestValidateServiceInterval(t *testing.T) {
 	for _, bad := range []int{0, 59, 3601} {
 		var rangeErr *RangeError
-		if err := validateServiceInterval(bad); !errors.As(err, &rangeErr) {
+		if err := validateServiceInterval("http", bad); !errors.As(err, &rangeErr) {
 			t.Fatalf("%d was accepted", bad)
 		}
 	}
 	for _, ok := range []int{60, 300, 3600} {
-		if err := validateServiceInterval(ok); err != nil {
+		if err := validateServiceInterval("http", ok); err != nil {
 			t.Fatalf("%d was rejected: %v", ok, err)
 		}
+	}
+}
+
+// A heartbeat's interval is the job's period, and a nightly backup is the most
+// common job to watch: capping it at an hour would rule that out. The floor
+// still holds, and the longer cap belongs to heartbeats only.
+func TestValidateServiceIntervalLetsHeartbeatsWatchDailyJobs(t *testing.T) {
+	if err := validateServiceInterval("heartbeat", 86400); err != nil {
+		t.Fatalf("a daily heartbeat was rejected: %v", err)
+	}
+	var rangeErr *RangeError
+	for _, bad := range []int{59, 31*24*3600 + 1} {
+		if err := validateServiceInterval("heartbeat", bad); !errors.As(err, &rangeErr) {
+			t.Fatalf("heartbeat period %d was accepted", bad)
+		}
+	}
+	if err := validateServiceInterval("http", 86400); !errors.As(err, &rangeErr) {
+		t.Fatal("a daily interval was accepted for an active check")
+	}
+}
+
+func TestValidateCheckConfigBoundsTheHeartbeatGrace(t *testing.T) {
+	ok := `{"grace_seconds":600}`
+	if err := validateCheckConfig(models.Service{Type: "heartbeat", Credentials: &ok}); err != nil {
+		t.Fatalf("got %v", err)
+	}
+	bad := `{"grace_seconds":-1}`
+	if err := validateCheckConfig(models.Service{Type: "heartbeat", Credentials: &bad}); !errors.Is(err, services.ErrHeartbeatGraceInvalid) {
+		t.Fatalf("got %v", err)
 	}
 }
 

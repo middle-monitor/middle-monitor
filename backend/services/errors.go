@@ -76,6 +76,10 @@ var (
 
 	ErrDNSConfigInvalid     = errors.New("dns check config must be a json object")
 	ErrDNSRecordTypeInvalid = errors.New("dns record_type must be one of: A, AAAA, CNAME, MX, NS, TXT")
+
+	ErrHeartbeatConfigInvalid = errors.New("heartbeat config must be a json object")
+	ErrHeartbeatGraceInvalid  = errors.New("heartbeat grace_seconds must be between 0 and 86400")
+	ErrHeartbeatNotFound      = errors.New("heartbeat not found")
 	// ErrHostHasServices marks a delete refused because services are still attached to the host.
 	ErrHostHasServices   = errors.New("host still has services attached; delete or detach them first")
 	ErrHostGroupNotFound = errors.New("host group not found")

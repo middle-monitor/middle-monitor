@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { HiPlus, HiPencil, HiX } from 'react-icons/hi';
 import {
@@ -7,6 +8,7 @@ import {
   HiOutlineArrowsRightLeft,
   HiOutlineCircleStack,
   HiOutlineGlobeAlt,
+  HiOutlineHeart,
   HiOutlineLockClosed,
   HiOutlineMapPin,
   HiOutlineSignal,
@@ -42,6 +44,10 @@ const CREATABLE_SERVICE_TYPES = [
     icon: HiOutlineMapPin,
   },
   {
+    value: 'heartbeat',
+    icon: HiOutlineHeart,
+  },
+  {
     value: 'sql',
     icon: HiOutlineCircleStack,
   },
@@ -71,6 +77,7 @@ const DEFAULT_THRESHOLDS: Record<
   ping: { warning: 100, critical: 300 },
   tcp: { warning: 300, critical: 1000 },
   dns: { warning: 300, critical: 1000 },
+  heartbeat: { warning: null, critical: null },
   sql: { warning: null, critical: 1000 },
   certificate: { warning: 30, critical: 7 },
   snmp: { warning: null, critical: null },
@@ -103,6 +110,41 @@ function parseDNSConfig(credentials?: string | null): {
   } catch {
     return { record_type: 'A', expected: '' };
   }
+}
+
+const DEFAULT_HEARTBEAT_GRACE = 300;
+// Mirrors the backend: a heartbeat period may span a monthly job.
+const MAX_HEARTBEAT_PERIOD = 31 * 24 * 3600;
+
+function parseHeartbeatGrace(credentials?: string | null): number {
+  try {
+    const parsed = credentials ? JSON.parse(credentials) : {};
+    return typeof parsed.grace_seconds === 'number'
+      ? parsed.grace_seconds
+      : DEFAULT_HEARTBEAT_GRACE;
+  } catch {
+    return DEFAULT_HEARTBEAT_GRACE;
+  }
+}
+
+// Two largest units only: "1 day 2 hours" reads, "1 day 2 hours 3 minutes 4 seconds" does not.
+function formatPeriod(seconds: number, t: TFunction): string {
+  const units = [
+    { key: 'days', size: 86400 },
+    { key: 'hours', size: 3600 },
+    { key: 'minutes', size: 60 },
+    { key: 'seconds', size: 1 },
+  ];
+  let rest = Math.max(0, Math.floor(seconds));
+  const parts: string[] = [];
+  for (const unit of units) {
+    const count = Math.floor(rest / unit.size);
+    rest -= count * unit.size;
+    if (count > 0 && parts.length < 2) {
+      parts.push(t(`service_modal.units.${unit.key}`, { count }));
+    }
+  }
+  return parts.join(' ') || t('service_modal.units.seconds', { count: 0 });
 }
 
 // Mirrors the backend: a tcp check dials host:port as typed.
@@ -220,6 +262,11 @@ export default function ServiceModal() {
     snmp_oid: '',
     dns_record_type: initialDNSConfig.record_type,
     dns_expected: initialDNSConfig.expected,
+    heartbeat_grace: parseHeartbeatGrace(
+      editingService && editingService.type === 'heartbeat'
+        ? editingService.credentials
+        : null,
+    ),
     http_auth_mode: (() => {
       if (
         editingService &&
@@ -305,6 +352,9 @@ export default function ServiceModal() {
         snmp_oid: '',
         dns_record_type: dnsConfig.record_type,
         dns_expected: dnsConfig.expected,
+        heartbeat_grace: parseHeartbeatGrace(
+          editingService.type === 'heartbeat' ? editingService.credentials : null,
+        ),
         http_auth_mode: (() => {
           if (
             editingService.type === 'http' &&
@@ -353,6 +403,7 @@ export default function ServiceModal() {
         snmp_oid: '',
         dns_record_type: 'A',
         dns_expected: '',
+        heartbeat_grace: DEFAULT_HEARTBEAT_GRACE,
         http_auth_mode: 'none',
         http_bearer_token: '',
         http_basic_user: '',
@@ -573,6 +624,11 @@ export default function ServiceModal() {
         });
       } else if (formData.type === 'certificate') {
         serviceData.host = formData.host.trim();
+      } else if (formData.type === 'heartbeat') {
+        serviceData.host = '';
+        serviceData.credentials = JSON.stringify({
+          grace_seconds: formData.heartbeat_grace,
+        });
       } else if (formData.type === 'snmp') {
         serviceData.host = formData.host.trim();
         if (formData.snmp_community.trim() || formData.snmp_oid.trim()) {
@@ -634,8 +690,16 @@ export default function ServiceModal() {
     }
     if (name === 'service_interval') {
       const n = Number(value);
-      if (n < 60 || n > 3600)
+      if (formData.type === 'heartbeat') {
+        if (n < 60 || n > MAX_HEARTBEAT_PERIOD)
+          return t('service_modal.errors.heartbeat_period_out_of_range');
+      } else if (n < 60 || n > 3600)
         return t('service_modal.errors.interval_out_of_range');
+    }
+    if (name === 'heartbeat_grace') {
+      const n = Number(value);
+      if (n < 0 || n > 86400)
+        return t('service_modal.errors.heartbeat_grace_out_of_range');
     }
     if (name === 'max_attempts') {
       const n = Number(value);
@@ -726,6 +790,7 @@ export default function ServiceModal() {
         snmp_oid: '',
         dns_record_type: 'A',
         dns_expected: '',
+        heartbeat_grace: DEFAULT_HEARTBEAT_GRACE,
         path: prev.type === 'http' ? prev.path : '',
       }));
       return;
@@ -736,6 +801,7 @@ export default function ServiceModal() {
       [name]:
         name === 'service_interval' ||
         name === 'max_attempts' ||
+        name === 'heartbeat_grace' ||
         name === 'sql_port'
           ? Number(value) || (name === 'sql_port' ? '5432' : 0)
           : value,
@@ -1598,111 +1664,228 @@ export default function ServiceModal() {
               </div>
             )}
 
+            {/* Heartbeat Fields: the job calls us, so no target, attempts or latency */}
+            {formData.type === 'heartbeat' && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '1rem',
+                  marginBottom: '1.5rem',
+                }}>
+                <div>
+                  <label className='label'>
+                    {t('service_modal.labels.heartbeat_period')}
+                  </label>
+                  <NumberInput
+                    name='service_interval'
+                    value={formData.service_interval}
+                    onChange={handleChange}
+                    onBlur={(e) =>
+                      handleFieldBlur('service_interval', e.target.value)
+                    }
+                    required
+                    min={60}
+                    max={MAX_HEARTBEAT_PERIOD}
+                    className={`input${fieldErrors.service_interval ? ' input-invalid' : ''}`}
+                  />
+                  {fieldErrors.service_interval ? (
+                    <p className='field-error'>{fieldErrors.service_interval}</p>
+                  ) : (
+                    <p
+                      style={{
+                        color: 'var(--text-tertiary)',
+                        fontSize: '0.75rem',
+                        marginTop: '0.5rem',
+                      }}>
+                      {t('service_modal.labels.heartbeat_period_hint', {
+                        period: formatPeriod(formData.service_interval, t),
+                      })}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className='label'>
+                    {t('service_modal.labels.heartbeat_grace')}
+                  </label>
+                  <NumberInput
+                    name='heartbeat_grace'
+                    value={formData.heartbeat_grace}
+                    onChange={handleChange}
+                    onBlur={(e) =>
+                      handleFieldBlur('heartbeat_grace', e.target.value)
+                    }
+                    min={0}
+                    max={86400}
+                    className={`input${fieldErrors.heartbeat_grace ? ' input-invalid' : ''}`}
+                  />
+                  {fieldErrors.heartbeat_grace ? (
+                    <p className='field-error'>{fieldErrors.heartbeat_grace}</p>
+                  ) : (
+                    <p
+                      style={{
+                        color: 'var(--text-tertiary)',
+                        fontSize: '0.75rem',
+                        marginTop: '0.5rem',
+                      }}>
+                      {t('service_modal.labels.heartbeat_grace_hint', {
+                        grace: formatPeriod(formData.heartbeat_grace, t),
+                      })}
+                    </p>
+                  )}
+                </div>
+                <p
+                  style={{
+                    gridColumn: '1 / -1',
+                    color: 'var(--text-tertiary)',
+                    fontSize: '0.75rem',
+                    margin: 0,
+                  }}>
+                  {t('service_modal.labels.heartbeat_info')}
+                </p>
+              </div>
+            )}
+
             {/* Interval and Max Attempts */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
-                gap: '1rem',
-                marginBottom: '1.5rem',
-              }}>
-              <div>
-                <label
-                  className='label'
-                  style={{
-                    minHeight: '2.45rem',
-                    display: 'flex',
-                    alignItems: 'flex-end',
-                  }}>
-                  {t('service_modal.labels.interval')}
-                </label>
-                <NumberInput
-                  name='service_interval'
-                  value={formData.service_interval}
-                  onChange={handleChange}
-                  onBlur={(e) =>
-                    handleFieldBlur('service_interval', e.target.value)
-                  }
-                  required
-                  min={60}
-                  max={3600}
-                  className={`input${fieldErrors.service_interval ? ' input-invalid' : ''}`}
-                />
-                {fieldErrors.service_interval ? (
-                  <p className='field-error'>{fieldErrors.service_interval}</p>
-                ) : (
-                  <p
+            {formData.type !== 'heartbeat' && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr',
+                  gap: '1rem',
+                  marginBottom: '1.5rem',
+                }}>
+                <div>
+                  <label
+                    className='label'
                     style={{
-                      color: 'var(--text-tertiary)',
-                      fontSize: '0.75rem',
-                      marginTop: '0.5rem',
+                      minHeight: '2.45rem',
+                      display: 'flex',
+                      alignItems: 'flex-end',
                     }}>
-                    {t('service_modal.labels.interval_hint')}
-                  </p>
-                )}
-              </div>
+                    {t('service_modal.labels.interval')}
+                  </label>
+                  <NumberInput
+                    name='service_interval'
+                    value={formData.service_interval}
+                    onChange={handleChange}
+                    onBlur={(e) =>
+                      handleFieldBlur('service_interval', e.target.value)
+                    }
+                    required
+                    min={60}
+                    max={3600}
+                    className={`input${fieldErrors.service_interval ? ' input-invalid' : ''}`}
+                  />
+                  {fieldErrors.service_interval ? (
+                    <p className='field-error'>{fieldErrors.service_interval}</p>
+                  ) : (
+                    <p
+                      style={{
+                        color: 'var(--text-tertiary)',
+                        fontSize: '0.75rem',
+                        marginTop: '0.5rem',
+                      }}>
+                      {t('service_modal.labels.interval_hint')}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <label
-                  className='label'
-                  style={{
-                    minHeight: '2.45rem',
-                    display: 'flex',
-                    alignItems: 'flex-end',
-                  }}>
-                  {t('service_modal.labels.max_attempts')}
-                </label>
-                <NumberInput
-                  name='max_attempts'
-                  value={formData.max_attempts}
-                  onChange={handleChange}
-                  onBlur={(e) =>
-                    handleFieldBlur('max_attempts', e.target.value)
-                  }
-                  required
-                  min={1}
-                  max={10}
-                  className={`input${fieldErrors.max_attempts ? ' input-invalid' : ''}`}
-                />
-                {fieldErrors.max_attempts ? (
-                  <p className='field-error'>{fieldErrors.max_attempts}</p>
-                ) : (
-                  <p
+                <div>
+                  <label
+                    className='label'
                     style={{
-                      color: 'var(--text-tertiary)',
-                      fontSize: '0.75rem',
-                      marginTop: '0.5rem',
+                      minHeight: '2.45rem',
+                      display: 'flex',
+                      alignItems: 'flex-end',
                     }}>
-                    {t('service_modal.labels.max_attempts_hint')}
-                  </p>
-                )}
-              </div>
+                    {t('service_modal.labels.max_attempts')}
+                  </label>
+                  <NumberInput
+                    name='max_attempts'
+                    value={formData.max_attempts}
+                    onChange={handleChange}
+                    onBlur={(e) =>
+                      handleFieldBlur('max_attempts', e.target.value)
+                    }
+                    required
+                    min={1}
+                    max={10}
+                    className={`input${fieldErrors.max_attempts ? ' input-invalid' : ''}`}
+                  />
+                  {fieldErrors.max_attempts ? (
+                    <p className='field-error'>{fieldErrors.max_attempts}</p>
+                  ) : (
+                    <p
+                      style={{
+                        color: 'var(--text-tertiary)',
+                        fontSize: '0.75rem',
+                        marginTop: '0.5rem',
+                      }}>
+                      {t('service_modal.labels.max_attempts_hint')}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <label
-                  className='label'
-                  style={{
-                    minHeight: '2.45rem',
-                    display: 'flex',
-                    alignItems: 'flex-end',
-                  }}>
-                  {thresholdLabel}{' '}
-                  {t('service_modal.labels.alert_threshold_optional')}
-                </label>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  {serviceTypeStr !== 'sql' && (
+                <div>
+                  <label
+                    className='label'
+                    style={{
+                      minHeight: '2.45rem',
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                    }}>
+                    {thresholdLabel}{' '}
+                    {t('service_modal.labels.alert_threshold_optional')}
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    {serviceTypeStr !== 'sql' && (
+                      <div style={{ flex: 1 }}>
+                        <NumberInput
+                          name='warning_threshold'
+                          value={
+                            formData.warning_threshold === null
+                              ? ''
+                              : formData.warning_threshold
+                          }
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              warning_threshold: e.target.value
+                                ? Number(e.target.value)
+                                : null,
+                            }))
+                          }
+                          min={0}
+                          className='input'
+                          placeholder={thresholdPlaceholder}
+                        />
+                        <p
+                          style={{
+                            color: 'var(--status-warning)',
+                            fontSize: '0.7rem',
+                            marginTop: '0.35rem',
+                            fontWeight: 600,
+                          }}>
+                          <HiExclamationTriangle
+                            style={{ verticalAlign: '-0.125em' }}
+                          />{' '}
+                          {t('service_modal.labels.threshold_warning')}
+                        </p>
+                      </div>
+                    )}
                     <div style={{ flex: 1 }}>
                       <NumberInput
-                        name='warning_threshold'
+                        name='critical_threshold'
                         value={
-                          formData.warning_threshold === null
+                          formData.critical_threshold === null
                             ? ''
-                            : formData.warning_threshold
+                            : formData.critical_threshold
                         }
                         onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
-                            warning_threshold: e.target.value
+                            critical_threshold: e.target.value
                               ? Number(e.target.value)
                               : null,
                           }))
@@ -1713,66 +1896,33 @@ export default function ServiceModal() {
                       />
                       <p
                         style={{
-                          color: 'var(--status-warning)',
+                          color: 'var(--status-error)',
                           fontSize: '0.7rem',
                           marginTop: '0.35rem',
                           fontWeight: 600,
                         }}>
                         <HiExclamationTriangle
-                          style={{ verticalAlign: '-0.125em' }}
-                        />{' '}
-                        {t('service_modal.labels.threshold_warning')}
+                          style={{
+                            display: 'inline',
+                            verticalAlign: 'middle',
+                            marginRight: '0.25rem',
+                          }}
+                        />
+                        {t('service_modal.labels.threshold_critical')}
                       </p>
                     </div>
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <NumberInput
-                      name='critical_threshold'
-                      value={
-                        formData.critical_threshold === null
-                          ? ''
-                          : formData.critical_threshold
-                      }
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          critical_threshold: e.target.value
-                            ? Number(e.target.value)
-                            : null,
-                        }))
-                      }
-                      min={0}
-                      className='input'
-                      placeholder={thresholdPlaceholder}
-                    />
-                    <p
-                      style={{
-                        color: 'var(--status-error)',
-                        fontSize: '0.7rem',
-                        marginTop: '0.35rem',
-                        fontWeight: 600,
-                      }}>
-                      <HiExclamationTriangle
-                        style={{
-                          display: 'inline',
-                          verticalAlign: 'middle',
-                          marginRight: '0.25rem',
-                        }}
-                      />
-                      {t('service_modal.labels.threshold_critical')}
-                    </p>
                   </div>
+                  <p
+                    style={{
+                      color: 'var(--text-tertiary)',
+                      fontSize: '0.75rem',
+                      marginTop: '0.5rem',
+                    }}>
+                    {thresholdHint}
+                  </p>
                 </div>
-                <p
-                  style={{
-                    color: 'var(--text-tertiary)',
-                    fontSize: '0.75rem',
-                    marginTop: '0.5rem',
-                  }}>
-                  {thresholdHint}
-                </p>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Modal Footer */}

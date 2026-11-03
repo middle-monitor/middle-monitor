@@ -1645,7 +1645,10 @@
       "agent_ram": "Agent RAM",
       "agent_disk": "Agent Disk",
       "agent_network": "Agent Network",
-      "error_sdk": "Error SDK ({{platform}})"
+      "error_sdk": "Error SDK ({{platform}})",
+      "tcp": "Port TCP",
+      "dns": "DNS",
+      "heartbeat": "Heartbeat"
     },
     "stats": {
       "utilization": "Utilisation",
@@ -1721,6 +1724,12 @@
       "redirects_one": "1 redirection",
       "final_url": "URL finale",
       "redirects_other": "{{count}} redirections"
+    },
+    "heartbeat": {
+      "title": "URL de ping",
+      "copy": "Copier l'URL",
+      "waiting": "Aucun ping reçu pour l'instant. Le check reste silencieux jusqu'au premier.",
+      "usage": "Appelle-la à la fin de chaque exécution, en GET ou POST. Ajoute /fail pour signaler un échec ; le corps d'un POST (1000 premiers caractères) est gardé comme raison."
     }
   },
   "service_modal": {
@@ -1755,7 +1764,11 @@
         "label": "SNMP Check",
         "description": "Vérification SNMP (à venir)"
       },
-      "doc_link": "En savoir plus"
+      "doc_link": "En savoir plus",
+      "heartbeat": {
+        "label": "Heartbeat / Cron",
+        "description": "Alerte quand un cron ou un worker arrête d'appeler son URL de ping"
+      }
     },
     "errors": {
       "host_required": "Un host doit être sélectionné",
@@ -1776,7 +1789,9 @@
       "save_create": "Erreur lors de la création du service",
       "new_host_invalid": "Le nom du host ne peut contenir que des lettres, chiffres, points, tirets et underscores",
       "tcp_target_invalid": "Indique un host et un port, ex: db.internal:5432",
-      "dns_name_required": "Un nom de domaine est requis pour un check DNS"
+      "dns_name_required": "Un nom de domaine est requis pour un check DNS",
+      "heartbeat_period_out_of_range": "La période doit être comprise entre 60 secondes et 31 jours",
+      "heartbeat_grace_out_of_range": "La marge doit être comprise entre 0 et 86400 secondes"
     },
     "labels": {
       "host": "Host *",
@@ -1844,7 +1859,12 @@
       "dns_expected_optional": "Valeur attendue (optionnel)",
       "dns_info": "Sans valeur attendue, le check passe tant que le nom se résout. Avec, une des réponses doit lui correspondre : ça détecte un enregistrement détourné ou modifié par erreur.",
       "threshold_hint_tcp": "Déclenche une alerte quand le temps de connexion dépasse cette valeur. Laisse vide pour seulement vérifier que le port est ouvert.",
-      "threshold_hint_dns": "Déclenche une alerte quand la résolution dépasse cette valeur. Laisse vide pour seulement vérifier que le nom se résout."
+      "threshold_hint_dns": "Déclenche une alerte quand la résolution dépasse cette valeur. Laisse vide pour seulement vérifier que le nom se résout.",
+      "heartbeat_period": "Attendu toutes les (secondes) *",
+      "heartbeat_period_hint": "= {{period}}. Reprends la fréquence du job : 86400 pour un job quotidien.",
+      "heartbeat_grace": "Marge (secondes)",
+      "heartbeat_grace_hint": "= {{grace}} de retard toléré avant l'alerte.",
+      "heartbeat_info": "Le job appelle l'URL de ping du check à chaque exécution ; l'URL est sur la page du check une fois créé. Sans ping dans la période plus la marge, un incident s'ouvre, et le job peut signaler son propre échec via l'URL fail. Un check qui n'a jamais pingé reste silencieux."
     },
     "placeholders": {
       "display_name": "ex: API Health Check",
@@ -1880,7 +1900,17 @@
     "submit_updating": "Mise à jour...",
     "submit_creating": "Création...",
     "submit_update": "Mettre à jour",
-    "submit_create": "Créer le Service"
+    "submit_create": "Créer le Service",
+    "units": {
+      "days_one": "{{count}} jour",
+      "days_other": "{{count}} jours",
+      "hours_one": "{{count}} heure",
+      "hours_other": "{{count}} heures",
+      "minutes_one": "{{count}} minute",
+      "minutes_other": "{{count}} minutes",
+      "seconds_one": "{{count}} seconde",
+      "seconds_other": "{{count}} secondes"
+    }
   },
   "metrics_view": {
     "monitoring_header": {
