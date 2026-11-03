@@ -61,9 +61,9 @@ func (s *ServiceService) CreateService(service models.Service) (*models.Service,
 		service.CriticalThreshold = dc
 	}
 
-	// Generate token for error services
+	// Generate token for error services, and the ping URL secret of a heartbeat
 	var token *string
-	if strings.HasPrefix(service.Type, "error_service_") {
+	if strings.HasPrefix(service.Type, "error_service_") || service.Type == HeartbeatType {
 		generatedToken, err := generateToken()
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrTokenGenerate, err)

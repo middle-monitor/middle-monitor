@@ -12,6 +12,8 @@ import {
   HiOutlineSignal,
   HiOutlineArrowsRightLeft,
   HiOutlineMapPin,
+  HiOutlineHeart,
+  HiOutlineClipboardDocument,
   HiOutlineShieldCheck,
   HiOutlineCpuChip,
   HiOutlineDocumentText,
@@ -30,6 +32,7 @@ import {
   type CorrelationResult,
   type Host,
   type MaintenanceWindow,
+  PUBLIC_API_URL,
 } from '../api';
 import { useOrgApi, useOrgQueryScope } from '../hooks/useOrgApi';
 import { useQueryRefresh } from '../hooks/useQueryRefresh';
@@ -64,6 +67,7 @@ const SERVICE_TYPE_ICONS: Record<string, React.ReactNode> = {
   sql: <HiOutlineServerStack />,
   tcp: <HiOutlineArrowsRightLeft />,
   dns: <HiOutlineMapPin />,
+  heartbeat: <HiOutlineHeart />,
   snmp: <HiOutlineSignal />,
   certificate: <HiOutlineShieldCheck />,
   agent_cpu: <HiOutlineCpuChip />,
@@ -884,6 +888,58 @@ function LatencyGraph({
 interface CertificateExpirationCardProps {
   service: ServiceWithResults;
   results: ServiceResult[]; // newest first
+}
+
+// A heartbeat is wired from the job's side, so its page has to hand over the URL
+// to call and a line that calls it the right way (fail URL included).
+function HeartbeatPingCard({
+  service,
+  hasResults,
+}: {
+  service: ServiceWithResults;
+  hasResults: boolean;
+}) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  const url = `${PUBLIC_API_URL}/api/v1/heartbeats/${service.token}`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard denied: the URL stays selectable */
+    }
+  };
+
+  return (
+    <div className='card'>
+      <div className='card-title service-detail-cert-title'>
+        <HiOutlineHeart className='card-title-icon' />
+        {t('service_detail.heartbeat.title')}
+      </div>
+      <div className='service-detail-ping-url'>
+        <code>{url}</code>
+        <button type='button' className='btn btn-secondary' onClick={copy}>
+          <HiOutlineClipboardDocument />
+          {copied ? t('common.copied') : t('service_detail.heartbeat.copy')}
+        </button>
+      </div>
+      {!hasResults && (
+        <div className='service-detail-cert-empty'>
+          {t('service_detail.heartbeat.waiting')}
+        </div>
+      )}
+      <p className='service-detail-ping-hint'>
+        {t('service_detail.heartbeat.usage')}
+      </p>
+      <pre className='service-detail-ping-example'>
+        {`# crontab: ping on success, report the failure otherwise
+0 3 * * * /usr/local/bin/backup.sh && curl -fsS -m 10 --retry 3 ${url} || curl -fsS -m 10 --retry 3 ${url}/fail`}
+      </pre>
+    </div>
+  );
 }
 
 // A certificate check has no meaningful time series (the worker only stores the
@@ -1918,6 +1974,10 @@ function ServiceDetailView() {
               </div>
             );
           })()}
+
+        {service.type === 'heartbeat' && service.token && (
+          <HeartbeatPingCard service={service} hasResults={results.length > 0} />
+        )}
 
         {/* Certificate: dedicated expiration block instead of the (meaningless) latency chart */}
         {results.length > 0 && service.type === 'certificate' && (

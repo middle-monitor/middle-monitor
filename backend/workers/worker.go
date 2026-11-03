@@ -131,6 +131,11 @@ func startServiceTimers(db *sql.DB, opensearch *services.OpenSearchService) {
 			continue
 		}
 
+		// Heartbeats are passive too: the job pings, evaluateHeartbeats watches.
+		if s.Type == services.HeartbeatType {
+			continue
+		}
+
 		activeServiceIDs[s.ID] = true
 
 		// Set defaults if not set
@@ -297,6 +302,12 @@ func executeService(db *sql.DB, service models.Service, opensearch *services.Ope
 	}
 
 	// The failure already survived max_attempts retries, so alert on it directly.
+	eventMsg := fmt.Sprintf("Service '%s' failed %d consecutive attempts", service.Name, service.MaxAttempts)
+	alertCheckFailure(db, alertService, service, result, eventMsg)
+}
+
+// alertCheckFailure opens the check's incident and notifies, once per live incident.
+func alertCheckFailure(db *sql.DB, alertService *services.AlertService, service models.Service, result models.ServiceResult, eventMsg string) {
 	// Check for an existing live incident so we don't fire duplicate notifications
 	// on every subsequent check cycle while failing.
 	already, err := alertService.HasLiveIncidentForServiceCheck(service.ID)
@@ -308,7 +319,6 @@ func executeService(db *sql.DB, service models.Service, opensearch *services.Ope
 		return
 	}
 
-	eventMsg := fmt.Sprintf("Service '%s' failed %d consecutive attempts", service.Name, service.MaxAttempts)
 	createEvent(db, models.Event{
 		OrganizationID: service.OrganizationID,
 		Type:           "error_spike",

@@ -64,6 +64,13 @@ func SetupAPIRouter(db *sql.DB, authService *services.AuthService) *mux.Router {
 	statusLimiter := middleware.NewRateLimiter(5, 20)
 	api.Handle("/status", statusLimiter.Middleware(handlePublicStatus(db))).Methods("GET")
 
+	// Ping URLs of heartbeat checks. The token in the path is the credential, as a
+	// cron line cannot easily send headers. One server often runs many jobs on
+	// the same minute, hence a burst well above the status page's.
+	heartbeatLimiter := middleware.NewRateLimiter(10, 60)
+	api.Handle("/heartbeats/{token}", heartbeatLimiter.Middleware(handleHeartbeatPing(db, false))).Methods("GET", "HEAD", "POST")
+	api.Handle("/heartbeats/{token}/fail", heartbeatLimiter.Middleware(handleHeartbeatPing(db, true))).Methods("GET", "HEAD", "POST")
+
 	// Public, and registered here on purpose: "protected" below is a
 	// PathPrefix("") subrouter, so it matches every /api/v1 path and swallows
 	// anything declared after it. A public route added lower in this function

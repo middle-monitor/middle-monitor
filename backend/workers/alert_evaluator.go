@@ -19,9 +19,14 @@ func StartAlertEvaluator(db *sql.DB, opensearch *services.OpenSearchService) {
 		time.Sleep(10 * time.Second)
 		ticker := time.NewTicker(60 * time.Second)
 		defer ticker.Stop()
+		// Zero on start: a failure reported while the worker was down is still alerted.
+		var heartbeatsSince time.Time
 		for {
 			evaluateAlertRules(db, opensearch)
 			evaluateServiceThresholds(db)
+			now := time.Now().UTC()
+			evaluateHeartbeats(db, heartbeatsSince, now)
+			heartbeatsSince = now
 			<-ticker.C
 		}
 	}()

@@ -43,6 +43,14 @@ const described = {
   'POST /api/v1/organizations/{org_slug}/metrics/series/expression':
     'Run up to five metric queries ($A to $E, aggregation may be rate) and combine them with + - * /, abs() and sum(). Range and host scope are query parameters.',
   'GET /api/v1/schemas/agent-config.json': 'JSON Schema of the agent config.yaml.',
+  'GET /api/v1/heartbeats/{token}':
+    'Ping a heartbeat check from the job it watches. GET, HEAD and POST all count; the token is the credential.',
+  'POST /api/v1/heartbeats/{token}':
+    'Ping a heartbeat check. An optional text body (first 1000 bytes) is stored with the ping.',
+  'GET /api/v1/heartbeats/{token}/fail':
+    'Report that the job failed: the heartbeat opens an incident on the next evaluation (within a minute).',
+  'POST /api/v1/heartbeats/{token}/fail':
+    'Report that the job failed, with its output as the text body; it becomes the reason in the alert.',
   'DELETE /api/v1/organizations/{org_slug}':
     'Delete the organization and all its data (admin only). Body {"confirm": "<org_slug>"}. Cancels its subscription; members of other organizations keep their account.',
   'DELETE /api/v1/auth/me':
@@ -183,7 +191,8 @@ function PUBLIC(path) {
     path === '/api/v1/status' ||
     path === '/api/v1/openapi.json' ||
     path.startsWith('/api/v1/schemas/') ||
-    path.startsWith('/api/v1/agents/')
+    path.startsWith('/api/v1/agents/') ||
+    path.startsWith('/api/v1/heartbeats/')
   );
 }
 

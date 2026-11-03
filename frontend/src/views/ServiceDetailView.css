@@ -753,6 +753,48 @@
   margin-bottom: 0;
 }
 
+.service-detail-ping-url {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.service-detail-ping-url code {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.service-detail-ping-url .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.service-detail-ping-hint {
+  margin: 0.75rem 0 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.service-detail-ping-example {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  overflow-x: auto;
+}
+
 .service-detail-cert-empty {
   padding: 1rem 0;
   color: var(--text-tertiary);

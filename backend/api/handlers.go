@@ -516,7 +516,8 @@ func handleSubmitService(db *sql.DB) http.HandlerFunc {
 			respondError(w, http.StatusBadRequest, err)
 			return
 		}
-		if service.Type == "" || service.Host == "" || service.Service == "" {
+		// A heartbeat has no target: the job calls us.
+		if service.Type == "" || (service.Host == "" && service.Type != services.HeartbeatType) || service.Service == "" {
 			respondError(w, http.StatusBadRequest, ErrServiceFieldsMissing)
 			return
 		}
@@ -538,7 +539,7 @@ func handleSubmitService(db *sql.DB) http.HandlerFunc {
 		if service.MaxAttempts <= 0 {
 			service.MaxAttempts = 3
 		}
-		if err := validateServiceInterval(service.ServiceInterval); err != nil {
+		if err := validateServiceInterval(service.Type, service.ServiceInterval); err != nil {
 			respondError(w, http.StatusBadRequest, err)
 			return
 		}
@@ -668,7 +669,7 @@ func handleUpdateService(db *sql.DB) http.HandlerFunc {
 		if service.MaxAttempts <= 0 {
 			service.MaxAttempts = 3
 		}
-		if err := validateServiceInterval(service.ServiceInterval); err != nil {
+		if err := validateServiceInterval(service.Type, service.ServiceInterval); err != nil {
 			respondError(w, http.StatusBadRequest, err)
 			return
 		}

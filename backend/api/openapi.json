@@ -1420,6 +1420,228 @@
         }
       }
     },
+    "/api/v1/heartbeats/{token}": {
+      "get": {
+        "operationId": "heartbeatLimiter.Middleware",
+        "summary": "Heartbeat limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Ping a heartbeat check from the job it watches. GET, HEAD and POST all count; the token is the credential.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": []
+      },
+      "head": {
+        "operationId": "heartbeatLimiter.Middleware",
+        "summary": "Heartbeat limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "operationId": "heartbeatLimiter.Middleware",
+        "summary": "Heartbeat limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Ping a heartbeat check. An optional text body (first 1000 bytes) is stored with the ping.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/heartbeats/{token}/fail": {
+      "get": {
+        "operationId": "heartbeatLimiter.Middleware",
+        "summary": "Heartbeat limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Report that the job failed: the heartbeat opens an incident on the next evaluation (within a minute).",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": []
+      },
+      "head": {
+        "operationId": "heartbeatLimiter.Middleware",
+        "summary": "Heartbeat limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "operationId": "heartbeatLimiter.Middleware",
+        "summary": "Heartbeat limiter.middleware",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Report that the job failed, with its output as the text body; it becomes the reason in the alert.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
     "/api/v1/metrics": {
       "post": {
         "operationId": "handleSubmitMetrics",
