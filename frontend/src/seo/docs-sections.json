@@ -330,7 +330,7 @@
     "id": "channels",
     "title": "Notification Channels",
     "category": "Alerting",
-    "excerpt": "Slack, email, JSM, WhatsApp and webhook channels, with a typed payload, signature, retries and grouping.",
+    "excerpt": "Slack, Discord, Teams, Telegram, PagerDuty, email, JSM, WhatsApp and webhook channels, with a typed payload, signature, retries and grouping.",
     "keywords": [
       "slack",
       "email",
@@ -339,12 +339,15 @@
       "jsm",
       "jira",
       "pagerduty",
+      "discord",
+      "teams",
+      "telegram",
       "hmac",
       "signature",
       "retry",
       "group_by"
     ],
-    "summary": "Email alerts are delivered through your organization's own SMTP server, configured once in Settings. Slack uses an incoming webhook URL. Jira Service Management uses an API key and creates alerts that auto-close on resolution. WhatsApp uses the Meta WhatsApp Business Cloud API. The generic webhook sends a JSON POST, by default in the Slack-compatible shape; setting format to structured sends a typed payload instead, carrying the event type, the incident id, a stable dedup_key, the severity as an enumerated value, the rule with its threshold and observed value, and the impacted host and service. Events are published for every transition: incident.opened, incident.escalated, incident.acknowledged, incident.resolved and incident.reopened. Each request carries X-Middmonitor-Timestamp and X-Middmonitor-Signature-256, an HMAC-SHA256 over timestamp plus body so a replayed capture can be rejected, alongside the original body-only signature. Failed deliveries are retried with backoff over roughly fifteen minutes, every attempt is recorded and can be replayed from the API, A channel can also ask for a periodic heartbeat event, so a receiver can tell silence meaning nothing is wrong from silence meaning the notification path is dead. group_by with group_wait folds a burst into a single delivery while repeat_interval throttles repeats without ever suppressing a resolution."
+    "summary": "Email alerts are delivered through your organization's own SMTP server, configured once in Settings. Slack uses an incoming webhook URL. Jira Service Management uses an API key and creates alerts that auto-close on resolution. WhatsApp uses the Meta WhatsApp Business Cloud API. Discord receives an embed and Microsoft Teams an Adaptive Card through their incoming webhooks, Telegram a plain-text message from your bot, and PagerDuty an Events API v2 alert that is acknowledged and resolved along with the incident. The generic webhook sends a JSON POST, by default in the Slack-compatible shape; setting format to structured sends a typed payload instead, carrying the event type, the incident id, a stable dedup_key, the severity as an enumerated value, the rule with its threshold and observed value, and the impacted host and service. Events are published for every transition: incident.opened, incident.escalated, incident.acknowledged, incident.resolved and incident.reopened. Each request carries X-Middmonitor-Timestamp and X-Middmonitor-Signature-256, an HMAC-SHA256 over timestamp plus body so a replayed capture can be rejected, alongside the original body-only signature. Failed deliveries are retried with backoff over roughly fifteen minutes, every attempt is recorded and can be replayed from the API, A channel can also ask for a periodic heartbeat event, so a receiver can tell silence meaning nothing is wrong from silence meaning the notification path is dead. group_by with group_wait folds a burst into a single delivery while repeat_interval throttles repeats without ever suppressing a resolution."
   },
   {
     "id": "incidents",

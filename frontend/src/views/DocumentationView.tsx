@@ -3287,6 +3287,85 @@ fn process_order(order: &Order) -> Result<(), String> {
                 </div>
                 <div className='doc-integration-card'>
                   <div className='doc-integration-header'>
+                    <strong>Discord</strong>
+                  </div>
+                  <p>{t('docs.channels_discord')}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--doc-muted)' }}>
+                    In the channel settings, open <em>Integrations</em>, create
+                    a webhook and paste its URL. Mentions are disabled, so an
+                    error message quoting <code>@everyone</code> pings no one.
+                  </p>
+                  <a
+                    href='https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='doc-integration-link'>
+                    Discord Webhooks Documentation →
+                  </a>
+                </div>
+                <div className='doc-integration-card'>
+                  <div className='doc-integration-header'>
+                    <strong>Microsoft Teams</strong>
+                  </div>
+                  <p>{t('docs.channels_teams')}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--doc-muted)' }}>
+                    In the channel, add the <em>Post to a channel when a webhook
+                    request is received</em> workflow and paste the URL it
+                    gives. The card is also accepted by the older connector
+                    webhooks.
+                  </p>
+                  <a
+                    href='https://support.microsoft.com/en-us/office/create-incoming-webhooks-with-workflows-for-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='doc-integration-link'>
+                    Teams Workflows Documentation →
+                  </a>
+                </div>
+                <div className='doc-integration-card'>
+                  <div className='doc-integration-header'>
+                    <strong>Telegram</strong>
+                  </div>
+                  <p>{t('docs.channels_telegram')}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--doc-muted)' }}>
+                    Create a bot with <code>@BotFather</code>, add it to the
+                    chat, then enter its <code>bot_token</code> and the{' '}
+                    <code>chat_id</code> (negative for a group, or the{' '}
+                    <code>@name</code> of a public channel). Messages are plain
+                    text.
+                  </p>
+                  <a
+                    href='https://core.telegram.org/bots/tutorial'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='doc-integration-link'>
+                    Telegram Bots Documentation →
+                  </a>
+                </div>
+                <div className='doc-integration-card'>
+                  <div className='doc-integration-header'>
+                    <strong>PagerDuty</strong>
+                  </div>
+                  <p>{t('docs.channels_pagerduty')}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--doc-muted)' }}>
+                    Add an <em>Events API V2</em> integration to a PagerDuty
+                    service and paste its integration key as{' '}
+                    <code>routing_key</code>. The dedup key is the incident key
+                    (<code>mm-svc-&lt;id&gt;</code>,{' '}
+                    <code>mm-rule-&lt;id&gt;</code>): acknowledging or resolving
+                    here does the same in PagerDuty, and a test alert is
+                    resolved right after it is sent.
+                  </p>
+                  <a
+                    href='https://developer.pagerduty.com/docs/events-api-v2/overview/'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='doc-integration-link'>
+                    PagerDuty Events API v2 Documentation →
+                  </a>
+                </div>
+                <div className='doc-integration-card'>
+                  <div className='doc-integration-header'>
                     <strong>Jira Service Management (JSM)</strong>
                   </div>
                   <p>{t('docs.channels_jsm')}</p>
@@ -3331,9 +3410,9 @@ fn process_order(order: &Order) -> Result<(), String> {
                     Middle Monitor sends a JSON <code>POST</code>. By default the
                     body is the Slack-compatible shape — <code>text</code>{' '}
                     (title) and <code>attachments</code> (body coloured by
-                    severity) — which works with Discord, Teams and any HTTP
-                    receiver. Set <code>format: structured</code> for the typed
-                    payload below.
+                    severity) — which any Slack-compatible receiver reads;
+                    Discord and Teams have their own channel types above. Set{' '}
+                    <code>format: structured</code> for the typed payload below.
                   </p>
                 </div>
               </div>

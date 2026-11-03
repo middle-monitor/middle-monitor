@@ -984,7 +984,11 @@
     "incidents_desc": "Middle Monitor utilise un moteur d'Analyse de Cause Racine (Root Cause Analysis - RCA) qui corrèle automatiquement les anomalies pour créer des incidents qualifiés.",
     "incidents_trigger": "Déclenchement : Si le taux d'erreur de votre application dépasse le seuil configuré, ou si la latence d'une trace est trop élevée, une alerte est émise.",
     "incidents_correlation": "Corrélation : Le système recherche si, dans la même fenêtre de temps (± 15 minutes), l'infrastructure sous-jacente (CPU, RAM) a connu un pic, ou si un check réseau (Ping, DNS, Certificat) a échoué.",
-    "incidents_resolution": "Résolution : L'alerte envoyée contiendra la cause probable (ex: \"Problème de connexion réseau ou DNS injoignable\" ou \"Pic CPU à 95% détecté sur le Host web-server-1\"), évitant ainsi de chercher manuellement l'origine du problème."
+    "incidents_resolution": "Résolution : L'alerte envoyée contiendra la cause probable (ex: \"Problème de connexion réseau ou DNS injoignable\" ou \"Pic CPU à 95% détecté sur le Host web-server-1\"), évitant ainsi de chercher manuellement l'origine du problème.",
+    "channels_discord": "Discord : Un embed coloré selon la sévérité, via un webhook de salon.",
+    "channels_teams": "Microsoft Teams : Une Adaptive Card publiée via un webhook de workflow Teams.",
+    "channels_telegram": "Telegram : Un message de votre bot vers un groupe, un canal ou une personne.",
+    "channels_pagerduty": "PagerDuty : Déclenche, acquitte et résout les incidents PagerDuty via l'Events API v2."
   },
   "maintenance": {
     "title": "Fenêtres de maintenance",
@@ -1180,14 +1184,25 @@
       "error_webhook_invalid": "L'URL du webhook doit être une URL valide (https://...)",
       "error_phone_required": "Le numéro de téléphone est requis",
       "error_phone_invalid": "Le numéro doit être au format international (ex : +33612345678)",
-      "error_phone_number_id_required": "L'ID du numéro d'expéditeur est requis"
+      "error_phone_number_id_required": "L'ID du numéro d'expéditeur est requis",
+      "name_placeholder_discord": "Ex : Alertes Production (Discord)",
+      "name_placeholder_teams": "Ex : Canal Ops (Teams)",
+      "name_placeholder_telegram": "Ex : Groupe d'astreinte (Telegram)",
+      "name_placeholder_pagerduty": "Ex : Service production (PagerDuty)",
+      "error_bot_token_required": "Le token du bot est requis",
+      "error_chat_id_required": "L'ID de la conversation est requis",
+      "error_routing_key_required": "La clé d'intégration est requise"
     },
     "types": {
       "email": "Email",
       "slack": "Slack Webhook",
       "jsm": "Jira Service Management",
       "whatsapp": "WhatsApp",
-      "webhook": "Webhook personnalisé"
+      "webhook": "Webhook personnalisé",
+      "discord": "Discord",
+      "teams": "Microsoft Teams",
+      "telegram": "Telegram",
+      "pagerduty": "PagerDuty"
     },
     "config": {
       "emails": "Adresses Email (séparées par des virgules)",
@@ -1205,7 +1220,18 @@
       "phone_number_id_hint": "ID du numéro Meta Business, dans WhatsApp → API Setup (pas le numéro de téléphone lui-même).",
       "whatsapp_token": "Token WhatsApp Business",
       "webhook_secret": "Secret de signature (optionnel)",
-      "webhook_secret_hint": "Si défini, chaque payload est signé en HMAC-SHA256 et envoyé dans le header X-Middmonitor-Signature."
+      "webhook_secret_hint": "Si défini, chaque payload est signé en HMAC-SHA256 et envoyé dans le header X-Middmonitor-Signature.",
+      "webhook_placeholder_discord": "https://discord.com/api/webhooks/...",
+      "webhook_hint_discord": "Dans Discord : paramètres du salon, Intégrations, Webhooks, Nouveau webhook, puis Copier l'URL du webhook.",
+      "webhook_placeholder_teams": "https://...",
+      "webhook_hint_teams": "Dans Teams : le menu du canal, Workflows, « Publier dans un canal à la réception d'une requête webhook », puis copie l'URL donnée par le workflow.",
+      "bot_token": "Token du bot",
+      "bot_token_hint": "Crée un bot avec @BotFather, colle le token qu'il donne, puis ajoute le bot à la conversation.",
+      "chat_id": "ID de la conversation",
+      "chat_id_placeholder": "Ex : -1001234567890 ou @moncanal",
+      "chat_id_hint": "L'ID d'un groupe ou d'un canal (négatif pour un groupe), ou le @nom d'un canal public. Le bot doit en être membre.",
+      "routing_key": "Clé d'intégration (Events API v2)",
+      "routing_key_hint": "Dans PagerDuty : le service, Integrations, Add an integration, Events API V2, puis copie l'Integration Key. Acquitter ou résoudre un incident ici fait de même dans PagerDuty."
     },
     "card": {
       "emails_configured": "Emails configurés",

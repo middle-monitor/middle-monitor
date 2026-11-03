@@ -406,13 +406,21 @@ func TestAcknowledgementsStayOnWebhookChannels(t *testing.T) {
 	if !channelWantsEvent(webhook, EventIncidentAcknowledged) {
 		t.Fatal("a webhook receiver must learn about an acknowledgement")
 	}
-	for _, channel := range []models.NotificationChannel{email, slack} {
+	chats := []models.NotificationChannel{email, slack, {Type: "discord"}, {Type: "teams"}, {Type: "telegram"}}
+	for _, channel := range chats {
 		if channelWantsEvent(channel, EventIncidentAcknowledged) {
 			t.Fatalf("%s must not be notified of an acknowledgement", channel.Type)
 		}
 		if channelWantsEvent(channel, EventIncidentReopened) {
 			t.Fatalf("%s must not be notified of a reopening", channel.Type)
 		}
+	}
+
+	// PagerDuty pages people until someone acknowledges: an acknowledgement made
+	// here has to reach it, or the on-call keeps being paged for a handled incident.
+	pagerduty := models.NotificationChannel{Type: "pagerduty"}
+	if !channelWantsEvent(pagerduty, EventIncidentAcknowledged) || !channelWantsEvent(pagerduty, EventIncidentReopened) {
+		t.Fatal("pagerduty must follow acknowledgements and reopenings")
 	}
 
 	// The transitions humans have always been notified of must keep reaching them.

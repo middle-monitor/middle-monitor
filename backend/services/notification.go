@@ -105,8 +105,12 @@ func SendNotificationEvent(channel models.NotificationChannel, event Notificatio
 func deliverEvent(channel models.NotificationChannel, event NotificationEvent, tags []string) error {
 	slog.Info("sending notification", "type", channel.Type, "channel", channel.Name, "title", event.Title)
 	switch channel.Type {
-	case "slack", "webhook":
+	case "slack", "webhook", "discord", "teams":
 		return sendWebhookEvent(channel, event)
+	case "telegram":
+		return sendTelegram(channel, event)
+	case "pagerduty":
+		return sendPagerDuty(channel, event)
 	case "jsm":
 		return sendJSM(channel, event.Title, event.Message, event.DedupKey, tags)
 	case "email":
@@ -122,8 +126,12 @@ func deliverEvent(channel models.NotificationChannel, event NotificationEvent, t
 // matching alert (by alias); for every other channel it sends a "[RESOLVED]"
 // message (those channels have no concept of closing an alert).
 func ResolveNotification(channel models.NotificationChannel, alias, subject, body string) error {
-	if channel.Type == "jsm" {
+	switch channel.Type {
+	case "jsm":
 		return closeJSM(channel, alias)
+	case "pagerduty":
+		// PagerDuty resolves by the dedup key it was triggered with, not by the title.
+		return sendPagerDuty(channel, stringEvent(EventIncidentResolved, subject, body, alias))
 	}
 	return SendNotification(channel, subject, body)
 }
