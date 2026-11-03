@@ -646,9 +646,9 @@ export default function DocumentationView() {
                   <HiOutlineSignal className='doc-feature-card-icon' />
                   <strong>Uptime & Checks</strong>
                   <p>
-                    HTTP, SQL, Ping, SSL certificate, and SNMP checks run
-                    periodically from the Middle Monitor backend — no agent on
-                    the target.
+                    HTTP, Ping, TCP, DNS, SQL, SSL certificate and SNMP checks
+                    run periodically from the Middle Monitor backend — no agent
+                    on the target — and heartbeats watch your cron jobs.
                   </p>
                 </div>
                 <div className='doc-feature-card'>
@@ -2040,9 +2040,10 @@ logs:
               <p>
                 A <strong>Service</strong> represents an endpoint, database, or
                 certificate to monitor. Attach it to a host and pick a check
-                type below (HTTP, Ping, SQL, SSL Certificate, or SNMP) — the
-                backend then polls it periodically, no agent required on the
-                target machine.
+                type below (HTTP, Ping, TCP, DNS, Heartbeat, SQL, SSL
+                Certificate, or SNMP) — the backend then polls it periodically,
+                no agent required on the target machine. A heartbeat is the
+                exception: it waits for your job to call it.
               </p>
             </div>
 
@@ -2342,10 +2343,14 @@ logs:
                     saturation, blocking locks, table bloat, replication lag.
                   </li>
                   <li>
-                    <strong>SNMP</strong> is the only check with no default (the
-                    value depends on the OID/device) and compares the raw
-                    numeric value returned, not latency. An SNMP check left
-                    without a threshold only verifies that the device responds.
+                    <strong>SNMP</strong> has no default (the value depends on
+                    the OID/device) and compares the raw numeric value
+                    returned, not latency. An SNMP check left without a
+                    threshold only verifies that the device responds.
+                  </li>
+                  <li>
+                    <strong>Heartbeat</strong> has no threshold: it alerts
+                    when no ping arrives within its period plus grace.
                   </li>
                 </ul>
               </div>
@@ -4680,10 +4685,13 @@ curl -O "${API_URL}/api/v1/agents/download/1.4.2/linux/amd64"`}
                     marginBottom: '1.25rem',
                   }}>
                   A <strong>Service</strong> is a monitoring check, optionally
-                  attached to a host. Five check types are supported:{' '}
+                  attached to a host. Eight check types are supported:{' '}
                   <code>http</code> (HTTP/HTTPS endpoint reachability and
                   latency), <code>ping</code> (ICMP round-trip to an IP or
-                  hostname), <code>sql</code> (connection check plus built-in
+                  hostname), <code>tcp</code> (a port accepts connections),{' '}
+                  <code>dns</code> (a name resolves, optionally to an expected
+                  value), <code>heartbeat</code> (your job pings a URL on
+                  time), <code>sql</code> (connection check plus built-in
                   diagnostics — no user-provided query),{' '}
                   <code>certificate</code> (TLS certificate validity and
                   days-until-expiry), and <code>snmp</code> (SNMP v2c GET on a

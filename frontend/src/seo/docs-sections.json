@@ -302,7 +302,7 @@
       "uptime",
       "create"
     ],
-    "summary": "A Service represents an endpoint, database or certificate to monitor. Attach it to a host and pick a check type (HTTP, ping, SQL, SSL certificate or SNMP), and the backend then polls it periodically without needing an agent on the target machine."
+    "summary": "A Service represents an endpoint, database or certificate to monitor. Attach it to a host and pick a check type (HTTP, ping, TCP, DNS, heartbeat, SQL, SSL certificate or SNMP), and the backend then polls it periodically without needing an agent on the target machine; a heartbeat instead waits for your job to call its ping URL."
   },
   {
     "id": "checks",
