@@ -73,6 +73,9 @@ var (
 	ErrAPIKeyNotFound = errors.New("api key not found")
 
 	ErrHostNotFound = errors.New("host not found")
+
+	ErrDNSConfigInvalid     = errors.New("dns check config must be a json object")
+	ErrDNSRecordTypeInvalid = errors.New("dns record_type must be one of: A, AAAA, CNAME, MX, NS, TXT")
 	// ErrHostHasServices marks a delete refused because services are still attached to the host.
 	ErrHostHasServices   = errors.New("host still has services attached; delete or detach them first")
 	ErrHostGroupNotFound = errors.New("host group not found")

@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"middle-monitor/backend/models"
 	"middle-monitor/backend/services"
 )
 
@@ -164,12 +165,42 @@ func TestValidateName(t *testing.T) {
 // Internal systems create services with generated type prefixes; rejecting
 // those would break error-service and agent provisioning.
 func TestValidateServiceTypeAllowsGeneratedPrefixes(t *testing.T) {
-	for _, ok := range []string{"http", "ping", "snmp", "certificate", "sql", "error_service_go", "agent_cpu"} {
+	for _, ok := range []string{"http", "ping", "tcp", "dns", "snmp", "certificate", "sql", "error_service_go", "agent_cpu"} {
 		if err := validateServiceType(ok); err != nil {
 			t.Fatalf("%q was rejected: %v", ok, err)
 		}
 	}
 	if err := validateServiceType("carrier_pigeon"); !errors.Is(err, ErrServiceTypeInvalid) {
+		t.Fatalf("got %v", err)
+	}
+}
+
+// A tcp check dials its target as is: without a port it would fail on every
+// cycle and page someone for a typo the form could have caught.
+func TestValidateCheckConfigRejectsUndialableTCPTargets(t *testing.T) {
+	for _, ok := range []string{"db.internal:5432", "10.0.0.1:22", "[::1]:6379"} {
+		if err := validateCheckConfig(models.Service{Type: "tcp", Host: ok}); err != nil {
+			t.Fatalf("%q was rejected: %v", ok, err)
+		}
+	}
+	for _, bad := range []string{"db.internal", ":5432", "db.internal:0", "db.internal:65536", "db.internal:pg"} {
+		if !errors.Is(validateCheckConfig(models.Service{Type: "tcp", Host: bad}), ErrTCPTargetInvalid) {
+			t.Fatalf("%q was accepted", bad)
+		}
+	}
+}
+
+// A dns check with an unsupported record type could never succeed.
+func TestValidateCheckConfigRejectsUnknownDNSRecordTypes(t *testing.T) {
+	ok := `{"record_type":"mx","expected":"mail.example.com"}`
+	if err := validateCheckConfig(models.Service{Type: "dns", Host: "example.com", Credentials: &ok}); err != nil {
+		t.Fatalf("got %v", err)
+	}
+	if err := validateCheckConfig(models.Service{Type: "dns", Host: "example.com"}); err != nil {
+		t.Fatalf("a dns check without config was rejected: %v", err)
+	}
+	bad := `{"record_type":"SRV"}`
+	if err := validateCheckConfig(models.Service{Type: "dns", Host: "example.com", Credentials: &bad}); !errors.Is(err, services.ErrDNSRecordTypeInvalid) {
 		t.Fatalf("got %v", err)
 	}
 }

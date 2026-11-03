@@ -10,6 +10,8 @@ import {
   HiOutlineGlobeAlt,
   HiOutlineServerStack,
   HiOutlineSignal,
+  HiOutlineArrowsRightLeft,
+  HiOutlineMapPin,
   HiOutlineShieldCheck,
   HiOutlineCpuChip,
   HiOutlineDocumentText,
@@ -60,6 +62,8 @@ import './ServiceDetailView.css';
 const SERVICE_TYPE_ICONS: Record<string, React.ReactNode> = {
   http: <HiOutlineGlobeAlt />,
   sql: <HiOutlineServerStack />,
+  tcp: <HiOutlineArrowsRightLeft />,
+  dns: <HiOutlineMapPin />,
   snmp: <HiOutlineSignal />,
   certificate: <HiOutlineShieldCheck />,
   agent_cpu: <HiOutlineCpuChip />,

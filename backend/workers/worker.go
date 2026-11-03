@@ -241,6 +241,10 @@ func executeCheckOnce(db *sql.DB, service models.Service) models.ServiceResult {
 		result = executeHTTPService(service)
 	case "ping":
 		result = executePingService(service)
+	case "tcp":
+		result = executeTCPService(service)
+	case "dns":
+		result = executeDNSService(service)
 	case "snmp":
 		result = executeSNMPService(service)
 	case "certificate":

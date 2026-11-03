@@ -1,7 +1,12 @@
 package api
 
 import (
+	"net"
+	"strconv"
 	"strings"
+
+	"middle-monitor/backend/models"
+	"middle-monitor/backend/services"
 )
 
 const (
@@ -16,6 +21,8 @@ const (
 var validServiceTypes = map[string]bool{
 	"http":        true,
 	"ping":        true,
+	"tcp":         true,
+	"dns":         true,
 	"snmp":        true,
 	"certificate": true,
 	"sql":         true,
@@ -75,6 +82,30 @@ func validateExpectedStatusCode(v int) error {
 	// restrict to well-known codes: some servers return custom codes (e.g. 743).
 	if v < 100 || v > 999 {
 		return ErrExpectedStatusCodeInvalid
+	}
+	return nil
+}
+
+// validateTCPTarget requires host:port, the only form a tcp check can dial.
+func validateTCPTarget(target string) error {
+	host, port, err := net.SplitHostPort(strings.TrimSpace(target))
+	if err != nil || host == "" {
+		return ErrTCPTargetInvalid
+	}
+	n, err := strconv.Atoi(port)
+	if err != nil || n < 1 || n > 65535 {
+		return ErrTCPTargetInvalid
+	}
+	return nil
+}
+
+func validateCheckConfig(service models.Service) error {
+	switch service.Type {
+	case "tcp":
+		return validateTCPTarget(service.Host)
+	case "dns":
+		_, err := services.ParseDNSCheckConfig(service.Credentials)
+		return err
 	}
 	return nil
 }
