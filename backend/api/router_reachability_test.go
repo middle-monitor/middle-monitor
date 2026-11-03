@@ -155,3 +155,30 @@ func TestPlatformAdminRoutesCarryTheEmailAndMFAGates(t *testing.T) {
 		}
 	}
 }
+
+// Publishing makes monitoring data readable by anyone, so it is an admin
+// decision; a member who can edit checks must not be able to publish them.
+// Exercised through the real router, where the gate is one registration line.
+func TestPublishingAStatusPageRequiresAnAdmin(t *testing.T) {
+	os.Setenv("JWT_SECRET", strings.Repeat("t", 48))
+	router := realRouter(t)
+
+	claims := services.JWTClaims{
+		UserID: 7, OrganizationID: 1, OrganizationSlug: "acme", Role: services.RoleReadWrite,
+		Email: "member@example.com", EmailVerified: true,
+		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour))},
+	}
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(strings.Repeat("t", 48)))
+	if err != nil {
+		t.Fatalf("sign: %v", err)
+	}
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest("PUT", "/api/v1/organizations/acme/status-page", strings.NewReader(`{"service_ids":[1]}`))
+	req.Header.Set("Authorization", "Bearer "+token)
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "Admin access required") {
+		t.Fatalf("got %d %q, want the admin gate", rec.Code, rec.Body.String())
+	}
+}

@@ -2108,6 +2108,20 @@ export function createDemoApi(): OrgApi {
     deleteUser: () => readOnly(),
     getStats: () => ok(demoStats()),
 
+    statusPage: {
+      // The storefront-facing checks are the ones NovaShop would publish.
+      list: () =>
+        ok(
+          CHECKS.filter((c) => !c.type.startsWith('agent_')).map((c) => ({
+            id: c.id,
+            name: c.name,
+            type: c.type,
+            public: c.id === 5 || c.id === 6,
+          })),
+        ),
+      update: () => readOnly(),
+    },
+
     dashboard: {
       getHealth: () => {
         const s = demoStats();

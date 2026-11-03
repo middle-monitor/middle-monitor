@@ -31,8 +31,8 @@ func TestPublicStatusIsCachedForAMinute(t *testing.T) {
 	t.Setenv("SELF_MONITOR_ORG_SLUG", "admin")
 	mock.MatchExpectationsInOrder(false)
 	mock.ExpectQuery("FROM organizations WHERE slug").
-		WillReturnRows(sqlmock.NewRows([]string{"id", "plan", "trial_ends_at", "custom_retention_days"}).
-			AddRow(int64(3), "pro", nil, nil))
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "plan", "trial_ends_at", "custom_retention_days"}).
+			AddRow(int64(3), "Acme", "pro", nil, nil))
 	mock.ExpectQuery(".*").WillReturnRows(sqlmock.NewRows([]string{}))
 
 	rec := httptest.NewRecorder()

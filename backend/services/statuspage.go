@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 // Component and overall status values exposed by the page. They are derived
@@ -71,6 +73,8 @@ type StatusMaintenance struct {
 }
 
 type StatusPage struct {
+	// Name is the organization's: an org page is read by its own customers.
+	Name        string              `json:"name"`
 	Status      string              `json:"status"`
 	WindowDays  int                 `json:"window_days"`
 	UpdatedAt   time.Time           `json:"updated_at"`
@@ -92,13 +96,13 @@ func NewStatusPageService(db *sql.DB) *StatusPageService {
 // internal check names of everything else never reach the response.
 func (s *StatusPageService) Get(slug string) (*StatusPage, error) {
 	var orgID int64
-	var plan string
+	var name, plan string
 	var trialEndsAt sql.NullTime
 	var customRetention sql.NullInt64
 	err := s.db.QueryRow(`
-		SELECT id, COALESCE(plan, 'free'), trial_ends_at, custom_retention_days
+		SELECT id, name, COALESCE(plan, 'free'), trial_ends_at, custom_retention_days
 		FROM organizations WHERE slug = $1
-	`, slug).Scan(&orgID, &plan, &trialEndsAt, &customRetention)
+	`, slug).Scan(&orgID, &name, &plan, &trialEndsAt, &customRetention)
 	if err == sql.ErrNoRows {
 		return nil, ErrStatusPageNotFound
 	}
@@ -137,6 +141,7 @@ func (s *StatusPageService) Get(slug string) (*StatusPage, error) {
 	}
 
 	return &StatusPage{
+		Name:        name,
 		Status:      overallStatus(components),
 		WindowDays:  windowDays,
 		UpdatedAt:   time.Now().UTC(),
@@ -463,4 +468,46 @@ func nullTimeToPtr(t sql.NullTime) *time.Time {
 		return nil
 	}
 	return &t.Time
+}
+
+// StatusPageCheck is a check an organization can publish, as its admins see it.
+type StatusPageCheck struct {
+	ID          int64   `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName *string `json:"display_name,omitempty"`
+	Type        string  `json:"type"`
+	Public      bool    `json:"public"`
+}
+
+// publishableWhere matches the checks a status page may show; the same rule as
+// components, so a check offered in the settings is one the page can render.
+const publishableWhere = `organization_id = $1 AND type NOT LIKE 'agent_%' AND type NOT LIKE 'error_service_%'`
+
+// PublishableChecks lists the org's checks with whether each one is published.
+func (s *StatusPageService) PublishableChecks(orgID int64) ([]StatusPageCheck, error) {
+	rows, err := s.db.Query(`
+		SELECT id, name, NULLIF(display_name, ''), type, public FROM services
+		WHERE `+publishableWhere+`
+		ORDER BY COALESCE(NULLIF(display_name, ''), name)`, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	checks := []StatusPageCheck{}
+	for rows.Next() {
+		var c StatusPageCheck
+		if err := rows.Scan(&c.ID, &c.Name, &c.DisplayName, &c.Type, &c.Public); err != nil {
+			return nil, err
+		}
+		checks = append(checks, c)
+	}
+	return checks, rows.Err()
+}
+
+// SetPublishedChecks publishes exactly the given checks and unpublishes every
+// other one. Ids of another org, or of internal services, match nothing.
+func (s *StatusPageService) SetPublishedChecks(orgID int64, ids []int64) error {
+	_, err := s.db.Exec(`UPDATE services SET public = (id = ANY($2)) WHERE `+publishableWhere, orgID, pq.Array(ids))
+	return err
 }

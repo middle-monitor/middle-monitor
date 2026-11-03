@@ -21,6 +21,7 @@ import {
   HiOutlineScale,
   HiOutlineFire,
   HiOutlineSignal,
+  HiOutlineMegaphone,
   HiOutlineSquares2X2,
   HiOutlineLink,
   HiOutlineGlobeAlt,
@@ -145,6 +146,11 @@ const CATEGORIES = [
         icon: HiOutlineCube,
       },
       { id: 'checks', labelKey: 'docs.sidebar_checks', icon: HiOutlineSignal },
+      {
+        id: 'status-page',
+        labelKey: 'docs.sidebar_status_page',
+        icon: HiOutlineMegaphone,
+      },
     ],
   },
   {
@@ -2353,6 +2359,43 @@ logs:
                     when no ping arrives within its period plus grace.
                   </li>
                 </ul>
+              </div>
+            </div>
+
+            <div id='status-page' className='doc-subsection'>
+              <h3>
+                {t('docs.sidebar_status_page')}
+                <ShareAnchor />
+              </h3>
+              <p>
+                Each organization can publish a public status page at{' '}
+                <code>/status/&lt;organization-slug&gt;</code> for its own
+                customers. Nothing is public by default: an admin picks the
+                checks to show under <strong>Uptime Monitors, Status
+                page</strong>, and an organization that published nothing has
+                no page (404).
+              </p>
+              <p>
+                The page lists each published check under its display name,
+                with its current state, daily uptime over the plan&apos;s
+                retention (up to 90 days), the incidents of the period and the
+                upcoming maintenance windows. Hosts, URLs, credentials, error
+                messages and unpublished checks never appear. Agent metrics and
+                SDK services cannot be published.
+              </p>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>curl</div>
+                <CodeBlock
+                  language='bash'
+                  code={`# publish exactly these checks (admin API key)
+curl -X PUT ${API_URL}/api/v1/organizations/acme/status-page \\
+  -H "Authorization: Bearer mm_YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"service_ids": [1337, 1338]}'
+
+# the data behind the public page, no credentials
+curl ${API_URL}/api/v1/status/acme`}
+                />
               </div>
             </div>
           </section>

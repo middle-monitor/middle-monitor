@@ -399,7 +399,8 @@
       "api_keys": "API Keys",
       "account": "My account",
       "organization": "Organization",
-      "metrics": "Metrics"
+      "metrics": "Metrics",
+      "status_page": "Status page"
     }
   },
   "maintenance_badge": {
@@ -819,7 +820,11 @@
     "uptime_label": "{{uptime}}% uptime over {{days}} days",
     "days_ago_one": "{{count}} day ago",
     "days_ago_other": "{{count}} days ago",
-    "today": "Today"
+    "today": "Today",
+    "org_title": "{{name}} status",
+    "powered_by": "Powered by",
+    "not_found_title": "No public status page",
+    "not_found_desc": "This organization has not published any check."
   },
   "public": {
     "nav_home": "Home",
@@ -988,7 +993,8 @@
     "channels_discord": "Discord: An embed coloured by severity, through a channel webhook.",
     "channels_teams": "Microsoft Teams: An Adaptive Card posted through a Teams workflow webhook.",
     "channels_telegram": "Telegram: A message from your bot to a group, channel or person.",
-    "channels_pagerduty": "PagerDuty: Triggers, acknowledges and resolves PagerDuty incidents with the Events API v2."
+    "channels_pagerduty": "PagerDuty: Triggers, acknowledges and resolves PagerDuty incidents with the Events API v2.",
+    "sidebar_status_page": "Status page"
   },
   "maintenance": {
     "title": "Maintenance windows",
@@ -2265,5 +2271,20 @@
     "link_invalid": "This unsubscribe link is incomplete. Just reply to the email and we will take care of it.",
     "error_generic": "Unsubscribe failed. Reply to the email and we will do it manually.",
     "back_home": "Back to home"
+  },
+  "status_page_settings": {
+    "title": "Status page",
+    "desc": "A public page your customers can open during an incident: the checks you pick, their daily uptime, incidents and maintenance. Hosts, URLs and error messages are never shown.",
+    "public_url": "Public URL",
+    "copy": "Copy URL",
+    "open": "Open",
+    "not_published": "Not published yet: pick at least one check below and save.",
+    "checks_title": "Published checks",
+    "checks_hint": "Each check appears under its display name. Agent metrics and SDK services cannot be published.",
+    "no_checks": "No check to publish yet. Create an uptime check first.",
+    "save": "Save",
+    "saving": "Saving...",
+    "error_save": "Could not save the status page",
+    "admin_only": "Only admins can change what is published."
   }
 }

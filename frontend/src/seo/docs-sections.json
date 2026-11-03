@@ -327,6 +327,19 @@
     "summary": "Checks are executed periodically by the Middle Monitor backend workers, so no agent is required on the target. HTTP and HTTPS checks verify the status code, measure response time against warning and critical thresholds and can assert a keyword or JSON path, with Bearer and Basic authentication supported. Ping uses ICMP for reachability and round-trip latency. TCP opens a connection to a host:port and measures the connect time. DNS resolves an A, AAAA, CNAME, MX, NS or TXT record and can require an expected value. Heartbeat checks work the other way round: a cron job or worker calls a ping URL on each run, an incident opens when no ping arrives within the period plus a grace, and a fail URL reports a failure with its output. SQL performs a connection check plus built-in diagnostics for locks, replication lag and connection saturation, with no user-provided query. SSL certificate checks validity and expiry against a days-before-expiry threshold, and SNMP reads a numeric OID over UDP 161."
   },
   {
+    "id": "status-page",
+    "title": "Status page",
+    "category": "Monitoring",
+    "excerpt": "A public status page per organization, showing only the checks an admin publishes.",
+    "keywords": [
+      "status page",
+      "public",
+      "uptime",
+      "incidents"
+    ],
+    "summary": "Each organization can publish a public status page at /status/<organization-slug>. Nothing is public by default: an admin picks the checks to show, and an organization that published nothing has no page. The page lists each published check under its display name with its current state, daily uptime over the plan retention (up to 90 days), the incidents of the period and the upcoming maintenance windows. Hosts, URLs, credentials, error messages and unpublished checks never appear; agent metrics and SDK services cannot be published. PUT /organizations/{slug}/status-page sets the published checks and GET /status/{slug} serves the page data without credentials."
+  },
+  {
     "id": "channels",
     "title": "Notification Channels",
     "category": "Alerting",
