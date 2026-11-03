@@ -199,7 +199,8 @@ func RouteIncidentEvent(db *sql.DB, orgID int64, event NotificationEvent, servic
 func channelWantsEvent(channel models.NotificationChannel, event string) bool {
 	switch event {
 	case EventIncidentAcknowledged, EventIncidentReopened:
-		return channel.Type == "webhook"
+		// PagerDuty mirrors them: an acknowledgement stops its escalation.
+		return channel.Type == "webhook" || channel.Type == "pagerduty"
 	default:
 		return true
 	}

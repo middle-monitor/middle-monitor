@@ -22,7 +22,20 @@ import { TagInput } from '../components/TagInput';
 import { apiErrorMessage } from '../utils/apiError';
 import './NotificationChannelsView.css';
 
-const CHANNEL_TYPE_VALUES = ['email', 'slack', 'jsm', 'whatsapp', 'webhook'] as const;
+const CHANNEL_TYPE_VALUES = [
+  'email',
+  'slack',
+  'discord',
+  'teams',
+  'telegram',
+  'pagerduty',
+  'jsm',
+  'whatsapp',
+  'webhook',
+] as const;
+
+// Channels configured by a single incoming-webhook URL.
+const WEBHOOK_URL_TYPES = ['slack', 'webhook', 'discord', 'teams'];
 
 function NotificationChannelsView() {
   const { t } = useTranslation();
@@ -68,6 +81,11 @@ function NotificationChannelsView() {
         return t('channels.form.name_placeholder_jsm');
       case 'whatsapp':
         return t('channels.form.name_placeholder_whatsapp');
+      case 'discord':
+      case 'teams':
+      case 'telegram':
+      case 'pagerduty':
+        return t(`channels.form.name_placeholder_${type}`);
       default:
         return t('channels.form.name_placeholder_default');
     }
@@ -154,10 +172,19 @@ function NotificationChannelsView() {
       }
     }
 
-    if (formData.type === 'slack' || formData.type === 'webhook') {
+    if (WEBHOOK_URL_TYPES.includes(formData.type)) {
       const url = configData.webhook_url || '';
       if (!url) return t('channels.form.error_webhook_required');
       try { new URL(url); } catch { return t('channels.form.error_webhook_invalid'); }
+    }
+
+    if (formData.type === 'telegram') {
+      if (!(configData.bot_token || '').trim()) return t('channels.form.error_bot_token_required');
+      if (!(configData.chat_id || '').trim()) return t('channels.form.error_chat_id_required');
+    }
+
+    if (formData.type === 'pagerduty' && !(configData.routing_key || '').trim()) {
+      return t('channels.form.error_routing_key_required');
     }
 
     if (formData.type === 'whatsapp') {
@@ -272,6 +299,8 @@ function NotificationChannelsView() {
         );
       case 'slack':
       case 'webhook':
+      case 'discord':
+      case 'teams':
         return (
           <>
             <div style={{ marginBottom: '1.25rem' }}>
@@ -282,9 +311,16 @@ function NotificationChannelsView() {
                 value={configData.webhook_url || ''}
                 onChange={e => { setConfigData({ ...configData, webhook_url: e.target.value }); clearFieldError('webhook_url'); }}
                 onBlur={e => handleFieldBlur('webhook_url', e.target.value)}
-                placeholder={t('channels.config.webhook_placeholder')}
+                placeholder={
+                  formData.type === 'discord' || formData.type === 'teams'
+                    ? t(`channels.config.webhook_placeholder_${formData.type}`)
+                    : t('channels.config.webhook_placeholder')
+                }
                 className={`input${fieldErrors.webhook_url ? ' input-invalid' : ''}`}
               />
+              {(formData.type === 'discord' || formData.type === 'teams') && (
+                <span className="form-hint">{t(`channels.config.webhook_hint_${formData.type}`)}</span>
+              )}
               {fieldErrors.webhook_url && <p className="field-error">{fieldErrors.webhook_url}</p>}
             </div>
             {formData.type === 'webhook' && (
@@ -300,6 +336,50 @@ function NotificationChannelsView() {
               </div>
             )}
           </>
+        );
+      case 'telegram':
+        return (
+          <>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label className="label">{t('channels.config.bot_token')}</label>
+              <input
+                type="password"
+                required
+                value={configData.bot_token || ''}
+                onChange={e => setConfigData({ ...configData, bot_token: e.target.value })}
+                className="input"
+                autoComplete="new-password"
+              />
+              <span className="form-hint">{t('channels.config.bot_token_hint')}</span>
+            </div>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label className="label">{t('channels.config.chat_id')}</label>
+              <input
+                type="text"
+                required
+                value={configData.chat_id || ''}
+                onChange={e => setConfigData({ ...configData, chat_id: e.target.value })}
+                placeholder={t('channels.config.chat_id_placeholder')}
+                className="input"
+              />
+              <span className="form-hint">{t('channels.config.chat_id_hint')}</span>
+            </div>
+          </>
+        );
+      case 'pagerduty':
+        return (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label className="label">{t('channels.config.routing_key')}</label>
+            <input
+              type="password"
+              required
+              value={configData.routing_key || ''}
+              onChange={e => setConfigData({ ...configData, routing_key: e.target.value })}
+              className="input"
+              autoComplete="new-password"
+            />
+            <span className="form-hint">{t('channels.config.routing_key_hint')}</span>
+          </div>
         );
       case 'jsm':
         return (
@@ -364,7 +444,7 @@ function NotificationChannelsView() {
     if (channel.type === 'email') {
       return channel.config.emails || t('channels.card.emails_configured');
     }
-    if (channel.type === 'slack' || channel.type === 'webhook') {
+    if (WEBHOOK_URL_TYPES.includes(channel.type)) {
       return t('channels.card.webhook_configured');
     }
     return t('channels.card.credentials_configured');

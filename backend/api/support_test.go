@@ -277,7 +277,7 @@ func TestValidateExpectedStatusCodeAcceptsCustomCodes(t *testing.T) {
 }
 
 func TestValidateChannelAndMaintenanceTypes(t *testing.T) {
-	for _, ok := range []string{"email", "slack", "jsm", "whatsapp", "webhook"} {
+	for _, ok := range []string{"email", "slack", "jsm", "whatsapp", "webhook", "discord", "teams", "telegram", "pagerduty"} {
 		if err := validateChannelType(ok); err != nil {
 			t.Fatalf("%q was rejected", ok)
 		}

@@ -984,7 +984,11 @@
     "incidents_desc": "Middle Monitor uses a Root Cause Analysis (RCA) engine that automatically correlates anomalies to create qualified incidents.",
     "incidents_trigger": "Trigger: If your app's error rate exceeds the threshold, or trace latency is too high, an alert is emitted.",
     "incidents_correlation": "Correlation: The system looks for infrastructure spikes (CPU, RAM) or failed network checks (Ping, DNS, Certificate) in the same time window (±15 min).",
-    "incidents_resolution": "Resolution: The alert will include the likely cause (e.g. \"Network connection or DNS unreachable\" or \"CPU spike at 95% on Host web-server-1\"), avoiding manual investigation."
+    "incidents_resolution": "Resolution: The alert will include the likely cause (e.g. \"Network connection or DNS unreachable\" or \"CPU spike at 95% on Host web-server-1\"), avoiding manual investigation.",
+    "channels_discord": "Discord: An embed coloured by severity, through a channel webhook.",
+    "channels_teams": "Microsoft Teams: An Adaptive Card posted through a Teams workflow webhook.",
+    "channels_telegram": "Telegram: A message from your bot to a group, channel or person.",
+    "channels_pagerduty": "PagerDuty: Triggers, acknowledges and resolves PagerDuty incidents with the Events API v2."
   },
   "maintenance": {
     "title": "Maintenance windows",
@@ -1180,14 +1184,25 @@
       "error_webhook_invalid": "Webhook URL must be a valid URL (https://...)",
       "error_phone_required": "Phone number is required",
       "error_phone_invalid": "Phone number must be in international format (e.g. +33612345678)",
-      "error_phone_number_id_required": "The sender phone number ID is required"
+      "error_phone_number_id_required": "The sender phone number ID is required",
+      "name_placeholder_discord": "e.g. Production Alerts (Discord)",
+      "name_placeholder_teams": "e.g. Ops channel (Teams)",
+      "name_placeholder_telegram": "e.g. On-call group (Telegram)",
+      "name_placeholder_pagerduty": "e.g. Production service (PagerDuty)",
+      "error_bot_token_required": "The bot token is required",
+      "error_chat_id_required": "The chat ID is required",
+      "error_routing_key_required": "The integration key is required"
     },
     "types": {
       "email": "Email",
       "slack": "Slack Webhook",
       "jsm": "Jira Service Management",
       "whatsapp": "WhatsApp",
-      "webhook": "Custom Webhook"
+      "webhook": "Custom Webhook",
+      "discord": "Discord",
+      "teams": "Microsoft Teams",
+      "telegram": "Telegram",
+      "pagerduty": "PagerDuty"
     },
     "config": {
       "emails": "Email addresses (comma-separated)",
@@ -1205,7 +1220,18 @@
       "phone_number_id_hint": "Meta Business phone number ID, from WhatsApp → API Setup (not the phone number itself).",
       "whatsapp_token": "WhatsApp Business Token",
       "webhook_secret": "Signing secret (optional)",
-      "webhook_secret_hint": "If set, each payload is signed with HMAC-SHA256 and sent in the X-Middmonitor-Signature header."
+      "webhook_secret_hint": "If set, each payload is signed with HMAC-SHA256 and sent in the X-Middmonitor-Signature header.",
+      "webhook_placeholder_discord": "https://discord.com/api/webhooks/...",
+      "webhook_hint_discord": "In Discord: channel settings, Integrations, Webhooks, New Webhook, then Copy Webhook URL.",
+      "webhook_placeholder_teams": "https://...",
+      "webhook_hint_teams": "In Teams: the channel menu, Workflows, \"Post to a channel when a webhook request is received\", then copy the URL the workflow gives.",
+      "bot_token": "Bot token",
+      "bot_token_hint": "Create a bot with @BotFather, paste the token it gives, then add the bot to the chat.",
+      "chat_id": "Chat ID",
+      "chat_id_placeholder": "e.g. -1001234567890 or @mychannel",
+      "chat_id_hint": "A group or channel ID (negative for groups), or the @name of a public channel. The bot must be a member.",
+      "routing_key": "Integration key (Events API v2)",
+      "routing_key_hint": "In PagerDuty: the service, Integrations, Add an integration, Events API V2, then copy the Integration Key. Acknowledging or resolving an incident here does the same in PagerDuty."
     },
     "card": {
       "emails_configured": "Emails configured",

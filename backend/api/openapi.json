@@ -236,8 +236,13 @@
               "slack",
               "webhook",
               "jsm",
-              "whatsapp"
-            ]
+              "whatsapp",
+              "discord",
+              "teams",
+              "telegram",
+              "pagerduty"
+            ],
+            "description": "Config keys: webhook_url for slack, webhook, discord and teams; bot_token and chat_id for telegram; routing_key for pagerduty; api_key for jsm."
           },
           "enabled": {
             "type": "boolean"

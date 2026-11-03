@@ -32,6 +32,8 @@ var webhookRetryDelays = []time.Duration{30 * time.Second, 2 * time.Minute, 8 * 
 
 // webhookSettings is the delivery configuration of one channel.
 type webhookSettings struct {
+	// Kind is the channel type: discord and teams get their own payload shape.
+	Kind       string
 	URL        string
 	Secret     string
 	Structured bool
@@ -46,7 +48,7 @@ func readWebhookSettings(channel models.NotificationChannel) (webhookSettings, e
 		return webhookSettings{}, ErrWebhookURLMissing
 	}
 
-	settings := webhookSettings{URL: url, Headers: map[string]string{}}
+	settings := webhookSettings{Kind: channel.Type, URL: url, Headers: map[string]string{}}
 	settings.Secret, _ = channel.Config["secret"].(string)
 
 	if format, ok := channel.Config["format"].(string); ok {
@@ -65,17 +67,32 @@ func readWebhookSettings(channel models.NotificationChannel) (webhookSettings, e
 	return settings, nil
 }
 
+// Tones of a human-facing message. Severity is read from the title prefix the
+// string callers set; typed callers carry the same prefix.
+const (
+	toneResolved = "resolved"
+	toneWarning  = "warning"
+	toneCritical = "critical"
+)
+
+func eventTone(event NotificationEvent) string {
+	switch {
+	case event.Event == EventIncidentResolved || strings.HasPrefix(event.Title, "[RESOLVED]"):
+		return toneResolved
+	case strings.Contains(strings.ToLower(event.Title), "warning"):
+		return toneWarning
+	default:
+		return toneCritical
+	}
+}
+
+var slackColors = map[string]string{toneResolved: "#38a169", toneWarning: "#d69e2e", toneCritical: "#e53e3e"}
+
 // slackPayload is the human-facing shape: a title, and an attachment whose
 // colour carries the severity.
 func slackPayload(event NotificationEvent) map[string]interface{} {
 	title := event.Title
-	color := "#e53e3e"
-	switch {
-	case event.Event == EventIncidentResolved || strings.HasPrefix(title, "[RESOLVED]"):
-		color = "#38a169"
-	case strings.Contains(strings.ToLower(title), "warning"):
-		color = "#d69e2e"
-	}
+	color := slackColors[eventTone(event)]
 
 	return map[string]interface{}{
 		"text": title,
@@ -91,7 +108,12 @@ func slackPayload(event NotificationEvent) map[string]interface{} {
 }
 
 func webhookBody(settings webhookSettings, event NotificationEvent) ([]byte, error) {
-	if settings.Structured {
+	switch {
+	case settings.Kind == "discord":
+		return json.Marshal(discordPayload(event))
+	case settings.Kind == "teams":
+		return json.Marshal(teamsPayload(event))
+	case settings.Structured:
 		return json.Marshal(event.structuredPayload())
 	}
 	return json.Marshal(slackPayload(event))

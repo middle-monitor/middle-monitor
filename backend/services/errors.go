@@ -111,6 +111,11 @@ var (
 	ErrSMTPProviderMissing = errors.New("SMTP provider not initialized")
 	ErrOrgSMTPUnusable     = errors.New("no usable SMTP configuration for this organization")
 
+	ErrTelegramBotTokenMissing    = errors.New("missing bot_token in config")
+	ErrTelegramChatIDMissing      = errors.New("missing chat_id in config")
+	ErrTelegramUnreachable        = errors.New("telegram api unreachable")
+	ErrPagerDutyRoutingKeyMissing = errors.New("missing routing_key in config (PagerDuty Events API v2 integration key)")
+
 	ErrWhatsAppPhoneMissing   = errors.New("missing phone_number in config")
 	ErrWhatsAppTokenMissing   = errors.New("missing token in config")
 	ErrWhatsAppPhoneIDMissing = errors.New("missing phone_number_id in config")
@@ -186,6 +191,26 @@ type WhatsAppStatusError struct {
 
 func (e *WhatsAppStatusError) Error() string {
 	return fmt.Sprintf("whatsapp api returned status %d", e.StatusCode)
+}
+
+// TelegramStatusError reports a non-2xx answer from the Telegram Bot API.
+type TelegramStatusError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e *TelegramStatusError) Error() string {
+	return fmt.Sprintf("telegram: status %d: %s", e.StatusCode, e.Body)
+}
+
+// PagerDutyStatusError reports a non-2xx answer from the PagerDuty Events API.
+type PagerDutyStatusError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e *PagerDutyStatusError) Error() string {
+	return fmt.Sprintf("pagerduty: status %d: %s", e.StatusCode, e.Body)
 }
 
 // UnknownChannelTypeError reports a notification channel this build cannot send to.

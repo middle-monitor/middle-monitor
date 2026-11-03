@@ -32,11 +32,15 @@ var validServiceTypes = map[string]bool{
 }
 
 var validChannelTypes = map[string]bool{
-	"email":    true,
-	"slack":    true,
-	"jsm":      true,
-	"whatsapp": true,
-	"webhook":  true,
+	"email":     true,
+	"slack":     true,
+	"jsm":       true,
+	"whatsapp":  true,
+	"webhook":   true,
+	"discord":   true,
+	"teams":     true,
+	"telegram":  true,
+	"pagerduty": true,
 }
 
 var validMaintenanceTargetTypes = map[string]bool{

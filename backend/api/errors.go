@@ -28,7 +28,7 @@ var (
 	ErrAlreadyMember              = errors.New("this user is already a member of the organization")
 	ErrAuthCodeInvalid            = errors.New("invalid authentication code")
 	ErrChannelNotFound            = errors.New("notification channel not found")
-	ErrChannelTypeInvalid         = errors.New("channel type must be one of: email, slack, jsm, whatsapp, webhook")
+	ErrChannelTypeInvalid         = errors.New("channel type must be one of: email, slack, discord, teams, telegram, pagerduty, jsm, whatsapp, webhook")
 	ErrContactFieldsMissing       = errors.New("missing required fields: name, email, message")
 	ErrContentTypeNotProtobuf     = errors.New("content-type must be application/x-protobuf or application/protobuf")
 	ErrCredentialsInvalid         = errors.New("invalid email or password")

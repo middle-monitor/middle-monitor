@@ -272,7 +272,12 @@ const schemas = {
     properties: {
       id: { type: 'integer', format: 'int64' },
       name: { type: 'string' },
-      type: { type: 'string', enum: ['email', 'slack', 'webhook', 'jsm', 'whatsapp'] },
+      type: {
+        type: 'string',
+        enum: ['email', 'slack', 'webhook', 'jsm', 'whatsapp', 'discord', 'teams', 'telegram', 'pagerduty'],
+        description:
+          'Config keys: webhook_url for slack, webhook, discord and teams; bot_token and chat_id for telegram; routing_key for pagerduty; api_key for jsm.',
+      },
       enabled: { type: 'boolean' },
       config: { $ref: '#/components/schemas/WebhookChannelConfig' },
     },
