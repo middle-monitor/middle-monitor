@@ -524,6 +524,10 @@ func handleSubmitService(db *sql.DB) http.HandlerFunc {
 			respondError(w, http.StatusBadRequest, err)
 			return
 		}
+		if err := validateCheckConfig(service); err != nil {
+			respondError(w, http.StatusBadRequest, err)
+			return
+		}
 		// Set organization ID from context
 		service.OrganizationID = middleware.GetOrganizationID(r.Context())
 
@@ -649,6 +653,10 @@ func handleUpdateService(db *sql.DB) http.HandlerFunc {
 
 		if service.Type != "" {
 			if err := validateServiceType(service.Type); err != nil {
+				respondError(w, http.StatusBadRequest, err)
+				return
+			}
+			if err := validateCheckConfig(service); err != nil {
 				respondError(w, http.StatusBadRequest, err)
 				return
 			}

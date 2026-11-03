@@ -4,9 +4,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { HiPlus, HiPencil, HiX } from 'react-icons/hi';
 import {
   HiBolt,
+  HiOutlineArrowsRightLeft,
   HiOutlineCircleStack,
   HiOutlineGlobeAlt,
   HiOutlineLockClosed,
+  HiOutlineMapPin,
   HiOutlineSignal,
   HiExclamationTriangle,
   HiArrowTopRightOnSquare,
@@ -30,6 +32,14 @@ const CREATABLE_SERVICE_TYPES = [
   {
     value: 'ping',
     icon: HiBolt,
+  },
+  {
+    value: 'tcp',
+    icon: HiOutlineArrowsRightLeft,
+  },
+  {
+    value: 'dns',
+    icon: HiOutlineMapPin,
   },
   {
     value: 'sql',
@@ -59,6 +69,8 @@ const DEFAULT_THRESHOLDS: Record<
 > = {
   http: { warning: 1000, critical: 3000 },
   ping: { warning: 100, critical: 300 },
+  tcp: { warning: 300, critical: 1000 },
+  dns: { warning: 300, critical: 1000 },
   sql: { warning: null, critical: 1000 },
   certificate: { warning: 30, critical: 7 },
   snmp: { warning: null, critical: null },
@@ -73,6 +85,32 @@ interface SQLCredentials {
   database: string;
   username?: string;
   password?: string;
+}
+
+const DNS_RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT'];
+
+// A dns check keeps its record type and expected value in credentials (nothing secret).
+function parseDNSConfig(credentials?: string | null): {
+  record_type: string;
+  expected: string;
+} {
+  try {
+    const parsed = credentials ? JSON.parse(credentials) : {};
+    return {
+      record_type: parsed.record_type || 'A',
+      expected: parsed.expected || '',
+    };
+  } catch {
+    return { record_type: 'A', expected: '' };
+  }
+}
+
+// Mirrors the backend: a tcp check dials host:port as typed.
+function isValidTCPTarget(target: string): boolean {
+  const m = /^(\[[^\]]+\]|[^:\s]+):(\d{1,5})$/.exec(target.trim());
+  if (!m) return false;
+  const port = Number(m[2]);
+  return port >= 1 && port <= 65535;
 }
 
 // Name for the host a check creates when the org has none yet: the target's hostname.
@@ -122,6 +160,12 @@ export default function ServiceModal() {
     editingService && editingService.type === 'sql'
       ? parseSQLCredentials(editingService.credentials)
       : { host: '', port: '5432', database: 'postgres' };
+
+  const initialDNSConfig = parseDNSConfig(
+    editingService && editingService.type === 'dns'
+      ? editingService.credentials
+      : null,
+  );
 
   const [formData, setFormData] = useState({
     host_id: (editingService && 'host_id' in editingService
@@ -174,6 +218,8 @@ export default function ServiceModal() {
     sql_password: initialSQLCreds.password || '',
     snmp_community: '',
     snmp_oid: '',
+    dns_record_type: initialDNSConfig.record_type,
+    dns_expected: initialDNSConfig.expected,
     http_auth_mode: (() => {
       if (
         editingService &&
@@ -209,6 +255,9 @@ export default function ServiceModal() {
         editingService.type === 'sql'
           ? parseSQLCredentials(editingService.credentials)
           : null;
+      const dnsConfig = parseDNSConfig(
+        editingService.type === 'dns' ? editingService.credentials : null,
+      );
       setFormData({
         host_id:
           'host_id' in editingService ? editingService.host_id || null : null,
@@ -254,6 +303,8 @@ export default function ServiceModal() {
         sql_password: sqlCreds?.password || '',
         snmp_community: '',
         snmp_oid: '',
+        dns_record_type: dnsConfig.record_type,
+        dns_expected: dnsConfig.expected,
         http_auth_mode: (() => {
           if (
             editingService.type === 'http' &&
@@ -300,6 +351,8 @@ export default function ServiceModal() {
         sql_password: '',
         snmp_community: '',
         snmp_oid: '',
+        dns_record_type: 'A',
+        dns_expected: '',
         http_auth_mode: 'none',
         http_bearer_token: '',
         http_basic_user: '',
@@ -409,6 +462,18 @@ export default function ServiceModal() {
           setSubmitting(false);
           return;
         }
+      } else if (formData.type === 'tcp') {
+        if (!isValidTCPTarget(formData.host)) {
+          setError(t('service_modal.errors.tcp_target_invalid'));
+          setSubmitting(false);
+          return;
+        }
+      } else if (formData.type === 'dns') {
+        if (!formData.host.trim()) {
+          setError(t('service_modal.errors.dns_name_required'));
+          setSubmitting(false);
+          return;
+        }
       }
 
       let selectedHost = hosts.find((h) => h.id === formData.host_id);
@@ -498,8 +563,14 @@ export default function ServiceModal() {
           sqlCreds.password = formData.sql_password.trim();
         }
         serviceData.credentials = JSON.stringify(sqlCreds);
-      } else if (formData.type === 'ping') {
+      } else if (formData.type === 'ping' || formData.type === 'tcp') {
         serviceData.host = formData.host.trim();
+      } else if (formData.type === 'dns') {
+        serviceData.host = formData.host.trim();
+        serviceData.credentials = JSON.stringify({
+          record_type: formData.dns_record_type,
+          expected: formData.dns_expected.trim() || undefined,
+        });
       } else if (formData.type === 'certificate') {
         serviceData.host = formData.host.trim();
       } else if (formData.type === 'snmp') {
@@ -584,6 +655,10 @@ export default function ServiceModal() {
       return t('service_modal.errors.http_url_required');
     if (name === 'host' && formData.type === 'ping' && !String(value).trim())
       return t('service_modal.errors.ping_host_required');
+    if (name === 'host' && formData.type === 'tcp' && !isValidTCPTarget(String(value)))
+      return t('service_modal.errors.tcp_target_invalid');
+    if (name === 'host' && formData.type === 'dns' && !String(value).trim())
+      return t('service_modal.errors.dns_name_required');
     return '';
   };
 
@@ -649,6 +724,8 @@ export default function ServiceModal() {
         sql_password: '',
         snmp_community: '',
         snmp_oid: '',
+        dns_record_type: 'A',
+        dns_expected: '',
         path: prev.type === 'http' ? prev.path : '',
       }));
       return;
@@ -692,7 +769,9 @@ export default function ServiceModal() {
           ? t('service_modal.labels.alert_threshold_snmp')
           : serviceTypeStr.startsWith('error_service')
             ? t('service_modal.labels.alert_threshold_errors')
-            : serviceTypeStr.startsWith('trace_service')
+            : serviceTypeStr.startsWith('trace_service') ||
+                serviceTypeStr === 'tcp' ||
+                serviceTypeStr === 'dns'
               ? t('service_modal.labels.alert_threshold_latency')
               : serviceTypeStr === 'http'
                 ? t('service_modal.labels.alert_threshold_http')
@@ -712,7 +791,9 @@ export default function ServiceModal() {
               ? t('service_modal.placeholders.threshold_latency')
               : serviceTypeStr.startsWith('error_service')
                 ? t('service_modal.placeholders.threshold_errors')
-                : serviceTypeStr.startsWith('trace_service')
+                : serviceTypeStr.startsWith('trace_service') ||
+                    serviceTypeStr === 'tcp' ||
+                    serviceTypeStr === 'dns'
                   ? t('service_modal.placeholders.threshold_latency')
                   : t('service_modal.placeholders.threshold_default');
   const thresholdHint =
@@ -728,7 +809,9 @@ export default function ServiceModal() {
               ? t('service_modal.labels.threshold_hint_traces')
               : serviceTypeStr === 'http'
                 ? t('service_modal.labels.threshold_hint_http')
-                : t('service_modal.labels.threshold_hint_default');
+                : serviceTypeStr === 'tcp' || serviceTypeStr === 'dns'
+                  ? t(`service_modal.labels.threshold_hint_${serviceTypeStr}`)
+                  : t('service_modal.labels.threshold_hint_default');
 
   return (
     <div
@@ -1244,6 +1327,103 @@ export default function ServiceModal() {
                   }}>
                   {t('service_modal.labels.ping_info')}
                 </p>
+              </div>
+            )}
+
+            {/* TCP Check Fields */}
+            {formData.type === 'tcp' && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label className='label'>
+                  {t('service_modal.labels.tcp_target')}
+                </label>
+                <input
+                  type='text'
+                  name='host'
+                  value={formData.host}
+                  onChange={handleChange}
+                  onBlur={(e) => handleFieldBlur('host', e.target.value)}
+                  required
+                  className={`input${fieldErrors.host ? ' input-invalid' : ''}`}
+                  placeholder={t('service_modal.placeholders.tcp_target')}
+                />
+                {fieldErrors.host && (
+                  <p className='field-error'>{fieldErrors.host}</p>
+                )}
+                <p
+                  style={{
+                    color: 'var(--text-tertiary)',
+                    fontSize: '0.75rem',
+                    marginTop: '0.5rem',
+                  }}>
+                  {t('service_modal.labels.tcp_info')}
+                </p>
+              </div>
+            )}
+
+            {/* DNS Check Fields */}
+            {formData.type === 'dns' && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1fr',
+                  gap: '1rem',
+                  marginBottom: '1.5rem',
+                }}>
+                <div>
+                  <label className='label'>
+                    {t('service_modal.labels.dns_name')}
+                  </label>
+                  <input
+                    type='text'
+                    name='host'
+                    value={formData.host}
+                    onChange={handleChange}
+                    onBlur={(e) => handleFieldBlur('host', e.target.value)}
+                    required
+                    className={`input${fieldErrors.host ? ' input-invalid' : ''}`}
+                    placeholder={t('service_modal.placeholders.dns_name')}
+                  />
+                  {fieldErrors.host && (
+                    <p className='field-error'>{fieldErrors.host}</p>
+                  )}
+                </div>
+                <div>
+                  <label className='label'>
+                    {t('service_modal.labels.dns_record_type')}
+                  </label>
+                  <select
+                    name='dns_record_type'
+                    value={formData.dns_record_type}
+                    onChange={handleChange}
+                    className='select'>
+                    {DNS_RECORD_TYPES.map((rt) => (
+                      <option key={rt} value={rt}>
+                        {rt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label className='label'>
+                    {t('service_modal.labels.dns_expected_optional')}
+                  </label>
+                  <input
+                    type='text'
+                    name='dns_expected'
+                    value={formData.dns_expected}
+                    onChange={handleChange}
+                    className='input'
+                    placeholder={t('service_modal.placeholders.dns_expected')}
+                  />
+                  <p
+                    style={{
+                      color: 'var(--text-tertiary)',
+                      fontSize: '0.75rem',
+                      marginTop: '0.5rem',
+                    }}>
+                    {t('service_modal.labels.dns_info')}
+                  </p>
+                </div>
               </div>
             )}
 

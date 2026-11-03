@@ -9,6 +9,8 @@ import {
   HiOutlineExclamationTriangle,
   HiOutlineClock,
   HiOutlineSignal,
+  HiOutlineArrowsRightLeft,
+  HiOutlineMapPin,
   HiOutlineGlobeAlt,
   HiOutlineServerStack,
   HiOutlineCpuChip,
@@ -54,6 +56,8 @@ const EMPTY_LIST: never[] = [];
 const SERVICE_TYPE_ICONS: Record<string, React.ReactNode> = {
   http: <HiOutlineGlobeAlt />,
   sql: <HiOutlineServerStack />,
+  tcp: <HiOutlineArrowsRightLeft />,
+  dns: <HiOutlineMapPin />,
   snmp: <HiOutlineSignal />,
   certificate: <HiOutlineShieldCheck />,
   agent_cpu: <HiOutlineCpuChip />,
@@ -65,6 +69,8 @@ const SERVICE_TYPE_ICONS: Record<string, React.ReactNode> = {
 const SERVICE_TYPE_LABELS: Record<string, string> = {
   http: 'HTTP',
   sql: 'SQL',
+  tcp: 'TCP',
+  dns: 'DNS',
   snmp: 'SNMP',
   certificate: 'Certificate',
   agent_cpu: 'CPU',

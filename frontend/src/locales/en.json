@@ -1735,6 +1735,14 @@
         "label": "Ping / ICMP",
         "description": "Latency and connectivity check"
       },
+      "tcp": {
+        "label": "TCP Port",
+        "description": "Checks that a TCP port accepts connections"
+      },
+      "dns": {
+        "label": "DNS",
+        "description": "Checks that a name resolves, optionally to an expected value"
+      },
       "sql": {
         "label": "SQL Check",
         "description": "Database connection check"
@@ -1766,7 +1774,9 @@
       "sql_port_invalid": "SQL port must be between 1 and 65535",
       "save_update": "Error updating service",
       "save_create": "Error creating service",
-      "new_host_invalid": "Host name may only contain letters, digits, dots, dashes and underscores"
+      "new_host_invalid": "Host name may only contain letters, digits, dots, dashes and underscores",
+      "tcp_target_invalid": "Enter a host and a port, e.g. db.internal:5432",
+      "dns_name_required": "A domain name is required for a DNS check"
     },
     "labels": {
       "host": "Host *",
@@ -1826,7 +1836,15 @@
       "alert_threshold_sql": "Critical connection latency (ms)",
       "threshold_hint_sql": "Critical if connection latency exceeds this value. Warning alerts are managed automatically (slow queries, connections, locks, bloat).",
       "alert_threshold_snmp": "OID value threshold",
-      "threshold_hint_snmp": "If the OID value returned exceeds these thresholds, a Warning or Critical alert is sent. Without a threshold, the check only verifies device availability."
+      "threshold_hint_snmp": "If the OID value returned exceeds these thresholds, a Warning or Critical alert is sent. Without a threshold, the check only verifies device availability.",
+      "tcp_target": "Host:port *",
+      "tcp_info": "A TCP connection is opened to this port at each check, then closed. Use it for databases, caches, mail or SSH servers that have no HTTP endpoint.",
+      "dns_name": "Domain name *",
+      "dns_record_type": "Record type",
+      "dns_expected_optional": "Expected value (optional)",
+      "dns_info": "Without an expected value, the check passes as long as the name resolves. With one, one of the answers must match it, which catches a hijacked or wrongly edited record.",
+      "threshold_hint_tcp": "Raises an alert when the connect time goes above this value. Leave empty to only check that the port is open.",
+      "threshold_hint_dns": "Raises an alert when the lookup takes longer than this value. Leave empty to only check that the name resolves."
     },
     "placeholders": {
       "display_name": "e.g. API Health Check",
@@ -1854,7 +1872,10 @@
       "threshold_http": "Ex: 1000",
       "threshold_errors": "Ex: 10 (Errors / min)",
       "threshold_default": "Ex: 1000",
-      "threshold_cert": "Ex: 30 (days)"
+      "threshold_cert": "Ex: 30 (days)",
+      "tcp_target": "e.g. db.internal:5432",
+      "dns_name": "e.g. example.com",
+      "dns_expected": "e.g. 203.0.113.10 or mail.example.com"
     },
     "submit_updating": "Updating...",
     "submit_creating": "Creating...",

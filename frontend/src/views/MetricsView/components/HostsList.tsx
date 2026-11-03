@@ -436,7 +436,7 @@ export function HostsList({
                               }) => {
                                 const serviceType = service.type.toLowerCase();
 
-                                if (['http', 'sql', 'snmp'].includes(serviceType)) {
+                                if (['http', 'sql', 'snmp', 'tcp', 'dns'].includes(serviceType)) {
                                   return (
                                     <LatencyChart
                                       resultsWithLatency={resultsWithLatency}

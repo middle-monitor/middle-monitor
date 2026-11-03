@@ -38,7 +38,7 @@ import {
 import './DocumentationView.css';
 
 type Lang = 'go' | 'node' | 'python' | 'rust';
-type CheckType = 'http' | 'ping' | 'sql' | 'certificate' | 'snmp';
+type CheckType = 'http' | 'ping' | 'tcp' | 'dns' | 'sql' | 'certificate' | 'snmp';
 
 const GITHUB_ORG = 'https://github.com/middle-monitor';
 
@@ -409,6 +409,8 @@ export default function DocumentationView() {
   const checkTypeLabels: Record<CheckType, string> = {
     http: 'HTTP',
     ping: 'Ping',
+    tcp: 'TCP',
+    dns: 'DNS',
     sql: 'SQL',
     certificate: 'SSL Certificate',
     snmp: 'SNMP',
@@ -416,7 +418,7 @@ export default function DocumentationView() {
 
   const CheckTypeTabs = () => (
     <div className='doc-lang-tabs'>
-      {(['http', 'ping', 'sql', 'certificate', 'snmp'] as CheckType[]).map(
+      {(['http', 'ping', 'tcp', 'dns', 'sql', 'certificate', 'snmp'] as CheckType[]).map(
         (c) => (
           <button
             key={c}
@@ -2070,6 +2072,18 @@ logs:
                     <td>Host / IP, latency threshold</td>
                   </tr>
                   <tr>
+                    <td>TCP</td>
+                    <td>TCP</td>
+                    <td>Port accepts connections, connect time</td>
+                    <td>host:port, latency threshold</td>
+                  </tr>
+                  <tr>
+                    <td>DNS</td>
+                    <td>DNS</td>
+                    <td>Name resolves, optionally to an expected value</td>
+                    <td>Domain, record type, expected value</td>
+                  </tr>
+                  <tr>
                     <td>SQL</td>
                     <td>TCP</td>
                     <td>
@@ -2118,6 +2132,29 @@ logs:
                   unreachable or when latency exceeds your Warning / Critical
                   thresholds (in ms). Useful for raw network reachability where
                   there is no HTTP endpoint.
+                </p>
+              </div>
+
+              <div id='check-tcp' className='doc-check-detail'>
+                <h4>TCP port check</h4>
+                <p>
+                  Opens a TCP connection to <code>host:port</code>, then closes
+                  it. It alerts when the port refuses or times out, and when
+                  the connect time exceeds your Warning / Critical thresholds
+                  (in ms). Use it for databases, caches, mail or SSH servers
+                  that have no HTTP endpoint.
+                </p>
+              </div>
+
+              <div id='check-dns' className='doc-check-detail'>
+                <h4>DNS check</h4>
+                <p>
+                  Resolves a domain name (A, AAAA, CNAME, MX, NS or TXT record)
+                  with the checker&apos;s resolver. Without an expected value it
+                  passes as long as the name resolves; with one, one of the
+                  answers must match it (case and trailing dot ignored), which
+                  catches a hijacked or wrongly edited record. The lookup time
+                  is compared to your Warning / Critical thresholds (in ms).
                 </p>
               </div>
 
@@ -2187,6 +2224,20 @@ logs:
                     <td>ms</td>
                     <td>100</td>
                     <td>300</td>
+                  </tr>
+                  <tr>
+                    <td>TCP</td>
+                    <td>Connect time</td>
+                    <td>ms</td>
+                    <td>300</td>
+                    <td>1000</td>
+                  </tr>
+                  <tr>
+                    <td>DNS</td>
+                    <td>Lookup time</td>
+                    <td>ms</td>
+                    <td>300</td>
+                    <td>1000</td>
                   </tr>
                   <tr>
                     <td>Agent CPU</td>
@@ -4945,6 +4996,133 @@ curl -O "${API_URL}/api/v1/agents/download/1.4.2/linux/amd64"`}
   "max_attempts":       3,
   "created_at":         "2026-06-13T12:00:00Z"
 }`}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {checkType === 'tcp' && (
+                    <>
+                      <table
+                        className='doc-param-table'
+                        style={{ marginBottom: '1rem' }}>
+                        <thead>
+                          <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>host</td>
+                            <td>string</td>
+                            <td>
+                              Target as <code>host:port</code> (IPv6 as{' '}
+                              <code>[::1]:6379</code>). A target without a
+                              port is rejected with <code>400</code>.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>warning_threshold / critical_threshold</td>
+                            <td>number</td>
+                            <td>
+                              Connect time (ms) above which the check reports{' '}
+                              <code>warning</code> / <code>critical</code>.
+                              Default to <code>300</code> and{' '}
+                              <code>1000</code>.{' '}
+                              <span className='doc-param-optional'>
+                                optional
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div className='doc-code-block'>
+                        <div className='doc-code-header'>curl</div>
+                        <CodeBlock
+                          language='bash'
+                          code={`curl -X POST ${API_URL}/api/v1/organizations/acme/services \\
+  -H "Authorization: Bearer mm_YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name":               "redis-port",
+    "type":               "tcp",
+    "host":               "10.0.1.30:6379",
+    "service":            "cache",
+    "host_id":            45,
+    "service_interval":   60,
+    "warning_threshold":  300,
+    "critical_threshold": 1000,
+    "max_attempts":       3
+  }'`}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {checkType === 'dns' && (
+                    <>
+                      <table
+                        className='doc-param-table'
+                        style={{ marginBottom: '1rem' }}>
+                        <thead>
+                          <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>host</td>
+                            <td>string</td>
+                            <td>Domain name to resolve.</td>
+                          </tr>
+                          <tr>
+                            <td>credentials</td>
+                            <td>string (JSON)</td>
+                            <td>
+                              <code>record_type</code> (<code>A</code>,{' '}
+                              <code>AAAA</code>, <code>CNAME</code>,{' '}
+                              <code>MX</code>, <code>NS</code> or{' '}
+                              <code>TXT</code>, defaults to <code>A</code>) and{' '}
+                              <code>expected</code>, a value one of the answers
+                              must equal.{' '}
+                              <span className='doc-param-optional'>
+                                optional
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>warning_threshold / critical_threshold</td>
+                            <td>number</td>
+                            <td>
+                              Lookup time (ms). Default to <code>300</code> and{' '}
+                              <code>1000</code>.{' '}
+                              <span className='doc-param-optional'>
+                                optional
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div className='doc-code-block'>
+                        <div className='doc-code-header'>curl</div>
+                        <CodeBlock
+                          language='bash'
+                          code={`curl -X POST ${API_URL}/api/v1/organizations/acme/services \\
+  -H "Authorization: Bearer mm_YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name":             "www-dns",
+    "type":             "dns",
+    "host":             "www.example.com",
+    "service":          "website",
+    "host_id":          42,
+    "service_interval": 300,
+    "credentials":      "{\\"record_type\\":\\"A\\",\\"expected\\":\\"203.0.113.10\\"}"
+  }'`}
                         />
                       </div>
                     </>

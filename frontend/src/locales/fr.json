@@ -1735,6 +1735,14 @@
         "label": "Ping / ICMP",
         "description": "Vérification de latence et connectivité"
       },
+      "tcp": {
+        "label": "Port TCP",
+        "description": "Vérifie qu'un port TCP accepte les connexions"
+      },
+      "dns": {
+        "label": "DNS",
+        "description": "Vérifie qu'un nom se résout, en option vers une valeur attendue"
+      },
       "sql": {
         "label": "SQL Check",
         "description": "Vérification de connexion base de données"
@@ -1766,7 +1774,9 @@
       "sql_port_invalid": "Le port SQL doit être entre 1 et 65535",
       "save_update": "Erreur lors de la mise à jour du service",
       "save_create": "Erreur lors de la création du service",
-      "new_host_invalid": "Le nom du host ne peut contenir que des lettres, chiffres, points, tirets et underscores"
+      "new_host_invalid": "Le nom du host ne peut contenir que des lettres, chiffres, points, tirets et underscores",
+      "tcp_target_invalid": "Indique un host et un port, ex: db.internal:5432",
+      "dns_name_required": "Un nom de domaine est requis pour un check DNS"
     },
     "labels": {
       "host": "Host *",
@@ -1826,7 +1836,15 @@
       "alert_threshold_sql": "Latence critique connexion (ms)",
       "threshold_hint_sql": "Critique si la latence de connexion dépasse cette valeur. Les alertes d'avertissement sont gérées automatiquement (requêtes lentes, connexions, verrous, bloat).",
       "alert_threshold_snmp": "Seuil valeur OID",
-      "threshold_hint_snmp": "Si la valeur retournée par l'OID dépasse ces seuils, une alerte d'avertissement ou critique est envoyée. Sans seuil, le check vérifie uniquement la disponibilité de l'équipement."
+      "threshold_hint_snmp": "Si la valeur retournée par l'OID dépasse ces seuils, une alerte d'avertissement ou critique est envoyée. Sans seuil, le check vérifie uniquement la disponibilité de l'équipement.",
+      "tcp_target": "Host:port *",
+      "tcp_info": "Une connexion TCP est ouverte vers ce port à chaque check, puis fermée. Utile pour les bases de données, caches, serveurs mail ou SSH qui n'ont pas d'endpoint HTTP.",
+      "dns_name": "Nom de domaine *",
+      "dns_record_type": "Type d'enregistrement",
+      "dns_expected_optional": "Valeur attendue (optionnel)",
+      "dns_info": "Sans valeur attendue, le check passe tant que le nom se résout. Avec, une des réponses doit lui correspondre : ça détecte un enregistrement détourné ou modifié par erreur.",
+      "threshold_hint_tcp": "Déclenche une alerte quand le temps de connexion dépasse cette valeur. Laisse vide pour seulement vérifier que le port est ouvert.",
+      "threshold_hint_dns": "Déclenche une alerte quand la résolution dépasse cette valeur. Laisse vide pour seulement vérifier que le nom se résout."
     },
     "placeholders": {
       "display_name": "ex: API Health Check",
@@ -1854,7 +1872,10 @@
       "threshold_http": "Ex: 1000",
       "threshold_errors": "Ex: 10 (Erreurs / min)",
       "threshold_default": "Ex: 1000",
-      "threshold_cert": "Ex: 30 (jours)"
+      "threshold_cert": "Ex: 30 (jours)",
+      "tcp_target": "ex: db.internal:5432",
+      "dns_name": "ex: example.com",
+      "dns_expected": "ex: 203.0.113.10 ou mail.example.com"
     },
     "submit_updating": "Mise à jour...",
     "submit_creating": "Création...",

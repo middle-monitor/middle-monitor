@@ -100,6 +100,8 @@ func defaultThresholdsForType(serviceType string) (warning, critical *float64) {
 		return f(1000), f(3000)
 	case "ping", "agent_network":
 		return f(100), f(300)
+	case "tcp", "dns":
+		return f(300), f(1000)
 	case "agent_cpu", "agent_ram", "agent_disk":
 		return f(80), f(95)
 	case "certificate":
