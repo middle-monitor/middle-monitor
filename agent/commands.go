@@ -21,6 +21,8 @@ type CollectorConfig struct {
 	Zone    string `yaml:"zone"`
 	// Globs of files declaring the commands this collector may run.
 	Commands StringOrList `yaml:"commands"`
+	// Plugins running at once, default 32.
+	MaxConcurrency int `yaml:"max_concurrency"`
 
 	commands map[string]Command
 }

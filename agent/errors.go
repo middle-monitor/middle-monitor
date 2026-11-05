@@ -227,3 +227,13 @@ func (e *commandVarError) Error() string {
 }
 
 func (e *commandVarError) Unwrap() error { return e.Err }
+
+// collectorStatusError reports the platform refusing a collector request.
+type collectorStatusError struct {
+	Path       string
+	StatusCode int
+}
+
+func (e *collectorStatusError) Error() string {
+	return fmt.Sprintf("collector %s: status %d", e.Path, e.StatusCode)
+}

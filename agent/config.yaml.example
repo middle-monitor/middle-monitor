@@ -230,3 +230,13 @@ logs:
     # exclude match "namespace/pod/container".
     # - type: kubernetes
     #   exclude: '^kube-system/'
+
+# Zone collector: on a satellite, run the "command" checks of a zone (Nagios
+# plugins, check_nrpe, custom scripts). Only commands declared in the command
+# files can run; the platform sends their names and variable values. Off by
+# default.
+collector:
+  enabled: false
+  zone: paris-dc1
+  commands: /etc/middle-monitor/commands.d/*.yaml
+  max_concurrency: 32  # plugins running at once

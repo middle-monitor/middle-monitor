@@ -387,6 +387,7 @@ func main() {
 	StartExposition(scrapeCtx, config.Expose)
 	StartCacheEviction(scrapeCtx, config.Expose)
 	logs := StartLogCollection(config)
+	collector := StartCollector(config)
 
 	// Registration creates the host and its checks. Ingestion works without it,
 	// so a failure here is not fatal.
@@ -430,6 +431,9 @@ func main() {
 			// Restarting the collector keeps the positions: it resumes where it was.
 			logs.Stop()
 			logs = StartLogCollection(reloaded)
+			// New command files take effect here; the checks start over with new offsets.
+			collector.Stop()
+			collector = StartCollector(reloaded)
 			if reloaded.Expose != config.Expose {
 				slog.Warn("expose settings changed, restart the agent to apply them")
 			}
@@ -439,6 +443,7 @@ func main() {
 		case <-sigChan:
 			slog.Info("shutting down")
 			logs.Stop()
+			collector.Stop()
 			// Gracefully shutdown OpenTelemetry
 			if meterProvider != nil {
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
