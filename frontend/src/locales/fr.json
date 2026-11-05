@@ -948,6 +948,7 @@
     "sidebar_metrics": "Métriques Système",
     "sidebar_scraping": "Scraping Prometheus",
     "sidebar_log_collection": "Collecte de logs",
+    "sidebar_zone_collector": "Collecteur de zone",
     "sidebar_custom_metrics": "Métriques personnalisées",
     "sidebar_limits": "Limites et quotas",
     "sidebar_applications": "Applications (APM)",
