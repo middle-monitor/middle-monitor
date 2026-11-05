@@ -349,6 +349,43 @@ On Kubernetes, run the image `ghcr.io/middle-monitor/middle-monitor-agent` with
 [deploy/kubernetes/agent-daemonset.yaml](../deploy/kubernetes/agent-daemonset.yaml).
 Every option is in [config.yaml.example](config.yaml.example).
 
+## Zone collector
+
+An agent on a satellite runs the `command` checks of its zone: Nagios plugins,
+`check_nrpe` against the machines behind it, custom scripts. Nothing is
+installed on those machines.
+
+```yaml
+collector:
+  enabled: true
+  zone: paris-dc1
+  commands: /etc/middle-monitor/commands.d/*.yaml
+  max_concurrency: 32
+```
+
+```yaml
+# /etc/middle-monitor/commands.d/nagios.yaml
+commands:
+  nrpe:
+    path: /usr/lib/nagios/plugins/check_nrpe
+    args: ['-H', '$host$', '-c', '$command$', '-a', '$args...$']
+    timeout: 30
+```
+
+- The platform only sends a command name and variable values. A command not
+  declared in these files is never run: its check reports UNKNOWN with the
+  reason. Paths must be absolute; the first definition of a name wins.
+- `$name$` is one value, a whole argument `$name...$` a list. Values are passed
+  as separate arguments, never through a shell. `$host$` defaults to the
+  check's host.
+- Exit codes 0/1/2/3 are OK/WARNING/CRITICAL/UNKNOWN; a timeout, a signal or a
+  missing binary is UNKNOWN. Perfdata becomes metrics.
+- Plugins run with a fixed `PATH` and `LC_ALL=C`, not the agent's environment.
+- The agent asks for its zone's checks every 30 seconds and spreads their first
+  runs over their interval. Results are posted every 5 seconds; while the
+  platform is unreachable they are kept, up to 20 000.
+- `SIGHUP` reloads the command files.
+
 ## How it works
 
 1. At startup the agent registers its host; the API creates the host and one

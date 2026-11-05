@@ -160,6 +160,11 @@
               }
             }
           ]
+        },
+        "max_concurrency": {
+          "type": "integer",
+          "default": 32,
+          "description": "Plugins running at once on this collector."
         }
       }
     }
