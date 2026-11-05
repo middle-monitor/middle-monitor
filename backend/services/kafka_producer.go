@@ -20,6 +20,7 @@ var (
 	KafkaWriterSDKMetrics   *kafka.Writer
 	KafkaWriterAgentMetrics *kafka.Writer
 	KafkaWriterHostEvents   *kafka.Writer
+	KafkaWriterCheckResults *kafka.Writer
 )
 
 const (
@@ -30,6 +31,7 @@ const (
 	TopicSDKMetrics   = "topic-sdk-metrics"
 	TopicAgentMetrics = "topic-agent-metrics"
 	TopicHostEvents   = "topic-host-events"
+	TopicCheckResults = "topic-check-results"
 )
 
 // InitKafkaProducers connects to Kafka and initializes the writers
@@ -46,6 +48,7 @@ func InitKafkaProducers() {
 	KafkaWriterSDKMetrics = newKafkaWriter(brokers, TopicSDKMetrics)
 	KafkaWriterAgentMetrics = newKafkaWriter(brokers, TopicAgentMetrics)
 	KafkaWriterHostEvents = newKafkaWriter(brokers, TopicHostEvents)
+	KafkaWriterCheckResults = newKafkaWriter(brokers, TopicCheckResults)
 
 	slog.Info("kafka producers initialized", "brokers", brokers)
 }

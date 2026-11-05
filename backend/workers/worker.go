@@ -131,6 +131,11 @@ func startServiceTimers(db *sql.DB, opensearch *services.OpenSearchService) {
 			continue
 		}
 
+		// Command checks run on the zone's collector, which posts their results.
+		if s.Type == services.CommandType {
+			continue
+		}
+
 		// Heartbeats are passive too: the job pings, evaluateHeartbeats watches.
 		if s.Type == services.HeartbeatType {
 			continue

@@ -97,6 +97,17 @@ func StartKafkaConsumers(db *sql.DB, opensearch *services.OpenSearchService) {
 			slog.Error("failed to parse agent metrics payload", "error", err)
 		}
 	})
+
+	go consumeTopic(brokers, services.TopicCheckResults, "worker-group", func(msg kafka.Message) {
+		var batch models.CommandResultBatch
+		if err := json.Unmarshal(msg.Value, &batch); err != nil {
+			slog.Error("failed to parse command results payload", "error", err)
+			return
+		}
+		if err := processCommandResults(db, opensearch, batch); err != nil {
+			slog.Error("failed to process command results", "zone", batch.Zone, "count", len(batch.Results), "error", err)
+		}
+	})
 }
 
 // consumeTopic reads messages from the topic

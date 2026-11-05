@@ -48,6 +48,8 @@ var (
 	ErrIDInvalid                  = errors.New("invalid ID")
 	ErrInstallTokenInvalid        = errors.New("invalid or expired install token")
 	ErrInstallTokenRequired       = errors.New("install token required: set X-Install-Token header")
+	ErrCollectorFieldsMissing     = errors.New("missing required fields: zone, hostname")
+	ErrCollectorBatchTooLarge     = errors.New("too many results in one batch, max 2000")
 	ErrInvitationLinkInvalid      = errors.New("invalid or expired invitation link")
 	ErrKeyIDInvalid               = errors.New("invalid key ID")
 	ErrLinkFieldsMissing          = errors.New("missing required fields: app_service_name, target_type, target_id")

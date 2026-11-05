@@ -3,7 +3,7 @@
 :80 {
 	encode zstd gzip
 
-	@receiver path /v1/* /api/v1/agents/* /api/v1/errors /api/v1/metrics /api/v1/profiles /api/v1/frontend-errors /api/v1/health/*
+	@receiver path /v1/* /api/v1/agents/* /api/v1/collectors/* /api/v1/errors /api/v1/metrics /api/v1/profiles /api/v1/frontend-errors /api/v1/health/*
 	handle @receiver {
 		reverse_proxy receiver:8081
 	}
