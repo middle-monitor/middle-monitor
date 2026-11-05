@@ -239,6 +239,17 @@ func (s *ServiceService) enrichServiceResults(servicesWithResults []models.Servi
 		byService = s.latestResultsByService(serviceIDs, 10, "", "")
 	}
 
+	// Command checks keep no service_results; their latest result is their state.
+	var commandIDs []int64
+	for i := range servicesWithResults {
+		if servicesWithResults[i].Service.Type == CommandType {
+			commandIDs = append(commandIDs, servicesWithResults[i].Service.ID)
+		}
+	}
+	for id, results := range s.commandStateResults(commandIDs) {
+		byService[id] = results
+	}
+
 	for i := range servicesWithResults {
 		servicesWithResults[i].Results = byService[servicesWithResults[i].Service.ID]
 	}
@@ -364,9 +375,11 @@ func (s *ServiceService) listServiceRowsForOrg(orgID int64) ([]serviceRow, error
 	                 s.service, s.service_interval, s.max_attempts, s.failure_threshold, s.warning_threshold, s.critical_threshold,
 	                 s.expected_status_code, s.expected_body_contains, s.expected_body_mode, s.token, s.created_at,
 	                 h.name AS host_name,
-	                 lr.status, (lr.present IS NOT NULL) AS has_result
+	                 CASE WHEN s.type = 'command' THEN ` + commandStatusExpr + ` ELSE lr.status END,
+	                 CASE WHEN s.type = 'command' THEN cs.service_id IS NOT NULL ELSE lr.present IS NOT NULL END AS has_result
 	          FROM services s
 	          LEFT JOIN hosts h ON h.id = s.host_id AND h.organization_id = s.organization_id
+	          LEFT JOIN command_check_states cs ON cs.service_id = s.id
 	          LEFT JOIN LATERAL (
 	            SELECT 
 	              CASE

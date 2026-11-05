@@ -337,6 +337,8 @@ func SetupReceiverRouter(db *sql.DB, opensearch *services.OpenSearchService) *mu
 	api.HandleFunc("/agents/download/update", handleAgentUpdateScript()).Methods("GET")
 	api.HandleFunc("/agents/latest", handleAgentLatest()).Methods("GET")
 	api.HandleFunc("/agents/config", handleAgentConfig(db)).Methods("GET")
+	api.HandleFunc("/collectors/sync", handleCollectorSync(db)).Methods("POST")
+	api.HandleFunc("/collectors/results", handleCollectorResults(db)).Methods("POST")
 	api.HandleFunc("/agents/download/{os}/{arch}", handleAgentDownload(db)).Methods("GET")
 	api.HandleFunc("/agents/download/{os}/{arch}/sha256", handleAgentChecksum()).Methods("GET")
 	api.HandleFunc("/agents/download/{version}/{os}/{arch}", handleAgentDownload(db)).Methods("GET")

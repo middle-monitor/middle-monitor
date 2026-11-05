@@ -80,6 +80,15 @@ var (
 	ErrHeartbeatConfigInvalid = errors.New("heartbeat config must be a json object")
 	ErrHeartbeatGraceInvalid  = errors.New("heartbeat grace_seconds must be between 0 and 86400")
 	ErrHeartbeatNotFound      = errors.New("heartbeat not found")
+
+	ErrCommandConfigInvalid = errors.New("command check config must be a json object with zone and command")
+	ErrCommandZoneInvalid   = errors.New("command check zone must hold 1-255 letters, digits, _ . -")
+	ErrCommandNameInvalid   = errors.New("command check command must hold 1-255 letters, digits, _ . -")
+	ErrCommandVarInvalid    = errors.New("command check vars: names are letters, digits, _ and values hold no line break")
+	ErrCollectorSync        = errors.New("failed to record collector")
+	ErrCollectorChecks      = errors.New("failed to list zone checks")
+	ErrCommandStateLoad     = errors.New("failed to load command check states")
+	ErrCommandStateSave     = errors.New("failed to save command check states")
 	// ErrHostHasServices marks a delete refused because services are still attached to the host.
 	ErrHostHasServices   = errors.New("host still has services attached; delete or detach them first")
 	ErrHostGroupNotFound = errors.New("host group not found")

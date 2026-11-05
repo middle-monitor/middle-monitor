@@ -29,6 +29,7 @@ var validServiceTypes = map[string]bool{
 	"snmp":        true,
 	"certificate": true,
 	"sql":         true,
+	"command":     true,
 }
 
 var validChannelTypes = map[string]bool{
@@ -71,12 +72,15 @@ func validateServiceType(t string) error {
 }
 
 func validateServiceInterval(serviceType string, v int) error {
-	max := maxServiceInterval
+	min, max := minServiceInterval, maxServiceInterval
 	if serviceType == services.HeartbeatType {
 		max = maxHeartbeatPeriod
 	}
-	if v < minServiceInterval || v > max {
-		return &RangeError{What: "service interval", Min: minServiceInterval, Max: max, Unit: "seconds"}
+	if serviceType == services.CommandType {
+		min = services.MinCommandInterval
+	}
+	if v < min || v > max {
+		return &RangeError{What: "service interval", Min: min, Max: max, Unit: "seconds"}
 	}
 	return nil
 }
@@ -119,6 +123,9 @@ func validateCheckConfig(service models.Service) error {
 		return err
 	case services.HeartbeatType:
 		_, err := services.ParseHeartbeatConfig(service.Credentials)
+		return err
+	case services.CommandType:
+		_, err := services.ParseCommandCheckConfig(service.Credentials)
 		return err
 	}
 	return nil

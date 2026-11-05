@@ -1338,6 +1338,74 @@
         "security": []
       }
     },
+    "/api/v1/collectors/results": {
+      "post": {
+        "operationId": "handleCollectorResults",
+        "summary": "Collector results",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Called by a zone collector, with its install token, to post up to 2000 command check results. Queued for the worker; answers 202.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collectors/sync": {
+      "post": {
+        "operationId": "handleCollectorSync",
+        "summary": "Collector sync",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "description": "Called by a zone collector, with its install token: records it and the commands it declares, and returns the command checks of its zone.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/contact": {
       "post": {
         "operationId": "contactLimiter.Middleware",

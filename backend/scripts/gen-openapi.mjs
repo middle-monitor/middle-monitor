@@ -37,6 +37,10 @@ const described = {
     'Set that fragment. It is parsed the way the agent will, so a broken one is refused here.',
   'GET /api/v1/agents/config':
     'Called by the agent itself, with its install token, to fetch its own scrape fragment.',
+  'POST /api/v1/collectors/sync':
+    'Called by a zone collector, with its install token: records it and the commands it declares, and returns the command checks of its zone.',
+  'POST /api/v1/collectors/results':
+    'Called by a zone collector, with its install token, to post up to 2000 command check results. Queued for the worker; answers 202.',
   'GET /api/v1/schemas/webhook-payload.json': 'JSON Schema of the structured webhook payload.',
   'GET /api/v1/organizations/{org_slug}/hosts/{id}/ingest-cost':
     "A host's metric points per minute over the last 10 minutes, per scrape target (series, interval, histogram bucket share, heaviest metrics), with the organization's points-per-minute limit.",
