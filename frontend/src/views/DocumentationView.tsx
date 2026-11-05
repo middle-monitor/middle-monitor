@@ -35,6 +35,7 @@ import {
   HiBars3,
   HiCheck,
   HiOutlineTrash,
+  HiOutlineCommandLine,
 } from 'react-icons/hi2';
 import './DocumentationView.css';
 
@@ -125,6 +126,11 @@ const CATEGORIES = [
         id: 'log-collection',
         labelKey: 'docs.sidebar_log_collection',
         icon: HiOutlineDocumentText,
+      },
+      {
+        id: 'zone-collector',
+        labelKey: 'docs.sidebar_zone_collector',
+        icon: HiOutlineCommandLine,
       },
       {
         id: 'custom-metrics',
@@ -1702,6 +1708,177 @@ logs:
                 skips anything, and rotation by rename or by copytruncate loses
                 no line. When the platform is unreachable the agent retries and
                 stops reading; the files are the buffer.
+              </p>
+            </div>
+
+            <div id='zone-collector' className='doc-subsection'>
+              <h3>
+                {t('docs.sidebar_zone_collector')}
+                <ShareAnchor />
+              </h3>
+              <p>
+                An agent in collector mode runs the <code>command</code> checks
+                of a zone: Nagios-compatible plugins, <code>check_nrpe</code>{' '}
+                against the machines behind it, or your own scripts. It suits a
+                network the platform cannot reach: the collector only opens
+                outbound HTTPS connections, and nothing is installed on the
+                machines it checks.
+              </p>
+              <div className='doc-callout'>
+                The collector is <strong>off by default</strong>. The platform
+                only sends a command name and variable values: the binary and
+                the shape of its arguments are declared on the collector's
+                machine, and a command that is not declared there never runs.
+              </div>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>
+                  /etc/middle-monitor/config.yaml
+                </div>
+                <CodeBlock
+                  language='yaml'
+                  code={`api:
+  url: ${API_URL}
+  api_key: <install token>
+collector:
+  enabled: true
+  zone: paris-dc1
+  commands: /etc/middle-monitor/commands.d/*.yaml
+  max_concurrency: 32`}
+                />
+              </div>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>
+                  /etc/middle-monitor/commands.d/nagios.yaml
+                </div>
+                <CodeBlock
+                  language='yaml'
+                  code={`commands:
+  nrpe:
+    path: /usr/lib/nagios/plugins/check_nrpe
+    args: ['-H', '$host$', '-c', '$command$', '-a', '$args...$']
+    timeout: 30
+  ping:
+    path: /usr/lib/nagios/plugins/check_ping
+    args: ['-H', '$host$', '-w', '$warn$', '-c', '$crit$']
+  backup_age:
+    path: /opt/checks/check_backup_age.sh
+    args: ['--max-hours', '$max_hours$']`}
+                />
+              </div>
+              <table className='doc-api-table'>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>zone</td>
+                    <td>-</td>
+                    <td>
+                      Required. Letters, digits, <code>_</code>,{' '}
+                      <code>.</code> and <code>-</code>. A check runs on the
+                      collector of the zone it names
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>commands</td>
+                    <td>-</td>
+                    <td>
+                      Glob or list of globs of command files. The first
+                      definition of a name wins
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>max_concurrency</td>
+                    <td>32</td>
+                    <td>Plugins running at once</td>
+                  </tr>
+                  <tr>
+                    <td>path</td>
+                    <td>-</td>
+                    <td>Absolute path of the binary; there is no PATH lookup</td>
+                  </tr>
+                  <tr>
+                    <td>args</td>
+                    <td>-</td>
+                    <td>
+                      Argument template. <code>$name$</code> is one value, a
+                      whole argument written <code>$name...$</code> is a list
+                      that may be empty
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>timeout</td>
+                    <td>60</td>
+                    <td>Seconds before the plugin is killed and the result is UNKNOWN</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p>
+                Values are passed as separate arguments, never through a shell,
+                and plugins run with a fixed <code>PATH</code> and{' '}
+                <code>LC_ALL=C</code> rather than the agent's environment. A
+                variable the check does not provide makes the result UNKNOWN
+                instead of running the plugin with an empty argument.{' '}
+                <code>$host$</code> defaults to the check's host. Restart the
+                agent or send it SIGHUP to reload the command files.
+              </p>
+              <p>
+                A command check is created like any other check, with type{' '}
+                <code>command</code> and its zone, command and variables in{' '}
+                <code>credentials</code>. Its interval can go down to 30
+                seconds.
+              </p>
+              <div className='doc-code-block'>
+                <div className='doc-code-header'>curl</div>
+                <CodeBlock
+                  language='bash'
+                  code={`curl -X POST ${API_URL}/api/v1/organizations/acme/services \\
+  -H "Authorization: Bearer mm_YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name":             "disk-web1",
+    "type":             "command",
+    "host":             "10.0.3.12",
+    "service":          "web",
+    "service_interval": 60,
+    "max_attempts":     3,
+    "credentials":      "{\\"zone\\":\\"paris-dc1\\",\\"command\\":\\"nrpe\\",\\"vars\\":{\\"command\\":[\\"check_disk\\"],\\"args\\":[\\"20%\\",\\"10%\\",\\"/\\"]}}"
+  }'`}
+                />
+              </div>
+              <p>
+                Exit codes 0, 1, 2 and 3 are OK, WARNING, CRITICAL and UNKNOWN;
+                a timeout, a signal or a missing binary is UNKNOWN, and so is a
+                command the collector does not declare, with the reason as its
+                output. The first line of output is the message, the lines after
+                it the long output, and the perfdata after <code>|</code>{' '}
+                becomes metrics.
+              </p>
+              <p>
+                A problem is <strong>soft</strong> until it has failed{' '}
+                <code>max_attempts</code> times in a row, then{' '}
+                <strong>hard</strong>, as in Icinga or Nagios: a single failed
+                poll does not alert. A hard CRITICAL or UNKNOWN opens an
+                incident, a return to OK resolves it at once, and a WARNING
+                neither opens nor resolves one. The check's current state is
+                what the checks page shows; its history is kept as the metric
+                series <code>command_state</code> (the exit code) and{' '}
+                <code>command_perfdata</code>, labelled with{' '}
+                <code>check</code>, <code>zone</code> and, for perfdata, the
+                perfdata <code>label</code>.
+              </p>
+              <p>
+                The collector asks for its zone's checks every 30 seconds,
+                spreads their first runs over their interval so they do not all
+                start in the same second, and posts results every 5 seconds.
+                While the platform is unreachable it keeps the results, up to
+                20 000, and sends them when it answers again. Run{' '}
+                <strong>one collector per zone</strong>: two collectors of the
+                same zone would both run every check.
               </p>
             </div>
 
@@ -8649,8 +8826,8 @@ locals {
                   }}>
                   Builds install URLs and shell snippets for a given install
                   token. It does not run anything on remote machines — pass the
-                  resulting command to a <code>cloud_init</code> script or a
-                  <code> remote-exec</code> provisioner yourself.
+                  resulting command to a <code>cloud_init</code> script
+                  yourself.
                 </p>
                 <p className='doc-endpoint-section-label'>Argument reference</p>
                 <table
@@ -8739,52 +8916,6 @@ locals {
                     </tr>
                   </tbody>
                 </table>
-                <p className='doc-endpoint-section-label'>
-                  Example — install on an existing machine over SSH
-                </p>
-                <p
-                  style={{
-                    fontSize: '0.875rem',
-                    color: 'var(--doc-muted)',
-                    marginBottom: '1rem',
-                  }}>
-                  For a machine Terraform didn't just create (so there's no{' '}
-                  <code>user_data</code>/cloud-init hook to attach to), run the
-                  install command over SSH with a <code>null_resource</code> +{' '}
-                  <code>remote-exec</code> provisioner instead:
-                </p>
-                <div className='doc-code-block'>
-                  <div className='doc-code-header'>
-                    Install on an existing host via remote-exec
-                  </div>
-                  <CodeBlock
-                    language='hcl'
-                    code={`resource "middmonitor_install_token" "fleet" {
-  name = "terraform-managed-fleet"
-}
-
-data "middmonitor_agent_install" "existing" {
-  install_token = middmonitor_install_token.fleet.token
-  os            = "linux"
-  arch          = "amd64"
-}
-
-resource "null_resource" "install_agent" {
-  connection {
-    type        = "ssh"
-    host        = "10.0.1.10"
-    user        = "ubuntu"
-    private_key = file("~/.ssh/id_ed25519")
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      data.middmonitor_agent_install.existing.curl_install_command,
-    ]
-  }
-}`}
-                  />
-                </div>
               </div>
 
               {/* ── Full production example ── */}
