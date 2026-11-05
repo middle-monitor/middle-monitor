@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"os"
 	"time"
@@ -38,6 +39,10 @@ func StartKafkaConsumers(db *sql.DB, opensearch *services.OpenSearchService) {
 	agentService := services.NewAgentService(db)
 
 	slog.Info("starting kafka consumers", "brokers", brokers)
+	ensureTopics(brokers, []string{
+		services.TopicTraces, services.TopicLogs, services.TopicMetrics, services.TopicSDKErrors,
+		services.TopicAgentMetrics, services.TopicCheckResults,
+	})
 
 	go consumeTopic(brokers, services.TopicTraces, "worker-group", func(msg kafka.Message) {
 		if otlpReceiver != nil {
@@ -108,6 +113,32 @@ func StartKafkaConsumers(db *sql.DB, opensearch *services.OpenSearchService) {
 			slog.Error("failed to process command results", "zone", batch.Zone, "count", len(batch.Results), "error", err)
 		}
 	})
+}
+
+// ensureTopics creates the consumed topics before their readers join the group.
+// They are otherwise created by the first message a receiver produces, and on
+// a fresh install that came after the readers joined: every reader of the
+// shared group then kept an empty assignment until the worker restarted,
+// partition watch notwithstanding.
+func ensureTopics(brokers string, topics []string) {
+	client := &kafka.Client{Addr: kafka.TCP(brokers), Timeout: 10 * time.Second}
+	req := &kafka.CreateTopicsRequest{}
+	for _, topic := range topics {
+		// -1 keeps the broker's defaults, as auto-creation does.
+		req.Topics = append(req.Topics, kafka.TopicConfig{Topic: topic, NumPartitions: -1, ReplicationFactor: -1})
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	res, err := client.CreateTopics(ctx, req)
+	if err != nil {
+		slog.Warn("kafka topics not created, a consumer may wait for its topic until restart", "error", err)
+		return
+	}
+	for topic, topicErr := range res.Errors {
+		if topicErr != nil && !errors.Is(topicErr, kafka.TopicAlreadyExists) {
+			slog.Warn("kafka topic not created", "topic", topic, "error", topicErr)
+		}
+	}
 }
 
 // consumeTopic reads messages from the topic
