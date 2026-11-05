@@ -134,6 +134,34 @@
           }
         }
       }
+    },
+    "collector": {
+      "type": "object",
+      "description": "Zone collector: runs the checks the platform assigns to this zone, with the commands declared on this machine. Off by default. The platform only sends variable values; the binary and the shape of its arguments stay in the command files.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "zone": {
+          "type": "string",
+          "description": "Zone this collector runs checks for. Required when enabled."
+        },
+        "commands": {
+          "description": "Glob or list of globs of files declaring the commands this collector may run, e.g. /etc/middle-monitor/commands.d/*.yaml. The first definition of a name wins.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
     }
   },
   "$defs": {

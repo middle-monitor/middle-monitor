@@ -51,6 +51,9 @@ type AgentConfig struct {
 	// Log files, Docker containers and Kubernetes pods tailed and shipped over
 	// OTLP. Off by default.
 	Logs LogsConfig `yaml:"logs"`
+	// Zone collector: runs the checks the platform assigns to a zone, with the
+	// commands declared on this machine. Off by default.
+	Collector CollectorConfig `yaml:"collector"`
 }
 
 type AgentRegistration struct {
@@ -103,6 +106,9 @@ func loadConfig(path string) (*AgentConfig, error) {
 		return nil, err
 	}
 	if err := PrepareLogs(&config.Logs); err != nil {
+		return nil, err
+	}
+	if err := PrepareCollector(&config.Collector); err != nil {
 		return nil, err
 	}
 

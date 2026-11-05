@@ -58,6 +58,11 @@ var (
 	errLogExport               = errors.New("failed to export logs")
 	errLogEncode               = errors.New("failed to encode log batch")
 	errJournalctl              = errors.New("journalctl stopped")
+	errCollectorZoneMissing    = errors.New("collector needs a zone")
+	errCommandName             = errors.New("command name must hold only letters, digits, _ . -")
+	errCommandPathNotAbsolute  = errors.New("command path must be absolute")
+	errCommandVarMissing       = errors.New("variable not provided")
+	errCommandVarInvalid       = errors.New("variable holds a nul or a line break")
 )
 
 // scrapeStatusError reports a target that answered with a non-200 status.
@@ -198,3 +203,27 @@ func (e *journalctlError) Error() string {
 }
 
 func (e *journalctlError) Unwrap() error { return errJournalctl }
+
+// commandError names the command definition a configuration error belongs to.
+type commandError struct {
+	Name string
+	Err  error
+}
+
+func (e *commandError) Error() string {
+	return fmt.Sprintf("command %s: %v", e.Name, e.Err)
+}
+
+func (e *commandError) Unwrap() error { return e.Err }
+
+// commandVarError names the check variable that could not fill a command.
+type commandVarError struct {
+	Name string
+	Err  error
+}
+
+func (e *commandVarError) Error() string {
+	return fmt.Sprintf("variable %s: %v", e.Name, e.Err)
+}
+
+func (e *commandVarError) Unwrap() error { return e.Err }
