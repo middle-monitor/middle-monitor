@@ -8157,27 +8157,6 @@ resource "middmonitor_service" "db_check" {
                     </tr>
                   </tbody>
                 </table>
-                <div className='doc-code-block'>
-                  <div className='doc-code-header'>
-                    Example — feed the token to a cloud-init script
-                  </div>
-                  <CodeBlock
-                    language='hcl'
-                    code={`resource "middmonitor_install_token" "fleet" {
-  name = "terraform-managed-fleet"
-}
-
-data "middmonitor_agent_install" "web" {
-  install_token = middmonitor_install_token.fleet.token
-}
-
-resource "aws_instance" "web" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.medium"
-  user_data     = "#!/bin/bash\\n\${data.middmonitor_agent_install.web.curl_install_command}"
-}`}
-                  />
-                </div>
               </div>
 
               {/* ── resource: middmonitor_host_group ── */}
@@ -8825,9 +8804,8 @@ locals {
                     marginBottom: '1rem',
                   }}>
                   Builds install URLs and shell snippets for a given install
-                  token. It does not run anything on remote machines — pass the
-                  resulting command to a <code>cloud_init</code> script
-                  yourself.
+                  token. It does not install anything: installing the agent on
+                  machines is the job of your configuration management tool.
                 </p>
                 <p className='doc-endpoint-section-label'>Argument reference</p>
                 <table
