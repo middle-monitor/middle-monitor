@@ -4,8 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strings"
+
+	"github.com/lib/pq"
 
 	"middle-monitor/backend/models"
 )
@@ -148,4 +151,45 @@ func (s *CollectorService) zoneChecks(orgID int64, zone string) ([]models.Collec
 		return nil, fmt.Errorf("%w: %w", ErrCollectorChecks, err)
 	}
 	return checks, nil
+}
+
+// commandStatusExpr maps a command check's current state (cs.state) to the
+// status the other checks use: unknown counts as failing, as an exit code 3
+// does in Nagios.
+const commandStatusExpr = `(CASE cs.state WHEN 'ok' THEN 'success' WHEN 'warning' THEN 'warning' ELSE 'failure' END)`
+
+// commandStateResults presents each command check's current state as its
+// latest result, so the views showing checks need no second code path.
+func (s *ServiceService) commandStateResults(serviceIDs []int64) map[int64][]models.ServiceResult {
+	byService := make(map[int64][]models.ServiceResult, len(serviceIDs))
+	if len(serviceIDs) == 0 {
+		return byService
+	}
+	rows, err := s.db.Query(`
+		SELECT cs.service_id, `+commandStatusExpr+`, cs.output, cs.duration_ms, cs.executed_at,
+		       json_build_object('state', cs.state, 'state_type', cs.state_type, 'attempt', cs.attempt,
+		                         'exit_code', cs.exit_code, 'long_output', cs.long_output,
+		                         'perfdata', cs.perfdata, 'collector', cs.collector)::text
+		  FROM command_check_states cs
+		 WHERE cs.service_id = ANY($1)`, pq.Array(serviceIDs))
+	if err != nil {
+		slog.Error("failed to fetch command check states", "services", len(serviceIDs), "error", err)
+		return byService
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var r models.ServiceResult
+		var output, metadata string
+		var duration sql.NullFloat64
+		if err := rows.Scan(&r.ServiceID, &r.Status, &output, &duration, &r.Timestamp, &metadata); err != nil {
+			continue
+		}
+		r.Message = &output
+		r.Metadata = &metadata
+		if duration.Valid {
+			r.Latency = &duration.Float64
+		}
+		byService[r.ServiceID] = []models.ServiceResult{r}
+	}
+	return byService
 }

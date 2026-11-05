@@ -130,3 +130,28 @@ func TestCommandResultsAlertOnHardTransitionsOnly(t *testing.T) {
 		t.Fatal("a replayed old result changed the state")
 	}
 }
+
+// The checks page reads its status and latest result from service_results for
+// every other type; a command check must show its stored state there instead
+// of staying "unknown" forever.
+func TestCommandCheckStateShowsInTheChecksList(t *testing.T) {
+	db := integrationDB(t)
+	org := seedOrg(t, db, "a")
+	check := seedCommandCheck(t, db, org, "disk-web1", "paris", 1)
+	batch := commandBatch(org, "paris", time.Now().UTC(), models.CommandResult{ServiceID: check, State: "critical", Output: "DISK CRITICAL - / 98%"})
+	if err := processCommandResults(db, nil, batch); err != nil {
+		t.Fatalf("process: %v", err)
+	}
+
+	svc := services.NewServiceService(db)
+	page, total, err := svc.GetServicesPageForOrg(org, "", "failing", "", "", "", 50, 0)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if total != 1 || page[0].Service.ID != check {
+		t.Fatalf("failing filter returned %d checks, want the command check", total)
+	}
+	if len(page[0].Results) != 1 || page[0].Results[0].Message == nil || *page[0].Results[0].Message != "DISK CRITICAL - / 98%" {
+		t.Fatalf("latest result %+v, want the plugin output", page[0].Results)
+	}
+}
