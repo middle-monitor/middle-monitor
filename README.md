@@ -32,6 +32,8 @@ the full product: run it yourself, or use the hosted version at
 ## What it does
 
 - **Checks**: HTTP, ping, SQL, TLS certificates and SNMP, run on a schedule from the backend.
+- **Nagios plugins**: the agent's collector mode runs your existing Nagios-compatible plugins,
+  including check_nrpe for machines only a satellite can reach ([docs](https://middlemonitor.io/docs#zone-collector)).
 - **Hosts**: a small agent reports CPU, memory, disk and network, and can scrape
   Prometheus endpoints (static, Nomad or DNS SRV discovery).
 - **Applications**: SDKs (or any OTLP exporter) send errors, traces, logs and Go profiles.
