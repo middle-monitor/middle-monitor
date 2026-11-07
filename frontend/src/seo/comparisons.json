@@ -80,7 +80,7 @@
       "competitor": "Nagios, Icinga and Zabbix",
       "h1": "An alternative to Nagios, Icinga and Zabbix without the configuration overhead",
       "lead": "Middle Monitor's agent collects CPU, memory, disk and network metrics automatically once installed, so the common case does not require writing per-check definitions by hand.",
-      "fair": "Nagios, Icinga and Zabbix are proven, self-hostable and endlessly extensible. If you need full on-premise control or have an established library of custom check plugins, that flexibility is real and hard to replace.",
+      "fair": "Nagios, Icinga and Zabbix are proven, self-hostable and endlessly extensible. If you rely on their configuration language, templates or redundant satellites, that depth is real and hard to replace: Middle Monitor runs your check plugins, but it does not import an existing Nagios or Icinga configuration, and each zone has a single collector.",
       "sections": [
         {
           "title": "Metrics without per-check definitions",
@@ -89,6 +89,10 @@
         {
           "title": "The check types you actually configure",
           "body": "HTTP and HTTPS with expected keywords and latency thresholds, ICMP ping, SQL connection checks, SSL certificate expiry, and SNMP. Checks are executed periodically by the Middle Monitor backend, so nothing has to be installed on the target."
+        },
+        {
+          "title": "Your Nagios plugins keep working",
+          "body": "Run the agent in collector mode on a machine that can reach your hosts, typically an existing satellite. It executes Nagios-compatible plugins from a list of commands declared on that machine, never arbitrary ones, and check_nrpe is just another command, so NRPE agents stay in place. Exit codes map to OK, WARNING, CRITICAL and UNKNOWN with soft and hard states, performance data is stored as metrics, and an incident opens only when a problem becomes hard. Command checks are created through the API, at intervals of 30 seconds or more."
         },
         {
           "title": "Alerting built in, not bolted on",
@@ -107,6 +111,10 @@
         {
           "q": "Does it support SNMP?",
           "a": "Yes, SNMP is one of the supported check types alongside HTTP, ping, SQL and certificate checks."
+        },
+        {
+          "q": "Can I keep my existing Nagios or Icinga check plugins?",
+          "a": "Yes. Declare each plugin as a command on a collector, then create command checks that call it with their own arguments. Plugin output, exit code and performance data are kept. The Zone collector section of the documentation walks through the setup."
         }
       ]
     },

@@ -61,7 +61,7 @@
     "alt-nagios": {
       "path": "/alternatives/nagios",
       "title": "Nagios, Icinga & Zabbix Alternative — Monitoring Without Check Config",
-      "description": "A simpler alternative to Nagios, Icinga and Zabbix. System metrics collected automatically by a one-command agent, plus HTTP, ping, SQL, certificate and SNMP checks with built-in alerting."
+      "description": "A simpler alternative to Nagios, Icinga and Zabbix: system metrics from a one-command agent, your existing Nagios plugins and NRPE checks, plus HTTP, ping, SQL, certificate and SNMP checks with built-in alerting."
     },
     "alt-new-relic": {
       "path": "/alternatives/new-relic",
