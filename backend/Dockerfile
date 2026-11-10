@@ -2,7 +2,7 @@
 # Builder stages run on the build machine and cross-compile for TARGETARCH, so
 # a multi-arch build never runs Go under emulation.
 # Stage 1: Build agent binaries
-FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS agent-builder
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS agent-builder
 WORKDIR /agent
 
 # The version stamped into the binaries and published by GET /api/v1/agents/latest.
@@ -23,7 +23,7 @@ RUN mkdir -p dist && \
     printf '%s\n' "${AGENT_VERSION}" > dist/VERSION
 
 # Stage 2: Build backend binaries
-FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS backend-builder
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS backend-builder
 ARG TARGETOS=linux
 ARG TARGETARCH
 WORKDIR /app
@@ -35,7 +35,7 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o receiver ./cmd/r
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o worker ./cmd/worker
 
 # Stage 3: Build payments service
-FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS payments-builder
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS payments-builder
 ARG TARGETOS=linux
 ARG TARGETARCH
 WORKDIR /app
@@ -45,7 +45,7 @@ COPY backend/ .
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o payments ./cmd/payments
 
 # Stage 4: Final payments image
-FROM alpine:3.19 AS payments
+FROM alpine:3.24 AS payments
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
 COPY --from=payments-builder /app/payments .
@@ -53,7 +53,7 @@ EXPOSE 8081
 CMD ["./payments"]
 
 # Stage 5: Final api image
-FROM alpine:3.19 AS api
+FROM alpine:3.24 AS api
 RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /app
 COPY --from=backend-builder /app/api .
@@ -66,7 +66,7 @@ EXPOSE 8080
 CMD ["./api"]
 
 # Stage 6: Final receiver image
-FROM alpine:3.19 AS receiver
+FROM alpine:3.24 AS receiver
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
 COPY --from=backend-builder /app/receiver .
@@ -79,7 +79,7 @@ EXPOSE 8081
 CMD ["./receiver"]
 
 # Stage 7: Final worker image
-FROM alpine:3.19 AS worker
+FROM alpine:3.24 AS worker
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
 COPY --from=backend-builder /app/worker .
