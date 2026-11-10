@@ -126,8 +126,17 @@ services:
       start_period: 60s
 
   kafka:
-    image: apache/kafka:3.7.0
+    image: apache/kafka:4.4.0
     restart: unless-stopped
+    # apache/kafka:3.7.0 wrote cluster.id=Some(<id>) into meta.properties and
+    # later images refuse to start on it, so normalize it before every start.
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        sed -i -E 's/^cluster\.id=Some\((.*)\)$$/cluster.id=\1/'
+        /var/lib/kafka/data/meta.properties 2>/dev/null;
+        exec /__cacert_entrypoint.sh /etc/kafka/docker/run
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
