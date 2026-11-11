@@ -444,9 +444,12 @@ export default function ServiceModal() {
         return;
       }
 
-      const interval = formData.service_interval || 60;
-      if (interval < 60 || interval > 3600) {
-        setError(t('service_modal.errors.interval_out_of_range'));
+      const intervalError = validateServiceField(
+        'service_interval',
+        formData.service_interval || 60,
+      );
+      if (intervalError) {
+        setError(intervalError);
         setSubmitting(false);
         return;
       }
