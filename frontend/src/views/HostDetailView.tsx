@@ -48,6 +48,9 @@ import { Skeleton, firstLoadCount } from '../components/Skeleton';
 import { HiOutlineWrenchScrewdriver, HiOutlineTrash } from 'react-icons/hi2';
 import { getServiceStatus, getResultValue } from '../utils/serviceStatus';
 
+// Stats, filters, table and header dot reuse ServicesView and HostsView classes; lazy routes no longer load them for us.
+import './ServicesView.css';
+import './HostsView.css';
 import './HostDetailView.css';
 
 // A fresh [] on every render gives each dependent useMemo a new identity and
